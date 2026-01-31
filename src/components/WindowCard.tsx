@@ -143,7 +143,7 @@ export function WindowCard({
         </div>
       </div>
 
-      <div className="p-2 max-h-80 overflow-y-auto">
+      <div className="p-2">
         <SortableContext
           items={window.tabs.map(t => `tab-${t.id}`)}
           strategy={verticalListSortingStrategy}
