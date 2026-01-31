@@ -20,6 +20,7 @@ just rebuild   # Clean + build
 - `src/services/tabOperations.ts` - Business logic (merge, sort, dedupe)
 - `src/hooks/` - React hooks for state management
 - `public/manifest.json` - Chrome extension manifest
+- `public/background.js` - Service worker for keyboard shortcuts
 
 ### Architecture Notes
 - Uses Chrome Extension Manifest V3
@@ -27,6 +28,7 @@ just rebuild   # Clean + build
 - Theme state persisted to localStorage
 - Real-time updates via Chrome event listeners in `useWindows` hook
 - Drag & drop via @dnd-kit library
+- Icons via @ant-design/icons
 
 ### Build Output
 The `vite.config.ts` has a custom plugin to fix HTML paths after build. Output structure:

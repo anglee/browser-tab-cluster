@@ -4,13 +4,16 @@ A Chrome browser extension for managing tabs and windows, similar to TabCluster.
 
 ## Features
 
-- **Search/filter tabs** - Real-time filtering by title or URL
+- **Search/filter tabs** - Real-time filtering by title or URL with Enter to switch to first match
 - **Close tabs/windows** - Close individual tabs or entire windows
 - **Drag & drop reorder** - Reorder tabs within a window
 - **Drag & drop between windows** - Move tabs from one window to another
 - **Merge windows** - Combine 2+ selected windows into one
 - **Sort tabs** - Organize tabs by domain or title
-- **Deduplicate tabs** - Find and remove duplicate tabs with confirmation
+- **Deduplicate tabs** - Instantly remove duplicate tabs
+- **Pin/Unpin tabs** - Pin indicator and toggle via context menu
+- **Multi-select tabs** - Checkbox selection with bulk actions (move, close)
+- **Keyboard navigation** - Tab through windows, arrow keys for tabs, Enter to activate
 - **Light/Dark theme** - Toggle theme with persistence
 
 ## Tech Stack
@@ -20,6 +23,7 @@ A Chrome browser extension for managing tabs and windows, similar to TabCluster.
 - **Vite** - Build tool with HMR
 - **Tailwind CSS** - Utility-first styling
 - **@dnd-kit** - Drag and drop
+- **@ant-design/icons** - Icon components
 - **Chrome Extension Manifest V3**
 
 ## Project Structure
@@ -27,6 +31,7 @@ A Chrome browser extension for managing tabs and windows, similar to TabCluster.
 ```
 ├── public/
 │   ├── manifest.json      # Chrome extension manifest
+│   ├── background.js      # Service worker for shortcuts
 │   └── icons/             # Extension icons
 ├── src/
 │   ├── components/        # React components
@@ -99,11 +104,24 @@ Note: For extension development, you'll need to build and reload the extension i
 1. Click the extension icon in Chrome toolbar, then "Open Tab Cluster"
 2. Or use the keyboard shortcut: **Option+M** (Mac) / **Alt+M** (Windows/Linux)
 3. Use the toolbar buttons to:
-   - Search tabs by typing in the search box
+   - Search tabs by typing in the search box (Enter switches to first match)
    - Select windows with checkboxes, then click merge icon to combine them
-   - Click dedupe icon to find and remove duplicate tabs
+   - Click dedupe icon to remove duplicate tabs
    - Click sort icon to sort all windows by domain
    - Click sun/moon icon to toggle light/dark theme
+
+### Keyboard Navigation
+
+- **Tab** - Move focus between window cards
+- **Arrow Up/Down** - Navigate tabs within a focused window
+- **Enter** - Activate focused tab or window
+- **Option+M / Alt+M** - Open Tab Cluster or focus search (selects existing text)
+
+### Multi-Select Tabs
+
+1. Hover over tabs to reveal checkboxes
+2. Select 2+ tabs to show bulk actions button
+3. Available actions: Move to New Window, Move to Window, Close All
 
 ## Keyboard Shortcut
 
