@@ -14,8 +14,7 @@ import { useTheme } from '../hooks/useTheme';
 import { Toolbar } from '../components/Toolbar';
 import { WindowCard } from '../components/WindowCard';
 import { DragOverlay } from '../components/DragOverlay';
-import { DuplicatesModal } from '../components/DuplicatesModal';
-import { TabInfo, DuplicateGroup, SortOption } from '../types';
+import { TabInfo, SortOption } from '../types';
 import {
   closeTab,
   closeWindow,
@@ -36,7 +35,6 @@ export default function App() {
   const { theme, toggleTheme } = useTheme();
   const [selectedWindows, setSelectedWindows] = useState<Set<number>>(new Set());
   const [activeTab, setActiveTab] = useState<TabInfo | null>(null);
-  const [duplicates, setDuplicates] = useState<DuplicateGroup[] | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -135,37 +133,30 @@ export default function App() {
     }
   };
 
-  const handleDedupe = (windowId: number) => {
+  const handleDedupe = async (windowId: number) => {
     const window = windows.find(w => w.id === windowId);
     if (window) {
       const dups = findDuplicates(window.tabs);
       if (dups.length > 0) {
-        setDuplicates(dups);
+        try {
+          await removeDuplicates(dups);
+        } catch (err) {
+          console.error('Failed to remove duplicates:', err);
+        }
       }
     }
   };
 
-  const handleDedupeAll = () => {
+  const handleDedupeAll = async () => {
     const allTabs = windows.flatMap(w => w.tabs);
     const dups = findDuplicates(allTabs);
     if (dups.length > 0) {
-      setDuplicates(dups);
-    }
-  };
-
-  const handleConfirmDedupe = async () => {
-    if (duplicates) {
       try {
-        await removeDuplicates(duplicates);
+        await removeDuplicates(dups);
       } catch (err) {
         console.error('Failed to remove duplicates:', err);
       }
     }
-    setDuplicates(null);
-  };
-
-  const handleCancelDedupe = () => {
-    setDuplicates(null);
   };
 
   const handleMerge = async () => {
@@ -324,15 +315,6 @@ export default function App() {
 
         <DragOverlay activeTab={activeTab} />
       </DndContext>
-
-      {duplicates && duplicates.length > 0 && (
-        <DuplicatesModal
-          duplicates={duplicates}
-          onConfirm={handleConfirmDedupe}
-          onCancel={handleCancelDedupe}
-          theme={theme}
-        />
-      )}
     </div>
   );
 }

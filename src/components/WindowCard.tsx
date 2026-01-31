@@ -4,6 +4,15 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { useDroppable } from '@dnd-kit/core';
+import {
+  FileTextOutlined,
+  PlusOutlined,
+  SelectOutlined,
+  RightOutlined,
+  CloseOutlined,
+  SortAscendingOutlined,
+  MergeOutlined,
+} from '@ant-design/icons';
 import { WindowInfo, SortOption } from '../types';
 import { TabItem } from './TabItem';
 
@@ -197,9 +206,7 @@ export function WindowCard({
                 }`}
                 title={`Actions for ${selectedTabCount} tabs`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
+                <FileTextOutlined className="text-base" />
                 <span className="text-xs font-medium">{selectedTabCount}</span>
               </button>
               {showActionsMenu && (
@@ -213,9 +220,7 @@ export function WindowCard({
                       isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
+                    <PlusOutlined className="text-base" />
                     Move to New Window
                   </button>
 
@@ -232,14 +237,10 @@ export function WindowCard({
                         }`}
                       >
                         <span className="flex items-center gap-2">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                          </svg>
+                          <SelectOutlined className="text-base" />
                           Move to Window
                         </span>
-                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-                        </svg>
+                        <RightOutlined className="text-xs" />
                       </button>
 
                       {showBulkWindowSubmenu && (
@@ -272,9 +273,7 @@ export function WindowCard({
                       isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                     }`}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <CloseOutlined className="text-base" />
                     Close All Tabs
                   </button>
                 </div>
@@ -291,9 +290,7 @@ export function WindowCard({
               }`}
               title="Sort tabs"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-              </svg>
+              <SortAscendingOutlined className="text-base" />
             </button>
             {showSortMenu && (
               <div className={`absolute right-0 top-full mt-1 py-1 w-36 rounded-lg shadow-lg z-10 border ${
@@ -329,9 +326,7 @@ export function WindowCard({
             }`}
             title="Remove duplicates"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
+            <MergeOutlined className="text-base" rotate={90} />
           </button>
 
           <button
@@ -342,9 +337,7 @@ export function WindowCard({
             }`}
             title="Close window"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <CloseOutlined className="text-base" />
           </button>
         </div>
       </div>
