@@ -6,6 +6,7 @@ import { TabInfo, WindowInfo } from '../types';
 interface TabItemProps {
   tab: TabInfo;
   windows: WindowInfo[];
+  isFocused?: boolean;
   onClose: (tabId: number) => void;
   onActivate: (tabId: number, windowId: number) => void;
   onMoveToWindow: (tabId: number, targetWindowId: number) => void;
@@ -16,6 +17,7 @@ interface TabItemProps {
 export function TabItem({
   tab,
   windows,
+  isFocused = false,
   onClose,
   onActivate,
   onMoveToWindow,
@@ -108,12 +110,13 @@ export function TabItem({
         isDark
           ? `hover:bg-gray-700 ${tab.active ? 'bg-gray-700' : ''}`
           : `hover:bg-gray-100 ${tab.active ? 'bg-gray-100' : ''}`
-      }`}
+      } ${isFocused ? (isDark ? 'bg-gray-700 ring-1 ring-blue-500' : 'bg-gray-100 ring-1 ring-blue-500') : ''}`}
       onClick={handleClick}
     >
       <div
         {...attributes}
         {...listeners}
+        tabIndex={-1}
         className={`cursor-grab active:cursor-grabbing p-1 ${
           isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
         }`}
@@ -147,6 +150,7 @@ export function TabItem({
       <div className="relative" ref={menuRef}>
         <button
           onClick={handleMenuClick}
+          tabIndex={-1}
           className={`p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded ${
             isDark ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200'
           } ${showMenu ? 'opacity-100' : ''}`}
@@ -164,6 +168,7 @@ export function TabItem({
           }`}>
             <button
               onClick={handleMoveToNewWindow}
+              tabIndex={-1}
               className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
                 isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
               }`}
@@ -182,6 +187,7 @@ export function TabItem({
                 onMouseLeave={() => setShowWindowSubmenu(false)}
               >
                 <button
+                  tabIndex={-1}
                   className={`w-full px-3 py-1.5 text-left text-sm flex items-center justify-between ${
                     isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
                   }`}
@@ -206,6 +212,7 @@ export function TabItem({
                       <button
                         key={w.id}
                         onClick={(e) => handleMoveToWindow(e, w.id)}
+                        tabIndex={-1}
                         className={`w-full px-3 py-1.5 text-left text-sm ${
                           isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
                         }`}
@@ -222,6 +229,7 @@ export function TabItem({
 
             <button
               onClick={handleCloseFromMenu}
+              tabIndex={-1}
               className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 text-red-500 ${
                 isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
               }`}
@@ -237,6 +245,7 @@ export function TabItem({
 
       <button
         onClick={handleClose}
+        tabIndex={-1}
         className={`p-1 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity ${
           isDark ? 'text-gray-500' : 'text-gray-400'
         }`}

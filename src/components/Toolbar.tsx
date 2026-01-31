@@ -43,6 +43,7 @@ export function Toolbar({
           placeholder="Search..."
           value={searchQuery}
           onChange={e => onSearchChange(e.target.value)}
+          autoFocus
           className={`w-full px-3 py-1.5 pl-8 text-sm border rounded focus:outline-none focus:border-blue-500 ${
             isDark
               ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400'
@@ -65,6 +66,7 @@ export function Toolbar({
         {searchQuery && (
           <button
             onClick={() => onSearchChange('')}
+            tabIndex={-1}
             className={`absolute right-2 top-1/2 -translate-y-1/2 ${
               isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
             }`}
@@ -90,6 +92,7 @@ export function Toolbar({
         <button
           onClick={onMerge}
           disabled={selectedCount < 2}
+          tabIndex={-1}
           className={`p-2 rounded transition-colors group relative ${
             selectedCount >= 2
               ? isDark
@@ -117,6 +120,7 @@ export function Toolbar({
         {/* Dedupe All */}
         <button
           onClick={onDedupeAll}
+          tabIndex={-1}
           className={`p-2 rounded transition-colors ${
             isDark
               ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
@@ -132,6 +136,7 @@ export function Toolbar({
         {/* Sort All */}
         <button
           onClick={onSortAll}
+          tabIndex={-1}
           className={`p-2 rounded transition-colors ${
             isDark
               ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
@@ -150,6 +155,7 @@ export function Toolbar({
         {/* Theme Toggle */}
         <button
           onClick={onToggleTheme}
+          tabIndex={-1}
           className={`p-2 rounded transition-colors ${
             isDark
               ? 'text-gray-300 hover:bg-gray-700 hover:text-white'

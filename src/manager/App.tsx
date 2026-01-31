@@ -92,6 +92,14 @@ export default function App() {
     }
   };
 
+  const handleFocusWindow = async (windowId: number) => {
+    try {
+      await chrome.windows.update(windowId, { focused: true });
+    } catch (err) {
+      console.error('Failed to focus window:', err);
+    }
+  };
+
   const handleMoveToWindow = async (tabId: number, targetWindowId: number) => {
     try {
       await moveTab(tabId, targetWindowId, -1);
@@ -282,6 +290,7 @@ export default function App() {
                 onCloseTab={handleCloseTab}
                 onCloseWindow={handleCloseWindow}
                 onActivateTab={handleActivateTab}
+                onFocusWindow={handleFocusWindow}
                 onMoveToWindow={handleMoveToWindow}
                 onMoveToNewWindow={handleMoveToNewWindow}
                 onSort={handleSort}
