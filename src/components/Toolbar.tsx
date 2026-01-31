@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import {
   AppstoreOutlined,
   SearchOutlined,
@@ -35,6 +36,28 @@ export function Toolbar({
   onToggleTheme,
 }: ToolbarProps) {
   const isDark = theme === 'dark';
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus search input when window gains focus or shortcut is pressed
+  useEffect(() => {
+    const handleWindowFocus = () => {
+      searchInputRef.current?.focus();
+    };
+
+    const handleMessage = (message: { action: string }) => {
+      if (message.action === 'focus-search') {
+        searchInputRef.current?.focus();
+      }
+    };
+
+    window.addEventListener('focus', handleWindowFocus);
+    chrome.runtime.onMessage.addListener(handleMessage);
+
+    return () => {
+      window.removeEventListener('focus', handleWindowFocus);
+      chrome.runtime.onMessage.removeListener(handleMessage);
+    };
+  }, []);
 
   return (
     <div className={`flex items-center gap-2 px-4 py-2 border-b ${
@@ -48,6 +71,7 @@ export function Toolbar({
       {/* Search */}
       <div className="relative flex-shrink-0 w-64">
         <input
+          ref={searchInputRef}
           type="text"
           placeholder="Search..."
           value={searchQuery}

@@ -15,6 +15,8 @@ function openTabCluster() {
       // Focus existing tab
       chrome.tabs.update(tabs[0].id, { active: true });
       chrome.windows.update(tabs[0].windowId, { focused: true });
+      // Send message to focus search input
+      chrome.tabs.sendMessage(tabs[0].id, { action: 'focus-search' });
     } else {
       // Open new tab
       chrome.tabs.create({ url: managerUrl });
