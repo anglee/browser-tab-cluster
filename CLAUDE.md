@@ -6,9 +6,11 @@ Read `README.md` for project overview, structure, and usage documentation.
 
 ### Build & Test
 ```bash
-npm install    # Install dependencies
-npm run build  # Build to dist/
-npm run dev    # Dev server (limited use for extensions)
+just build     # Build to dist/
+just install   # Install dependencies
+just dev       # Dev server (limited use for extensions)
+just clean     # Remove dist/
+just rebuild   # Clean + build
 ```
 
 ### Key Files
