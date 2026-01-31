@@ -116,6 +116,14 @@ export default function App() {
     }
   };
 
+  const handleTogglePin = async (tabId: number, pinned: boolean) => {
+    try {
+      await chrome.tabs.update(tabId, { pinned });
+    } catch (err) {
+      console.error('Failed to toggle pin:', err);
+    }
+  };
+
   const handleSort = async (windowId: number, option: SortOption) => {
     const window = windows.find(w => w.id === windowId);
     if (window) {
@@ -299,6 +307,7 @@ export default function App() {
                 onFocusWindow={handleFocusWindow}
                 onMoveToWindow={handleMoveToWindow}
                 onMoveToNewWindow={handleMoveToNewWindow}
+                onTogglePin={handleTogglePin}
                 onSort={handleSort}
                 onDedupe={handleDedupe}
                 theme={theme}

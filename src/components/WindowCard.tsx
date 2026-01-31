@@ -18,6 +18,7 @@ interface WindowCardProps {
   onFocusWindow: (windowId: number) => void;
   onMoveToWindow: (tabId: number, targetWindowId: number) => void;
   onMoveToNewWindow: (tabId: number) => void;
+  onTogglePin: (tabId: number, pinned: boolean) => void;
   onSort: (windowId: number, option: SortOption) => void;
   onDedupe: (windowId: number) => void;
   theme: 'light' | 'dark';
@@ -34,6 +35,7 @@ export function WindowCard({
   onFocusWindow,
   onMoveToWindow,
   onMoveToNewWindow,
+  onTogglePin,
   onSort,
   onDedupe,
   theme,
@@ -213,6 +215,7 @@ export function WindowCard({
               onActivate={onActivateTab}
               onMoveToWindow={onMoveToWindow}
               onMoveToNewWindow={onMoveToNewWindow}
+              onTogglePin={onTogglePin}
               theme={theme}
             />
           ))}

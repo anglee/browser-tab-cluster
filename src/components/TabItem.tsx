@@ -11,6 +11,7 @@ interface TabItemProps {
   onActivate: (tabId: number, windowId: number) => void;
   onMoveToWindow: (tabId: number, targetWindowId: number) => void;
   onMoveToNewWindow: (tabId: number) => void;
+  onTogglePin: (tabId: number, pinned: boolean) => void;
   theme: 'light' | 'dark';
 }
 
@@ -22,6 +23,7 @@ export function TabItem({
   onActivate,
   onMoveToWindow,
   onMoveToNewWindow,
+  onTogglePin,
   theme
 }: TabItemProps) {
   const [showMenu, setShowMenu] = useState(false);
@@ -92,6 +94,12 @@ export function TabItem({
     setShowMenu(false);
   };
 
+  const handleTogglePin = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onTogglePin(tab.id, !tab.pinned);
+    setShowMenu(false);
+  };
+
   const getFaviconUrl = () => {
     if (tab.favIconUrl && !tab.favIconUrl.startsWith('chrome://')) {
       return tab.favIconUrl;
@@ -126,6 +134,14 @@ export function TabItem({
         </svg>
       </div>
 
+      {tab.pinned && (
+        <span title="Pinned">
+          <svg className="w-3 h-3 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582a1 1 0 01.646.934v2.161a1 1 0 01-.646.934L11 11.516V15a1 1 0 01-.293.707l-1 1a1 1 0 01-1.414 0l-1-1A1 1 0 017 15v-3.484l-3.954-1.582A1 1 0 012.4 9V6.839a1 1 0 01.646-.934L7 4.323V3a1 1 0 011-1h2z" />
+          </svg>
+        </span>
+      )}
+
       <img
         src={getFaviconUrl()}
         alt=""
@@ -139,12 +155,6 @@ export function TabItem({
       <span className={`flex-1 text-sm truncate ${isDark ? 'text-gray-200' : 'text-gray-700'}`} title={tab.title}>
         {tab.title || 'Untitled'}
       </span>
-
-      {tab.pinned && (
-        <svg className="w-3 h-3 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582a1 1 0 01.646.934v2.161a1 1 0 01-.646.934L11 11.516V15a1 1 0 01-.293.707l-1 1a1 1 0 01-1.414 0l-1-1A1 1 0 017 15v-3.484l-3.954-1.582A1 1 0 012.4 9V6.839a1 1 0 01.646-.934L7 4.323V3a1 1 0 011-1h2z" />
-        </svg>
-      )}
 
       {/* Menu button */}
       <div className="relative" ref={menuRef}>
@@ -224,6 +234,19 @@ export function TabItem({
                 )}
               </div>
             )}
+
+            <button
+              onClick={handleTogglePin}
+              tabIndex={-1}
+              className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
+                isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582a1 1 0 01.646.934v2.161a1 1 0 01-.646.934L11 11.516V15a1 1 0 01-.293.707l-1 1a1 1 0 01-1.414 0l-1-1A1 1 0 017 15v-3.484l-3.954-1.582A1 1 0 012.4 9V6.839a1 1 0 01.646-.934L7 4.323V3a1 1 0 011-1h2z" />
+              </svg>
+              {tab.pinned ? 'Unpin' : 'Pin'}
+            </button>
 
             <div className={`my-1 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
 
