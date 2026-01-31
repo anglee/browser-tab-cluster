@@ -68,25 +68,25 @@ A Chrome browser extension for managing tabs and windows, similar to TabCluster.
 
 - Node.js 18+
 - npm
+- (Optional) [just](https://github.com/casey/just) - command runner
 
-### Setup
+### Setup & Build
 
+If `just` is installed:
 ```bash
-npm install
+just install   # Install dependencies
+just build     # Build to dist/
+just dev       # Dev server
+just clean     # Remove dist/
+just rebuild   # Clean + build
 ```
 
-### Build
-
+Otherwise use npm directly:
 ```bash
-npm run build
-```
-
-This outputs to `dist/` folder.
-
-### Development Mode
-
-```bash
-npm run dev
+npm install    # Install dependencies
+npm run build  # Build to dist/
+npm run dev    # Dev server
+rm -rf dist    # Remove dist/
 ```
 
 Note: For extension development, you'll need to build and reload the extension in Chrome after changes.

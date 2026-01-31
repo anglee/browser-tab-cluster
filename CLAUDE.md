@@ -5,12 +5,22 @@ Read `README.md` for project overview, structure, and usage documentation.
 ## Quick Reference
 
 ### Build & Test
+
+If `just` is installed:
 ```bash
-just build     # Build to dist/
 just install   # Install dependencies
+just build     # Build to dist/
 just dev       # Dev server (limited use for extensions)
 just clean     # Remove dist/
 just rebuild   # Clean + build
+```
+
+Otherwise use npm directly:
+```bash
+npm install    # Install dependencies
+npm run build  # Build to dist/
+npm run dev    # Dev server (limited use for extensions)
+rm -rf dist    # Remove dist/
 ```
 
 ### Key Files
