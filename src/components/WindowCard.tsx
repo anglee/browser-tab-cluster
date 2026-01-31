@@ -9,11 +9,14 @@ import { TabItem } from './TabItem';
 
 interface WindowCardProps {
   window: WindowInfo;
+  allWindows: WindowInfo[];
   isSelected: boolean;
   onSelect: (windowId: number, selected: boolean) => void;
   onCloseTab: (tabId: number) => void;
   onCloseWindow: (windowId: number) => void;
   onActivateTab: (tabId: number, windowId: number) => void;
+  onMoveToWindow: (tabId: number, targetWindowId: number) => void;
+  onMoveToNewWindow: (tabId: number) => void;
   onSort: (windowId: number, option: SortOption) => void;
   onDedupe: (windowId: number) => void;
   theme: 'light' | 'dark';
@@ -21,11 +24,14 @@ interface WindowCardProps {
 
 export function WindowCard({
   window,
+  allWindows,
   isSelected,
   onSelect,
   onCloseTab,
   onCloseWindow,
   onActivateTab,
+  onMoveToWindow,
+  onMoveToNewWindow,
   onSort,
   onDedupe,
   theme,
@@ -51,7 +57,7 @@ export function WindowCard({
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-lg border overflow-hidden ${
+      className={`rounded-lg border ${
         isDark ? 'bg-gray-800' : 'bg-white'
       } ${
         isOver ? 'border-blue-500 ring-2 ring-blue-500/50' : isDark ? 'border-gray-700' : 'border-gray-300'
@@ -152,8 +158,11 @@ export function WindowCard({
             <TabItem
               key={tab.id}
               tab={tab}
+              windows={allWindows}
               onClose={onCloseTab}
               onActivate={onActivateTab}
+              onMoveToWindow={onMoveToWindow}
+              onMoveToNewWindow={onMoveToNewWindow}
               theme={theme}
             />
           ))}

@@ -21,6 +21,7 @@ import {
   closeWindow,
   focusTab,
   moveTab,
+  createWindow,
 } from '../services/chromeApi';
 import {
   mergeWindows,
@@ -88,6 +89,22 @@ export default function App() {
       await focusTab(tabId, windowId);
     } catch (err) {
       console.error('Failed to activate tab:', err);
+    }
+  };
+
+  const handleMoveToWindow = async (tabId: number, targetWindowId: number) => {
+    try {
+      await moveTab(tabId, targetWindowId, -1);
+    } catch (err) {
+      console.error('Failed to move tab to window:', err);
+    }
+  };
+
+  const handleMoveToNewWindow = async (tabId: number) => {
+    try {
+      await createWindow([tabId]);
+    } catch (err) {
+      console.error('Failed to move tab to new window:', err);
     }
   };
 
@@ -259,11 +276,14 @@ export default function App() {
               <WindowCard
                 key={window.id}
                 window={window}
+                allWindows={windows}
                 isSelected={selectedWindows.has(window.id)}
                 onSelect={handleSelectWindow}
                 onCloseTab={handleCloseTab}
                 onCloseWindow={handleCloseWindow}
                 onActivateTab={handleActivateTab}
+                onMoveToWindow={handleMoveToWindow}
+                onMoveToNewWindow={handleMoveToNewWindow}
                 onSort={handleSort}
                 onDedupe={handleDedupe}
                 theme={theme}
