@@ -164,12 +164,18 @@ export default function App() {
     if (selectedWindows.size < 2) return;
 
     const windowIds = Array.from(selectedWindows);
-    const targetWindowId = windowIds[0];
-    const sourceWindowIds = windowIds.slice(1);
+
+    // If the current (focused) window is among selected, use it as target
+    // so we don't lose sight of the Tab Cluster
+    const focusedWindow = windows.find(w => w.focused && selectedWindows.has(w.id));
+    const targetWindowId = focusedWindow ? focusedWindow.id : windowIds[0];
+    const sourceWindowIds = windowIds.filter(id => id !== targetWindowId);
 
     try {
       await mergeWindows(sourceWindowIds, targetWindowId, windows);
       setSelectedWindows(new Set());
+      // Focus the target window to ensure Tab Cluster stays visible
+      await chrome.windows.update(targetWindowId, { focused: true });
     } catch (err) {
       console.error('Failed to merge windows:', err);
     }
