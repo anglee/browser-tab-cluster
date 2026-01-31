@@ -96,14 +96,24 @@ Note: For extension development, you'll need to build and reload the extension i
 
 ## Usage
 
-1. Click the extension icon in Chrome toolbar
-2. Click "Open Tab Cluster" to open the full manager page
+1. Click the extension icon in Chrome toolbar, then "Open Tab Cluster"
+2. Or use the keyboard shortcut: **Option+M** (Mac) / **Alt+M** (Windows/Linux)
 3. Use the toolbar buttons to:
    - Search tabs by typing in the search box
    - Select windows with checkboxes, then click merge icon to combine them
    - Click dedupe icon to find and remove duplicate tabs
    - Click sort icon to sort all windows by domain
    - Click sun/moon icon to toggle light/dark theme
+
+## Keyboard Shortcut
+
+The default shortcut to open Tab Cluster is **Option+M** (Mac) / **Alt+M** (Windows/Linux).
+
+To customize the shortcut:
+1. Go to `chrome://extensions/shortcuts`
+2. Find "Tab Cluster"
+3. Click the pencil icon next to "Open Tab Cluster"
+4. Press your desired key combination
 
 ## Chrome APIs Used
 
