@@ -42,11 +42,62 @@ export function WindowCard({
 }: WindowCardProps) {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [focusedTabIndex, setFocusedTabIndex] = useState<number>(-1);
+  const [selectedTabs, setSelectedTabs] = useState<Set<number>>(new Set());
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [showBulkWindowSubmenu, setShowBulkWindowSubmenu] = useState(false);
 
   const { setNodeRef, isOver } = useDroppable({
     id: `window-${window.id}`,
     data: { windowId: window.id },
   });
+
+  const handleTabCheck = (tabId: number, checked: boolean) => {
+    setSelectedTabs(prev => {
+      const next = new Set(prev);
+      if (checked) {
+        next.add(tabId);
+      } else {
+        next.delete(tabId);
+      }
+      return next;
+    });
+  };
+
+  const handleBulkMoveToNewWindow = () => {
+    const tabIds = Array.from(selectedTabs);
+    // Move all selected tabs to a new window
+    if (tabIds.length > 0) {
+      // Create new window with first tab, then move the rest
+      chrome.windows.create({ tabId: tabIds[0] }, (newWindow) => {
+        if (newWindow && tabIds.length > 1) {
+          tabIds.slice(1).forEach(tabId => {
+            chrome.tabs.move(tabId, { windowId: newWindow.id!, index: -1 });
+          });
+        }
+      });
+    }
+    setSelectedTabs(new Set());
+    setShowActionsMenu(false);
+  };
+
+  const handleBulkMoveToWindow = (targetWindowId: number) => {
+    const tabIds = Array.from(selectedTabs);
+    tabIds.forEach(tabId => {
+      onMoveToWindow(tabId, targetWindowId);
+    });
+    setSelectedTabs(new Set());
+    setShowActionsMenu(false);
+    setShowBulkWindowSubmenu(false);
+  };
+
+  const handleBulkClose = () => {
+    const tabIds = Array.from(selectedTabs);
+    tabIds.forEach(tabId => {
+      onCloseTab(tabId);
+    });
+    setSelectedTabs(new Set());
+    setShowActionsMenu(false);
+  };
 
   const handleCardKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -95,6 +146,8 @@ export function WindowCard({
   };
 
   const isDark = theme === 'dark';
+  const otherWindows = allWindows.filter(w => w.id !== window.id);
+  const selectedTabCount = selectedTabs.size;
 
   return (
     <div
@@ -133,6 +186,102 @@ export function WindowCard({
         </div>
 
         <div className="flex items-center gap-1">
+          {/* Bulk Actions Button - only visible when 2+ tabs selected */}
+          {selectedTabCount >= 2 && (
+            <div className="relative">
+              <button
+                onClick={() => setShowActionsMenu(!showActionsMenu)}
+                tabIndex={-1}
+                className={`p-1.5 rounded flex items-center gap-1 ${
+                  isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-gray-700' : 'text-blue-600 hover:text-blue-700 hover:bg-gray-200'
+                }`}
+                title={`Actions for ${selectedTabCount} tabs`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <span className="text-xs font-medium">{selectedTabCount}</span>
+              </button>
+              {showActionsMenu && (
+                <div className={`absolute right-0 top-full mt-1 py-1 w-48 rounded-lg shadow-lg z-20 border ${
+                  isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                }`}>
+                  <button
+                    onClick={handleBulkMoveToNewWindow}
+                    tabIndex={-1}
+                    className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
+                      isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Move to New Window
+                  </button>
+
+                  {otherWindows.length > 0 && (
+                    <div
+                      className="relative"
+                      onMouseEnter={() => setShowBulkWindowSubmenu(true)}
+                      onMouseLeave={() => setShowBulkWindowSubmenu(false)}
+                    >
+                      <button
+                        tabIndex={-1}
+                        className={`w-full px-3 py-1.5 text-left text-sm flex items-center justify-between ${
+                          isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                          </svg>
+                          Move to Window
+                        </span>
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                        </svg>
+                      </button>
+
+                      {showBulkWindowSubmenu && (
+                        <div className={`absolute left-full top-0 ml-1 py-1 w-40 rounded-lg shadow-lg z-30 border ${
+                          isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                        }`}>
+                          {otherWindows.map(w => (
+                            <button
+                              key={w.id}
+                              onClick={() => handleBulkMoveToWindow(w.id)}
+                              tabIndex={-1}
+                              className={`w-full px-3 py-1.5 text-left text-sm ${
+                                isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+                              }`}
+                            >
+                              Window {w.id} ({w.tabs.length})
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className={`my-1 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
+
+                  <button
+                    onClick={handleBulkClose}
+                    tabIndex={-1}
+                    className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 text-red-500 ${
+                      isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                    }`}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Close All Tabs
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="relative">
             <button
               onClick={() => setShowSortMenu(!showSortMenu)}
@@ -211,6 +360,8 @@ export function WindowCard({
               tab={tab}
               windows={allWindows}
               isFocused={focusedTabIndex === index}
+              isChecked={selectedTabs.has(tab.id)}
+              onToggleCheck={handleTabCheck}
               onClose={onCloseTab}
               onActivate={onActivateTab}
               onMoveToWindow={onMoveToWindow}

@@ -7,6 +7,8 @@ interface TabItemProps {
   tab: TabInfo;
   windows: WindowInfo[];
   isFocused?: boolean;
+  isChecked?: boolean;
+  onToggleCheck?: (tabId: number, checked: boolean) => void;
   onClose: (tabId: number) => void;
   onActivate: (tabId: number, windowId: number) => void;
   onMoveToWindow: (tabId: number, targetWindowId: number) => void;
@@ -19,6 +21,8 @@ export function TabItem({
   tab,
   windows,
   isFocused = false,
+  isChecked = false,
+  onToggleCheck,
   onClose,
   onActivate,
   onMoveToWindow,
@@ -121,6 +125,25 @@ export function TabItem({
       } ${isFocused ? (isDark ? 'bg-gray-700 ring-1 ring-blue-500' : 'bg-gray-100 ring-1 ring-blue-500') : ''}`}
       onClick={handleClick}
     >
+      {/* Checkbox for multi-select */}
+      <input
+        type="checkbox"
+        checked={isChecked}
+        onChange={(e) => {
+          e.stopPropagation();
+          onToggleCheck?.(tab.id, e.target.checked);
+        }}
+        onClick={(e) => e.stopPropagation()}
+        tabIndex={-1}
+        className={`w-3.5 h-3.5 rounded flex-shrink-0 cursor-pointer ${
+          isChecked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+        } transition-opacity ${
+          isDark
+            ? 'border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-800'
+            : 'border-gray-300 bg-white text-blue-500 focus:ring-blue-500 focus:ring-offset-white'
+        }`}
+      />
+
       <div
         {...attributes}
         {...listeners}
