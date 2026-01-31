@@ -279,7 +279,7 @@ export default function App() {
         onDragEnd={handleDragEnd}
       >
         <div className="flex-1 overflow-auto p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+          <div className="columns-1 md:columns-2 2xl:columns-3 gap-4">
             {filteredWindows.map(window => (
               <WindowCard
                 key={window.id}

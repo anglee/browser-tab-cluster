@@ -100,7 +100,7 @@ export function WindowCard({
       tabIndex={0}
       onKeyDown={handleCardKeyDown}
       onBlur={handleCardBlur}
-      className={`rounded-lg border outline-none ${
+      className={`rounded-lg border outline-none break-inside-avoid mb-4 ${
         isDark ? 'bg-gray-800' : 'bg-white'
       } ${
         isOver ? 'border-blue-500 ring-2 ring-blue-500/50' : isDark ? 'border-gray-700' : 'border-gray-300'
