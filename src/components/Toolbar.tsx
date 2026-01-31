@@ -13,6 +13,8 @@ import {
 interface ToolbarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
+  onSearchFocusChange: (focused: boolean) => void;
+  onSearchEnter: () => void;
   tabCount: number;
   windowCount: number;
   selectedCount: number;
@@ -26,6 +28,8 @@ interface ToolbarProps {
 export function Toolbar({
   searchQuery,
   onSearchChange,
+  onSearchFocusChange,
+  onSearchEnter,
   tabCount,
   windowCount,
   selectedCount,
@@ -38,23 +42,24 @@ export function Toolbar({
   const isDark = theme === 'dark';
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus search input when window gains focus or shortcut is pressed
+  // Focus search input and select text when window gains focus or shortcut is pressed
   useEffect(() => {
-    const handleWindowFocus = () => {
+    const focusAndSelectSearch = () => {
       searchInputRef.current?.focus();
+      searchInputRef.current?.select();
     };
 
     const handleMessage = (message: { action: string }) => {
       if (message.action === 'focus-search') {
-        searchInputRef.current?.focus();
+        focusAndSelectSearch();
       }
     };
 
-    window.addEventListener('focus', handleWindowFocus);
+    window.addEventListener('focus', focusAndSelectSearch);
     chrome.runtime.onMessage.addListener(handleMessage);
 
     return () => {
-      window.removeEventListener('focus', handleWindowFocus);
+      window.removeEventListener('focus', focusAndSelectSearch);
       chrome.runtime.onMessage.removeListener(handleMessage);
     };
   }, []);
@@ -76,6 +81,14 @@ export function Toolbar({
           placeholder="Search..."
           value={searchQuery}
           onChange={e => onSearchChange(e.target.value)}
+          onFocus={() => onSearchFocusChange(true)}
+          onBlur={() => onSearchFocusChange(false)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && searchQuery) {
+              e.preventDefault();
+              onSearchEnter();
+            }
+          }}
           autoFocus
           className={`w-full px-3 py-1.5 pl-8 text-sm border rounded focus:outline-none focus:border-blue-500 ${
             isDark

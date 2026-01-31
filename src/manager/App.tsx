@@ -35,6 +35,7 @@ export default function App() {
   const { theme, toggleTheme } = useTheme();
   const [selectedWindows, setSelectedWindows] = useState<Set<number>>(new Set());
   const [activeTab, setActiveTab] = useState<TabInfo | null>(null);
+  const [isSearchFocused, setIsSearchFocused] = useState(true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -190,6 +191,15 @@ export default function App() {
     }
   };
 
+  const handleSearchEnter = async () => {
+    // Activate the first tab of the first filtered window
+    const firstWindow = filteredWindows[0];
+    const firstTab = firstWindow?.tabs[0];
+    if (firstTab) {
+      await handleActivateTab(firstTab.id, firstWindow.id);
+    }
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const tabId = parseInt(String(active.id).replace('tab-', ''), 10);
@@ -267,6 +277,8 @@ export default function App() {
       <Toolbar
         searchQuery={query}
         onSearchChange={setQuery}
+        onSearchFocusChange={setIsSearchFocused}
+        onSearchEnter={handleSearchEnter}
         tabCount={totalTabs}
         windowCount={windows.length}
         selectedCount={selectedWindows.size}
@@ -285,12 +297,14 @@ export default function App() {
       >
         <div className="flex-1 overflow-auto p-4">
           <div className="columns-1 md:columns-2 2xl:columns-3 gap-4">
-            {filteredWindows.map(window => (
+            {filteredWindows.map((window, index) => (
               <WindowCard
                 key={window.id}
                 window={window}
                 allWindows={windows}
                 isSelected={selectedWindows.has(window.id)}
+                isFirstWindow={index === 0}
+                showSearchCandidate={isSearchFocused && query.length > 0}
                 onSelect={handleSelectWindow}
                 onCloseTab={handleCloseTab}
                 onCloseWindow={handleCloseWindow}

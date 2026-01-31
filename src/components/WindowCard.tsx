@@ -20,6 +20,8 @@ interface WindowCardProps {
   window: WindowInfo;
   allWindows: WindowInfo[];
   isSelected: boolean;
+  isFirstWindow: boolean;
+  showSearchCandidate: boolean;
   onSelect: (windowId: number, selected: boolean) => void;
   onCloseTab: (tabId: number) => void;
   onCloseWindow: (windowId: number) => void;
@@ -37,6 +39,8 @@ export function WindowCard({
   window,
   allWindows,
   isSelected,
+  isFirstWindow,
+  showSearchCandidate,
   onSelect,
   onCloseTab,
   onCloseWindow,
@@ -353,6 +357,7 @@ export function WindowCard({
               tab={tab}
               windows={allWindows}
               isFocused={focusedTabIndex === index}
+              isSearchCandidate={isFirstWindow && showSearchCandidate && index === 0}
               isChecked={selectedTabs.has(tab.id)}
               onToggleCheck={handleTabCheck}
               onClose={onCloseTab}
