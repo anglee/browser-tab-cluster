@@ -27,6 +27,7 @@ interface WindowCardProps {
   onSelect: (windowId: number, selected: boolean) => void;
   onCloseTab: (tabId: number) => void;
   onCloseWindow: (windowId: number) => void;
+  onFocusWindow: (windowId: number) => void;
   onActivateTab: (tabId: number, windowId: number) => void;
   onMoveToWindow: (tabId: number, targetWindowId: number) => void;
   onMoveToNewWindow: (tabId: number) => void;
@@ -46,6 +47,7 @@ export function WindowCard({
   onSelect,
   onCloseTab,
   onCloseWindow,
+  onFocusWindow,
   onActivateTab,
   onMoveToWindow,
   onMoveToNewWindow,
@@ -145,7 +147,10 @@ export function WindowCard({
               isDark ? 'border-gray-600 bg-gray-700 focus:ring-offset-gray-800' : 'border-gray-300 bg-white focus:ring-offset-white'
             }`}
           />
-          <span className={`text-sm font-medium ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+          <span
+            onClick={() => onFocusWindow(window.id)}
+            className={`text-sm font-medium cursor-pointer hover:underline ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
+          >
             Window {window.id}
             {window.focused && (
               <span className="ml-2 text-xs text-green-500">(current)</span>

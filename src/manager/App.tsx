@@ -802,6 +802,7 @@ export default function App() {
                   onSelect={handleSelectWindow}
                   onCloseTab={handleCloseTab}
                   onCloseWindow={handleCloseWindow}
+                  onFocusWindow={handleFocusWindow}
                   onActivateTab={handleActivateTab}
                   onMoveToWindow={handleMoveToWindow}
                   onMoveToNewWindow={handleMoveToNewWindow}
