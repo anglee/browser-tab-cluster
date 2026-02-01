@@ -25,10 +25,12 @@ rm -rf dist    # Remove dist/
 
 ### Key Files
 - `src/manager/App.tsx` - Main application component
-- `src/components/` - UI components (Toolbar, WindowCard, TabItem)
-- `src/services/chromeApi.ts` - Chrome API wrappers
+- `src/components/` - UI components (Toolbar, WindowCard, TabItem, RecentlyClosedCard, Tooltip, Submenu)
+- `src/services/chromeApi.ts` - Chrome API wrappers (windows, tabs, sessions)
 - `src/services/tabOperations.ts` - Business logic (merge, sort, dedupe)
-- `src/hooks/` - React hooks for state management
+- `src/hooks/useWindows.ts` - Windows/tabs state with real-time updates
+- `src/hooks/useRecentlyClosed.ts` - Recently closed tabs via sessions API
+- `src/hooks/useTheme.ts` - Theme persistence to localStorage
 - `public/manifest.json` - Chrome extension manifest
 - `public/background.js` - Service worker for keyboard shortcuts
 
@@ -91,3 +93,23 @@ Key design decisions and their motivations:
 ### Icons
 - Uses @ant-design/icons instead of inline SVGs
 - Rationale: Consistent icon style, easier to maintain and swap icons
+
+### Recently Closed Tabs
+- Chrome sessions API doesn't support deletion, so "Hide" stores session IDs in localStorage
+- Hidden IDs are capped at 50 entries to prevent unbounded growth
+- Auto-cleanup removes stale IDs when sessions expire or are restored
+- Rationale: Provides expected "delete" UX despite API limitation
+
+### Keyboard Shortcut Behavior
+- Option+M opens Tab Cluster in the currently focused window and pins it
+- If Tab Cluster exists in another window, it moves to the focused window
+- Rationale: Tab Cluster stays accessible in whichever window user is working
+
+### Tooltips
+- CSS-only implementation with 300ms delay using Tailwind
+- Uses named groups (`group/tooltip`) to avoid conflicts with parent hover states
+- Rationale: Lightweight, no JS overhead, consistent delay
+
+### Search Mode UI
+- Hides card action buttons during search (sort, dedupe, close window, restore all, clear all)
+- Rationale: These actions don't make sense on filtered results; cleaner UI during search

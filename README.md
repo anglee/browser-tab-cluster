@@ -5,6 +5,7 @@ A Chrome browser extension for managing tabs and windows, similar to TabCluster.
 ## Features
 
 - **Search/filter tabs** - Real-time filtering by title or URL with Enter to switch to first match
+- **Recently closed tabs** - View and restore recently closed tabs with multiple restore options
 - **Close tabs/windows** - Close individual tabs or entire windows
 - **Drag & drop reorder** - Reorder tabs within a window
 - **Drag & drop between windows** - Move tabs from one window to another
@@ -14,6 +15,7 @@ A Chrome browser extension for managing tabs and windows, similar to TabCluster.
 - **Pin/Unpin tabs** - Pin indicator and toggle via context menu
 - **Multi-select tabs** - Checkbox selection with bulk actions (move, close)
 - **Keyboard navigation** - Tab through windows, arrow keys for tabs, Enter to activate
+- **Click window name** - Click window name in card header to switch to that window
 - **Light/Dark theme** - Toggle theme with persistence
 
 ## Tech Stack
@@ -38,10 +40,15 @@ A Chrome browser extension for managing tabs and windows, similar to TabCluster.
 │   │   ├── Toolbar.tsx    # Top toolbar with actions
 │   │   ├── WindowCard.tsx # Window container
 │   │   ├── TabItem.tsx    # Individual tab row
+│   │   ├── RecentlyClosedCard.tsx # Recently closed tabs card
+│   │   ├── ClosedTabItem.tsx      # Individual closed tab row
+│   │   ├── Tooltip.tsx    # CSS-only tooltip component
+│   │   ├── Submenu.tsx    # Reusable submenu component
 │   │   ├── DragOverlay.tsx
 │   │   └── DuplicatesModal.tsx
 │   ├── hooks/
 │   │   ├── useWindows.ts  # Chrome windows API wrapper
+│   │   ├── useRecentlyClosed.ts # Chrome sessions API wrapper
 │   │   ├── useSearch.ts   # Search/filter logic
 │   │   └── useTheme.ts    # Theme toggle with persistence
 │   ├── services/
@@ -127,6 +134,11 @@ Note: For extension development, you'll need to build and reload the extension i
 
 The default shortcut to open Tab Cluster is **Option+M** (Mac) / **Alt+M** (Windows/Linux).
 
+When triggered, the shortcut:
+- Opens Tab Cluster in the currently focused window (or moves it there if already open)
+- Pins the Tab Cluster tab for quick access
+- Focuses the search input with existing text selected
+
 To customize the shortcut:
 1. Go to `chrome://extensions/shortcuts`
 2. Find "Tab Cluster"
@@ -143,10 +155,14 @@ To customize the shortcut:
 - `chrome.tabs.remove()` - Close tabs
 - `chrome.tabs.update()` - Activate tab
 - `chrome.tabs.onCreated/onRemoved/onUpdated` - Real-time updates
+- `chrome.sessions.getRecentlyClosed()` - Get recently closed tabs
+- `chrome.sessions.restore()` - Restore closed tabs
+- `chrome.sessions.onChanged` - Recently closed list updates
 
 ## Permissions
 
 The extension requires:
 - `tabs` - Access to tab information
 - `windows` - Access to window management
+- `sessions` - Access to recently closed tabs
 - `<all_urls>` - For favicon access
