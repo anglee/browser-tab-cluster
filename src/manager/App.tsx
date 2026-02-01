@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -11,7 +11,7 @@ import {
 import { useWindows } from '../hooks/useWindows';
 import { useSearch } from '../hooks/useSearch';
 import { useTheme } from '../hooks/useTheme';
-import { Toolbar } from '../components/Toolbar';
+import { Toolbar, ToolbarHandle } from '../components/Toolbar';
 import { WindowCard } from '../components/WindowCard';
 import { DragOverlay } from '../components/DragOverlay';
 import { TabInfo, SortOption } from '../types';
@@ -29,13 +29,19 @@ import {
   removeDuplicates,
 } from '../services/tabOperations';
 
+type FocusTarget =
+  | { type: 'search' }
+  | { type: 'card'; cardIndex: number }
+  | { type: 'tab'; cardIndex: number; tabIndex: number };
+
 export default function App() {
   const { windows, loading, error } = useWindows();
   const { query, setQuery, filteredWindows } = useSearch(windows);
   const { theme, toggleTheme } = useTheme();
   const [selectedWindows, setSelectedWindows] = useState<Set<number>>(new Set());
   const [activeTab, setActiveTab] = useState<TabInfo | null>(null);
-  const [isSearchFocused, setIsSearchFocused] = useState(true);
+  const [focus, setFocus] = useState<FocusTarget>({ type: 'search' });
+  const toolbarRef = useRef<ToolbarHandle>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -44,6 +50,182 @@ export default function App() {
       },
     })
   );
+
+  // Helper to focus search input
+  const focusSearchInput = useCallback(() => {
+    setFocus({ type: 'search' });
+    toolbarRef.current?.focusSearch();
+  }, []);
+
+  // Sync DOM focus with React focus state
+  useEffect(() => {
+    if (focus.type === 'search') {
+      // Focus the search input when React state says search is focused
+      toolbarRef.current?.focusSearch();
+    } else {
+      // Blur the search input when focus moves to card/tab
+      // This prevents the confusing dual-focus state
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }
+  }, [focus.type]);
+
+  // Global keyboard handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const cardCount = filteredWindows.length;
+      if (cardCount === 0) return;
+
+      // Escape: clear search and focus search input
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setQuery('');
+        focusSearchInput();
+        return;
+      }
+
+      // Get current focus context
+      const isSearchFocused = focus.type === 'search';
+      const currentCardIndex = focus.type === 'card' ? focus.cardIndex : focus.type === 'tab' ? focus.cardIndex : -1;
+
+      // Enter key
+      if (e.key === 'Enter') {
+        if (isSearchFocused) {
+          // Switch to first tab in first window
+          const firstWindow = filteredWindows[0];
+          const firstTab = firstWindow?.tabs[0];
+          if (firstTab) {
+            e.preventDefault();
+            handleActivateTab(firstTab.id, firstWindow.id);
+          }
+        } else if (focus.type === 'card') {
+          // Focus the Chrome window
+          e.preventDefault();
+          handleFocusWindow(filteredWindows[focus.cardIndex].id);
+        } else if (focus.type === 'tab') {
+          // Activate the tab
+          e.preventDefault();
+          const window = filteredWindows[focus.cardIndex];
+          const tab = window?.tabs[focus.tabIndex];
+          if (tab) {
+            handleActivateTab(tab.id, window.id);
+          }
+        }
+        return;
+      }
+
+      // Tab key (forward navigation)
+      if (e.key === 'Tab' && !e.shiftKey) {
+        e.preventDefault();
+        if (isSearchFocused) {
+          // → First card
+          setFocus({ type: 'card', cardIndex: 0 });
+        } else {
+          // → Next card (cycles: last → first)
+          const nextIndex = (currentCardIndex + 1) % cardCount;
+          setFocus({ type: 'card', cardIndex: nextIndex });
+        }
+        return;
+      }
+
+      // Shift+Tab (backward navigation)
+      if (e.key === 'Tab' && e.shiftKey) {
+        e.preventDefault();
+        if (isSearchFocused) {
+          // → Last card
+          setFocus({ type: 'card', cardIndex: cardCount - 1 });
+        } else {
+          // → Previous card (cycles: first → last)
+          const prevIndex = currentCardIndex <= 0 ? cardCount - 1 : currentCardIndex - 1;
+          setFocus({ type: 'card', cardIndex: prevIndex });
+        }
+        return;
+      }
+
+      // Down arrow
+      if (e.key === 'ArrowDown') {
+        if (isSearchFocused) {
+          e.preventDefault();
+          if (query.length > 0) {
+            // Has text → 2nd item in first window (1st is already highlighted as search candidate)
+            const firstWindow = filteredWindows[0];
+            if (firstWindow && firstWindow.tabs.length > 1) {
+              setFocus({ type: 'tab', cardIndex: 0, tabIndex: 1 });
+            } else if (firstWindow && firstWindow.tabs.length === 1) {
+              // Only one tab, stay on it
+              setFocus({ type: 'tab', cardIndex: 0, tabIndex: 0 });
+            }
+          } else {
+            // Empty → first card
+            setFocus({ type: 'card', cardIndex: 0 });
+          }
+        } else if (focus.type === 'card') {
+          e.preventDefault();
+          // → First tab in that card
+          const window = filteredWindows[focus.cardIndex];
+          if (window && window.tabs.length > 0) {
+            setFocus({ type: 'tab', cardIndex: focus.cardIndex, tabIndex: 0 });
+          }
+        } else if (focus.type === 'tab') {
+          e.preventDefault();
+          // → Next tab (cycles within card)
+          const window = filteredWindows[focus.cardIndex];
+          if (window) {
+            const nextIndex = (focus.tabIndex + 1) % window.tabs.length;
+            setFocus({ type: 'tab', cardIndex: focus.cardIndex, tabIndex: nextIndex });
+          }
+        }
+        return;
+      }
+
+      // Up arrow
+      if (e.key === 'ArrowUp') {
+        if (isSearchFocused) {
+          e.preventDefault();
+          // → Last item in first window
+          const firstWindow = filteredWindows[0];
+          if (firstWindow && firstWindow.tabs.length > 0) {
+            setFocus({ type: 'tab', cardIndex: 0, tabIndex: firstWindow.tabs.length - 1 });
+          }
+        } else if (focus.type === 'card') {
+          e.preventDefault();
+          // → Search input
+          focusSearchInput();
+        } else if (focus.type === 'tab') {
+          e.preventDefault();
+          // → Previous tab (cycles within card)
+          const window = filteredWindows[focus.cardIndex];
+          if (window) {
+            const prevIndex = focus.tabIndex <= 0 ? window.tabs.length - 1 : focus.tabIndex - 1;
+            setFocus({ type: 'tab', cardIndex: focus.cardIndex, tabIndex: prevIndex });
+          }
+        }
+        return;
+      }
+
+      // Left/Right arrows - only handle when focus is on card or tab (not search, to allow text editing)
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        if (focus.type === 'card' || focus.type === 'tab') {
+          e.preventDefault();
+          if (e.key === 'ArrowLeft') {
+            // → Previous card (cycles)
+            const prevIndex = currentCardIndex <= 0 ? cardCount - 1 : currentCardIndex - 1;
+            setFocus({ type: 'card', cardIndex: prevIndex });
+          } else {
+            // → Next card (cycles)
+            const nextIndex = (currentCardIndex + 1) % cardCount;
+            setFocus({ type: 'card', cardIndex: nextIndex });
+          }
+        }
+        // If focus is on search, let default behavior happen (cursor movement)
+        return;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [focus, filteredWindows, query, focusSearchInput, setQuery]);
 
   const totalTabs = useMemo(
     () => windows.reduce((sum, w) => sum + w.tabs.length, 0),
@@ -191,15 +373,6 @@ export default function App() {
     }
   };
 
-  const handleSearchEnter = async () => {
-    // Activate the first tab of the first filtered window
-    const firstWindow = filteredWindows[0];
-    const firstTab = firstWindow?.tabs[0];
-    if (firstTab) {
-      await handleActivateTab(firstTab.id, firstWindow.id);
-    }
-  };
-
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const tabId = parseInt(String(active.id).replace('tab-', ''), 10);
@@ -275,10 +448,10 @@ export default function App() {
   return (
     <div className={`flex flex-col h-screen ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'}`}>
       <Toolbar
+        ref={toolbarRef}
         searchQuery={query}
         onSearchChange={setQuery}
-        onSearchFocusChange={setIsSearchFocused}
-        onSearchEnter={handleSearchEnter}
+        onFocus={() => setFocus({ type: 'search' })}
         tabCount={totalTabs}
         windowCount={windows.length}
         selectedCount={selectedWindows.size}
@@ -297,27 +470,34 @@ export default function App() {
       >
         <div className="flex-1 overflow-auto p-4">
           <div className="columns-1 md:columns-2 2xl:columns-3 gap-4">
-            {filteredWindows.map((window, index) => (
-              <WindowCard
-                key={window.id}
-                window={window}
-                allWindows={windows}
-                isSelected={selectedWindows.has(window.id)}
-                isFirstWindow={index === 0}
-                showSearchCandidate={isSearchFocused && query.length > 0}
-                onSelect={handleSelectWindow}
-                onCloseTab={handleCloseTab}
-                onCloseWindow={handleCloseWindow}
-                onActivateTab={handleActivateTab}
-                onFocusWindow={handleFocusWindow}
-                onMoveToWindow={handleMoveToWindow}
-                onMoveToNewWindow={handleMoveToNewWindow}
-                onTogglePin={handleTogglePin}
-                onSort={handleSort}
-                onDedupe={handleDedupe}
-                theme={theme}
-              />
-            ))}
+            {filteredWindows.map((window, cardIndex) => {
+              const isCardFocused = focus.type === 'card' && focus.cardIndex === cardIndex;
+              const focusedTabIndex = focus.type === 'tab' && focus.cardIndex === cardIndex ? focus.tabIndex : -1;
+              // Show search candidate highlight on first tab of first card when search has text and focus is on search
+              const searchCandidateTabIndex = focus.type === 'search' && query.length > 0 && cardIndex === 0 ? 0 : -1;
+
+              return (
+                <WindowCard
+                  key={window.id}
+                  window={window}
+                  allWindows={windows}
+                  isSelected={selectedWindows.has(window.id)}
+                  isCardFocused={isCardFocused}
+                  focusedTabIndex={focusedTabIndex}
+                  searchCandidateTabIndex={searchCandidateTabIndex}
+                  onSelect={handleSelectWindow}
+                  onCloseTab={handleCloseTab}
+                  onCloseWindow={handleCloseWindow}
+                  onActivateTab={handleActivateTab}
+                  onMoveToWindow={handleMoveToWindow}
+                  onMoveToNewWindow={handleMoveToNewWindow}
+                  onTogglePin={handleTogglePin}
+                  onSort={handleSort}
+                  onDedupe={handleDedupe}
+                  theme={theme}
+                />
+              );
+            })}
           </div>
 
           {filteredWindows.length === 0 && query && (

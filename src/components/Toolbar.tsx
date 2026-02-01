@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
   AppstoreOutlined,
   SearchOutlined,
@@ -10,11 +10,14 @@ import {
   MoonOutlined,
 } from '@ant-design/icons';
 
+export interface ToolbarHandle {
+  focusSearch: () => void;
+}
+
 interface ToolbarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  onSearchFocusChange: (focused: boolean) => void;
-  onSearchEnter: () => void;
+  onFocus: () => void;
   tabCount: number;
   windowCount: number;
   selectedCount: number;
@@ -25,11 +28,10 @@ interface ToolbarProps {
   onToggleTheme: () => void;
 }
 
-export function Toolbar({
+export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar({
   searchQuery,
   onSearchChange,
-  onSearchFocusChange,
-  onSearchEnter,
+  onFocus,
   tabCount,
   windowCount,
   selectedCount,
@@ -38,15 +40,24 @@ export function Toolbar({
   onSortAll,
   theme,
   onToggleTheme,
-}: ToolbarProps) {
+}, ref) {
   const isDark = theme === 'dark';
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Expose focusSearch method to parent
+  useImperativeHandle(ref, () => ({
+    focusSearch: () => {
+      searchInputRef.current?.focus();
+      searchInputRef.current?.select();
+    }
+  }));
 
   // Focus search input and select text when window gains focus or shortcut is pressed
   useEffect(() => {
     const focusAndSelectSearch = () => {
       searchInputRef.current?.focus();
       searchInputRef.current?.select();
+      onFocus();
     };
 
     const handleMessage = (message: { action: string }) => {
@@ -62,7 +73,7 @@ export function Toolbar({
       window.removeEventListener('focus', focusAndSelectSearch);
       chrome.runtime.onMessage.removeListener(handleMessage);
     };
-  }, []);
+  }, [onFocus]);
 
   return (
     <div className={`flex items-center gap-2 px-4 py-2 border-b ${
@@ -81,14 +92,7 @@ export function Toolbar({
           placeholder="Search..."
           value={searchQuery}
           onChange={e => onSearchChange(e.target.value)}
-          onFocus={() => onSearchFocusChange(true)}
-          onBlur={() => onSearchFocusChange(false)}
-          onKeyDown={e => {
-            if (e.key === 'Enter' && searchQuery) {
-              e.preventDefault();
-              onSearchEnter();
-            }
-          }}
+          onFocus={onFocus}
           autoFocus
           className={`w-full px-3 py-1.5 pl-8 text-sm border rounded focus:outline-none focus:border-blue-500 ${
             isDark
@@ -200,4 +204,4 @@ export function Toolbar({
       </div>
     </div>
   );
-}
+});

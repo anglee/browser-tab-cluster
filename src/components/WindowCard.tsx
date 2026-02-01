@@ -20,13 +20,13 @@ interface WindowCardProps {
   window: WindowInfo;
   allWindows: WindowInfo[];
   isSelected: boolean;
-  isFirstWindow: boolean;
-  showSearchCandidate: boolean;
+  isCardFocused: boolean;
+  focusedTabIndex: number;
+  searchCandidateTabIndex: number;
   onSelect: (windowId: number, selected: boolean) => void;
   onCloseTab: (tabId: number) => void;
   onCloseWindow: (windowId: number) => void;
   onActivateTab: (tabId: number, windowId: number) => void;
-  onFocusWindow: (windowId: number) => void;
   onMoveToWindow: (tabId: number, targetWindowId: number) => void;
   onMoveToNewWindow: (tabId: number) => void;
   onTogglePin: (tabId: number, pinned: boolean) => void;
@@ -39,13 +39,13 @@ export function WindowCard({
   window,
   allWindows,
   isSelected,
-  isFirstWindow,
-  showSearchCandidate,
+  isCardFocused,
+  focusedTabIndex,
+  searchCandidateTabIndex,
   onSelect,
   onCloseTab,
   onCloseWindow,
   onActivateTab,
-  onFocusWindow,
   onMoveToWindow,
   onMoveToNewWindow,
   onTogglePin,
@@ -54,7 +54,6 @@ export function WindowCard({
   theme,
 }: WindowCardProps) {
   const [showSortMenu, setShowSortMenu] = useState(false);
-  const [focusedTabIndex, setFocusedTabIndex] = useState<number>(-1);
   const [selectedTabs, setSelectedTabs] = useState<Set<number>>(new Set());
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showBulkWindowSubmenu, setShowBulkWindowSubmenu] = useState(false);
@@ -112,43 +111,6 @@ export function WindowCard({
     setShowActionsMenu(false);
   };
 
-  const handleCardKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (focusedTabIndex >= 0) {
-        // Activate the focused tab
-        const tab = window.tabs[focusedTabIndex];
-        if (tab) {
-          onActivateTab(tab.id, window.id);
-        }
-      } else {
-        // Focus the window in Chrome
-        onFocusWindow(window.id);
-      }
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      if (window.tabs.length > 0) {
-        const newIndex = focusedTabIndex === -1 ? 0 : Math.min(focusedTabIndex + 1, window.tabs.length - 1);
-        setFocusedTabIndex(newIndex);
-      }
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (focusedTabIndex > 0) {
-        setFocusedTabIndex(focusedTabIndex - 1);
-      } else if (focusedTabIndex === 0) {
-        // Move back to card level (no tab highlighted)
-        setFocusedTabIndex(-1);
-      }
-    }
-  };
-
-  const handleCardBlur = (e: React.FocusEvent) => {
-    // Only reset if focus moved outside the card
-    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-      setFocusedTabIndex(-1);
-    }
-  };
-
   const handleSelectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSelect(window.id, e.target.checked);
   };
@@ -165,14 +127,11 @@ export function WindowCard({
   return (
     <div
       ref={setNodeRef}
-      tabIndex={0}
-      onKeyDown={handleCardKeyDown}
-      onBlur={handleCardBlur}
       className={`rounded-lg border outline-none break-inside-avoid mb-4 ${
         isDark ? 'bg-gray-800' : 'bg-white'
       } ${
         isOver ? 'border-blue-500 ring-2 ring-blue-500/50' : isDark ? 'border-gray-700' : 'border-gray-300'
-      } ${isSelected ? 'ring-2 ring-green-500/50' : ''} focus:ring-2 focus:ring-blue-500`}
+      } ${isSelected ? 'ring-2 ring-green-500/50' : ''} ${isCardFocused ? 'ring-2 ring-blue-500' : ''}`}
     >
       <div className={`flex items-center justify-between px-3 py-2 border-b ${
         isDark ? 'bg-gray-750 border-gray-700' : 'bg-gray-50 border-gray-200'
@@ -356,8 +315,7 @@ export function WindowCard({
               key={tab.id}
               tab={tab}
               windows={allWindows}
-              isFocused={focusedTabIndex === index}
-              isSearchCandidate={isFirstWindow && showSearchCandidate && index === 0}
+              hasFocus={focusedTabIndex === index || searchCandidateTabIndex === index}
               isChecked={selectedTabs.has(tab.id)}
               onToggleCheck={handleTabCheck}
               onClose={onCloseTab}

@@ -16,8 +16,7 @@ import { TabInfo, WindowInfo } from '../types';
 interface TabItemProps {
   tab: TabInfo;
   windows: WindowInfo[];
-  isFocused?: boolean;
-  isSearchCandidate?: boolean;
+  hasFocus?: boolean;
   isChecked?: boolean;
   onToggleCheck?: (tabId: number, checked: boolean) => void;
   onClose: (tabId: number) => void;
@@ -31,8 +30,7 @@ interface TabItemProps {
 export function TabItem({
   tab,
   windows,
-  isFocused = false,
-  isSearchCandidate = false,
+  hasFocus = false,
   isChecked = false,
   onToggleCheck,
   onClose,
@@ -134,9 +132,7 @@ export function TabItem({
         isDark
           ? `hover:bg-gray-700 ${tab.active ? 'bg-gray-700' : ''}`
           : `hover:bg-gray-100 ${tab.active ? 'bg-gray-100' : ''}`
-      } ${isFocused ? (isDark ? 'bg-gray-700 ring-1 ring-blue-500' : 'bg-gray-100 ring-1 ring-blue-500') : ''} ${
-        isSearchCandidate ? 'border border-dashed border-blue-500' : ''
-      }`}
+      } ${hasFocus ? 'border border-dashed border-blue-500' : ''}`}
       onClick={handleClick}
     >
       {/* Checkbox for multi-select */}
