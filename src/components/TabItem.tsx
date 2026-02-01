@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import { TabInfo, WindowInfo } from '../types';
 import { Submenu, SubmenuItem } from './Submenu';
+import { Tooltip } from './Tooltip';
 
 interface TabItemProps {
   tab: TabInfo;
@@ -116,6 +117,14 @@ export function TabItem({
     return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(tab.url)}&sz=32`;
   };
 
+  const getDomain = () => {
+    try {
+      return new URL(tab.url).hostname;
+    } catch {
+      return tab.url;
+    }
+  };
+
   const isDark = theme === 'dark';
   const otherWindows = windows.filter(w => w.id !== tab.windowId);
 
@@ -166,32 +175,37 @@ export function TabItem({
         </span>
       )}
 
-      <img
-        src={getFaviconUrl()}
-        alt=""
-        className="w-4 h-4 flex-shrink-0"
-        onError={e => {
-          (e.target as HTMLImageElement).src =
-            'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236b7280"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>';
-        }}
-      />
+      <Tooltip text={getDomain()} theme={theme}>
+        <img
+          src={getFaviconUrl()}
+          alt=""
+          className="w-4 h-4 flex-shrink-0"
+          onError={e => {
+            (e.target as HTMLImageElement).src =
+              'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236b7280"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>';
+          }}
+        />
+      </Tooltip>
 
-      <span className={`flex-1 text-sm truncate ${isDark ? 'text-gray-200' : 'text-gray-700'}`} title={tab.title}>
-        {tab.title || 'Untitled'}
-      </span>
+      <Tooltip text={tab.url} theme={theme} flex1 wrap>
+        <span className={`text-sm truncate block ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+          {tab.title || 'Untitled'}
+        </span>
+      </Tooltip>
 
       {/* Menu button */}
       <div className="relative" ref={menuRef}>
-        <button
-          onClick={handleMenuClick}
-          tabIndex={-1}
-          className={`p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded ${
-            isDark ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200'
-          } ${showMenu ? 'opacity-100' : ''}`}
-          title="More options"
-        >
-          <MoreOutlined className="text-xs" />
-        </button>
+        <Tooltip text="More options" theme={theme} position="bottom-right">
+          <button
+            onClick={handleMenuClick}
+            tabIndex={-1}
+            className={`p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded ${
+              isDark ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200'
+            } ${showMenu ? 'opacity-100' : ''}`}
+          >
+            <MoreOutlined className="text-xs" />
+          </button>
+        </Tooltip>
 
         {/* Dropdown menu */}
         {showMenu && (
@@ -255,16 +269,17 @@ export function TabItem({
         )}
       </div>
 
-      <button
-        onClick={handleClose}
-        tabIndex={-1}
-        className={`p-1 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity ${
-          isDark ? 'text-gray-500' : 'text-gray-400'
-        }`}
-        title="Close tab"
-      >
-        <CloseOutlined className="text-xs" />
-      </button>
+      <Tooltip text="Close tab" theme={theme} position="bottom-right">
+        <button
+          onClick={handleClose}
+          tabIndex={-1}
+          className={`p-1 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity ${
+            isDark ? 'text-gray-500' : 'text-gray-400'
+          }`}
+        >
+          <CloseOutlined className="text-xs" />
+        </button>
+      </Tooltip>
     </div>
   );
 }

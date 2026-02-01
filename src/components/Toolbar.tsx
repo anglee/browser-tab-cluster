@@ -9,6 +9,7 @@ import {
   SunOutlined,
   MoonOutlined,
 } from '@ant-design/icons';
+import { Tooltip } from './Tooltip';
 
 export interface ToolbarHandle {
   focusSearch: () => void;
@@ -127,80 +128,88 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
       {/* Action buttons */}
       <div className="flex items-center gap-1">
         {/* Merge Windows */}
-        <button
-          onClick={onMerge}
-          disabled={selectedCount < 2}
-          tabIndex={-1}
-          className={`p-2 rounded transition-colors group relative ${
-            selectedCount >= 2
-              ? isDark
-                ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-              : isDark
-                ? 'text-gray-600 cursor-not-allowed'
-                : 'text-gray-400 cursor-not-allowed'
-          }`}
-          title={selectedCount >= 2 ? `Merge ${selectedCount} windows` : 'Merge windows. Select 2 or more windows first'}
+        <Tooltip
+          text={selectedCount >= 2 ? `Merge ${selectedCount} windows` : 'Select 2+ windows to merge'}
+          theme={theme}
+          position="bottom-right"
         >
-          <ForkOutlined className="text-lg" />
-          {selectedCount >= 2 && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 text-xs bg-green-500 text-white rounded-full flex items-center justify-center">
-              {selectedCount}
-            </span>
-          )}
-        </button>
+          <button
+            onClick={onMerge}
+            disabled={selectedCount < 2}
+            tabIndex={-1}
+            className={`p-2 rounded transition-colors relative ${
+              selectedCount >= 2
+                ? isDark
+                  ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                : isDark
+                  ? 'text-gray-600 cursor-not-allowed'
+                  : 'text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            <ForkOutlined className="text-lg" />
+            {selectedCount >= 2 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 text-xs bg-green-500 text-white rounded-full flex items-center justify-center">
+                {selectedCount}
+              </span>
+            )}
+          </button>
+        </Tooltip>
 
         {/* Divider */}
         <div className={`w-px h-6 mx-1 ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`} />
 
         {/* Dedupe All */}
-        <button
-          onClick={onDedupeAll}
-          tabIndex={-1}
-          className={`p-2 rounded transition-colors ${
-            isDark
-              ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-          }`}
-          title="Remove all duplicates"
-        >
-          <MergeOutlined className="text-lg" rotate={90} />
-        </button>
+        <Tooltip text="Remove all duplicates" theme={theme} position="bottom-right">
+          <button
+            onClick={onDedupeAll}
+            tabIndex={-1}
+            className={`p-2 rounded transition-colors ${
+              isDark
+                ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+            }`}
+          >
+            <MergeOutlined className="text-lg" rotate={90} />
+          </button>
+        </Tooltip>
 
         {/* Sort All */}
-        <button
-          onClick={onSortAll}
-          tabIndex={-1}
-          className={`p-2 rounded transition-colors ${
-            isDark
-              ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-          }`}
-          title="Sort all windows by domain"
-        >
-          <SortAscendingOutlined className="text-lg" />
-        </button>
+        <Tooltip text="Sort all windows by domain" theme={theme} position="bottom-right">
+          <button
+            onClick={onSortAll}
+            tabIndex={-1}
+            className={`p-2 rounded transition-colors ${
+              isDark
+                ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+            }`}
+          >
+            <SortAscendingOutlined className="text-lg" />
+          </button>
+        </Tooltip>
 
         {/* Divider */}
         <div className={`w-px h-6 mx-1 ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`} />
 
         {/* Theme Toggle */}
-        <button
-          onClick={onToggleTheme}
-          tabIndex={-1}
-          className={`p-2 rounded transition-colors ${
-            isDark
-              ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-          }`}
-          title="Toggle theme"
-        >
-          {theme === 'dark' ? (
-            <SunOutlined className="text-lg" />
-          ) : (
-            <MoonOutlined className="text-lg" />
-          )}
-        </button>
+        <Tooltip text="Toggle theme" theme={theme} position="bottom-right">
+          <button
+            onClick={onToggleTheme}
+            tabIndex={-1}
+            className={`p-2 rounded transition-colors ${
+              isDark
+                ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+            }`}
+          >
+            {theme === 'dark' ? (
+              <SunOutlined className="text-lg" />
+            ) : (
+              <MoonOutlined className="text-lg" />
+            )}
+          </button>
+        </Tooltip>
       </div>
     </div>
   );

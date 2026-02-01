@@ -12,6 +12,7 @@ import {
 import { ClosedTabInfo, WindowInfo } from '../types';
 import { ClosedTabItem } from './ClosedTabItem';
 import { Submenu, SubmenuItem } from './Submenu';
+import { Tooltip } from './Tooltip';
 
 interface RecentlyClosedCardProps {
   closedTabs: ClosedTabInfo[];
@@ -162,19 +163,20 @@ export function RecentlyClosedCard({
           {/* Bulk Actions Button - only visible when 2+ tabs selected */}
           {selectedTabCount >= 2 && (
             <div className="relative">
-              <button
-                onClick={() => setShowActionsMenu(!showActionsMenu)}
-                tabIndex={-1}
-                className={`p-1.5 rounded flex items-center gap-1 ${
-                  isDark
-                    ? 'text-blue-400 hover:text-blue-300 hover:bg-gray-700'
-                    : 'text-blue-600 hover:text-blue-700 hover:bg-gray-200'
-                }`}
-                title={`Actions for ${selectedTabCount} tabs`}
-              >
-                <FileTextOutlined className="text-base" />
-                <span className="text-xs font-medium">{selectedTabCount}</span>
-              </button>
+              <Tooltip text={`Actions for ${selectedTabCount} tabs`} theme={theme} position="bottom-right">
+                <button
+                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                  tabIndex={-1}
+                  className={`p-1.5 rounded flex items-center gap-1 ${
+                    isDark
+                      ? 'text-blue-400 hover:text-blue-300 hover:bg-gray-700'
+                      : 'text-blue-600 hover:text-blue-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <FileTextOutlined className="text-base" />
+                  <span className="text-xs font-medium">{selectedTabCount}</span>
+                </button>
+              </Tooltip>
               {showActionsMenu && (
                 <div
                   className={`absolute right-0 top-full mt-1 py-1 w-56 rounded-lg shadow-lg z-20 border ${
@@ -254,18 +256,19 @@ export function RecentlyClosedCard({
           )}
 
           <div className="relative">
-            <button
-              onClick={handleRestoreAllClick}
-              tabIndex={-1}
-              className={`p-1.5 rounded ${
-                isDark
-                  ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
-              }`}
-              title="Restore all"
-            >
-              <ReloadOutlined className="text-base" />
-            </button>
+            <Tooltip text="Restore all" theme={theme} position="bottom-right">
+              <button
+                onClick={handleRestoreAllClick}
+                tabIndex={-1}
+                className={`p-1.5 rounded ${
+                  isDark
+                    ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <ReloadOutlined className="text-base" />
+              </button>
+            </Tooltip>
             {showRestoreAllConfirm && (
               <div
                 className={`absolute right-0 top-full mt-1 p-3 w-56 rounded-lg shadow-lg z-20 border ${
@@ -300,16 +303,17 @@ export function RecentlyClosedCard({
           </div>
 
           <div className="relative">
-            <button
-              onClick={handleClearAllClick}
-              tabIndex={-1}
-              className={`p-1.5 rounded hover:text-red-400 ${
-                isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-200'
-              }`}
-              title="Clear all"
-            >
-              <DeleteOutlined className="text-base" />
-            </button>
+            <Tooltip text="Clear all" theme={theme} position="bottom-right">
+              <button
+                onClick={handleClearAllClick}
+                tabIndex={-1}
+                className={`p-1.5 rounded hover:text-red-400 ${
+                  isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-200'
+                }`}
+              >
+                <DeleteOutlined className="text-base" />
+              </button>
+            </Tooltip>
             {showClearAllConfirm && (
               <div
                 className={`absolute right-0 top-full mt-1 p-3 w-56 rounded-lg shadow-lg z-20 border ${

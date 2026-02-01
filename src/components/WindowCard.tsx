@@ -15,6 +15,7 @@ import {
 import { WindowInfo, SortOption } from '../types';
 import { TabItem } from './TabItem';
 import { Submenu, SubmenuItem } from './Submenu';
+import { Tooltip } from './Tooltip';
 
 interface WindowCardProps {
   window: WindowInfo;
@@ -159,17 +160,18 @@ export function WindowCard({
           {/* Bulk Actions Button - only visible when 2+ tabs selected */}
           {selectedTabCount >= 2 && (
             <div className="relative">
-              <button
-                onClick={() => setShowActionsMenu(!showActionsMenu)}
-                tabIndex={-1}
-                className={`p-1.5 rounded flex items-center gap-1 ${
-                  isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-gray-700' : 'text-blue-600 hover:text-blue-700 hover:bg-gray-200'
-                }`}
-                title={`Actions for ${selectedTabCount} tabs`}
-              >
-                <FileTextOutlined className="text-base" />
-                <span className="text-xs font-medium">{selectedTabCount}</span>
-              </button>
+              <Tooltip text={`Actions for ${selectedTabCount} tabs`} theme={theme} position="bottom-right">
+                <button
+                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                  tabIndex={-1}
+                  className={`p-1.5 rounded flex items-center gap-1 ${
+                    isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-gray-700' : 'text-blue-600 hover:text-blue-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <FileTextOutlined className="text-base" />
+                  <span className="text-xs font-medium">{selectedTabCount}</span>
+                </button>
+              </Tooltip>
               {showActionsMenu && (
                 <div className={`absolute right-0 top-full mt-1 py-1 w-48 rounded-lg shadow-lg z-20 border ${
                   isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
@@ -221,16 +223,17 @@ export function WindowCard({
           )}
 
           <div className="relative">
-            <button
-              onClick={() => setShowSortMenu(!showSortMenu)}
-              tabIndex={-1}
-              className={`p-1.5 rounded ${
-                isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
-              }`}
-              title="Sort tabs"
-            >
-              <SortAscendingOutlined className="text-base" />
-            </button>
+            <Tooltip text="Sort tabs" theme={theme} position="bottom-right">
+              <button
+                onClick={() => setShowSortMenu(!showSortMenu)}
+                tabIndex={-1}
+                className={`p-1.5 rounded ${
+                  isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <SortAscendingOutlined className="text-base" />
+              </button>
+            </Tooltip>
             {showSortMenu && (
               <div className={`absolute right-0 top-full mt-1 py-1 w-36 rounded-lg shadow-lg z-10 border ${
                 isDark ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'
@@ -257,27 +260,29 @@ export function WindowCard({
             )}
           </div>
 
-          <button
-            onClick={() => onDedupe(window.id)}
-            tabIndex={-1}
-            className={`p-1.5 rounded ${
-              isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
-            }`}
-            title="Remove duplicates"
-          >
-            <MergeOutlined className="text-base" rotate={90} />
-          </button>
+          <Tooltip text="Remove duplicates" theme={theme} position="bottom-right">
+            <button
+              onClick={() => onDedupe(window.id)}
+              tabIndex={-1}
+              className={`p-1.5 rounded ${
+                isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <MergeOutlined className="text-base" rotate={90} />
+            </button>
+          </Tooltip>
 
-          <button
-            onClick={() => onCloseWindow(window.id)}
-            tabIndex={-1}
-            className={`p-1.5 rounded hover:text-red-400 ${
-              isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-200'
-            }`}
-            title="Close window"
-          >
-            <CloseOutlined className="text-base" />
-          </button>
+          <Tooltip text="Close window" theme={theme} position="bottom-right">
+            <button
+              onClick={() => onCloseWindow(window.id)}
+              tabIndex={-1}
+              className={`p-1.5 rounded hover:text-red-400 ${
+                isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-200'
+              }`}
+            >
+              <CloseOutlined className="text-base" />
+            </button>
+          </Tooltip>
         </div>
       </div>
 
