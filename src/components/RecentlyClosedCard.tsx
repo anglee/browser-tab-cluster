@@ -20,6 +20,7 @@ interface RecentlyClosedCardProps {
   isCardFocused: boolean;
   focusedTabIndex: number;
   searchCandidateTabIndex: number;
+  isSearching: boolean;
   // Single item handlers (switch to restored tab)
   onRestore: (sessionId: string) => void;
   onRestoreInNewWindow: (sessionId: string) => void;
@@ -42,6 +43,7 @@ export function RecentlyClosedCard({
   isCardFocused,
   focusedTabIndex,
   searchCandidateTabIndex,
+  isSearching,
   onRestore,
   onRestoreInNewWindow,
   onRestoreInCurrentWindow,
@@ -255,97 +257,101 @@ export function RecentlyClosedCard({
             </div>
           )}
 
-          <div className="relative">
-            <Tooltip text="Restore all" theme={theme} position="bottom-right">
-              <button
-                onClick={handleRestoreAllClick}
-                tabIndex={-1}
-                className={`p-1.5 rounded ${
-                  isDark
-                    ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <ReloadOutlined className="text-base" />
-              </button>
-            </Tooltip>
-            {showRestoreAllConfirm && (
-              <div
-                className={`absolute right-0 top-full mt-1 p-3 w-56 rounded-lg shadow-lg z-20 border ${
-                  isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-                }`}
-              >
-                <p className={`text-sm mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
-                  Restore all {closedTabs.length} tabs in a new window?
-                </p>
-                <div className="flex gap-2 justify-end">
+          {!isSearching && (
+            <>
+              <div className="relative">
+                <Tooltip text="Restore all" theme={theme} position="bottom-right">
                   <button
-                    onClick={() => setShowRestoreAllConfirm(false)}
+                    onClick={handleRestoreAllClick}
                     tabIndex={-1}
-                    className={`px-3 py-1 text-sm rounded ${
+                    className={`p-1.5 rounded ${
                       isDark
-                        ? 'text-gray-300 hover:bg-gray-700'
-                        : 'text-gray-600 hover:bg-gray-100'
+                        ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    Cancel
+                    <ReloadOutlined className="text-base" />
                   </button>
-                  <button
-                    onClick={handleRestoreAllConfirm}
-                    tabIndex={-1}
-                    className="px-3 py-1 text-sm rounded bg-blue-500 text-white hover:bg-blue-600"
+                </Tooltip>
+                {showRestoreAllConfirm && (
+                  <div
+                    className={`absolute right-0 top-full mt-1 p-3 w-56 rounded-lg shadow-lg z-20 border ${
+                      isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                    }`}
                   >
-                    Restore
-                  </button>
-                </div>
+                    <p className={`text-sm mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                      Restore all {closedTabs.length} tabs in a new window?
+                    </p>
+                    <div className="flex gap-2 justify-end">
+                      <button
+                        onClick={() => setShowRestoreAllConfirm(false)}
+                        tabIndex={-1}
+                        className={`px-3 py-1 text-sm rounded ${
+                          isDark
+                            ? 'text-gray-300 hover:bg-gray-700'
+                            : 'text-gray-600 hover:bg-gray-100'
+                        }`}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleRestoreAllConfirm}
+                        tabIndex={-1}
+                        className="px-3 py-1 text-sm rounded bg-blue-500 text-white hover:bg-blue-600"
+                      >
+                        Restore
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <div className="relative">
-            <Tooltip text="Clear all" theme={theme} position="bottom-right">
-              <button
-                onClick={handleClearAllClick}
-                tabIndex={-1}
-                className={`p-1.5 rounded hover:text-red-400 ${
-                  isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-200'
-                }`}
-              >
-                <DeleteOutlined className="text-base" />
-              </button>
-            </Tooltip>
-            {showClearAllConfirm && (
-              <div
-                className={`absolute right-0 top-full mt-1 p-3 w-56 rounded-lg shadow-lg z-20 border ${
-                  isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-                }`}
-              >
-                <p className={`text-sm mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
-                  Clear all recently closed tabs? This cannot be undone.
-                </p>
-                <div className="flex gap-2 justify-end">
+              <div className="relative">
+                <Tooltip text="Clear all" theme={theme} position="bottom-right">
                   <button
-                    onClick={() => setShowClearAllConfirm(false)}
+                    onClick={handleClearAllClick}
                     tabIndex={-1}
-                    className={`px-3 py-1 text-sm rounded ${
-                      isDark
-                        ? 'text-gray-300 hover:bg-gray-700'
-                        : 'text-gray-600 hover:bg-gray-100'
+                    className={`p-1.5 rounded hover:text-red-400 ${
+                      isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-200'
                     }`}
                   >
-                    Cancel
+                    <DeleteOutlined className="text-base" />
                   </button>
-                  <button
-                    onClick={handleClearAllConfirm}
-                    tabIndex={-1}
-                    className="px-3 py-1 text-sm rounded bg-red-500 text-white hover:bg-red-600"
+                </Tooltip>
+                {showClearAllConfirm && (
+                  <div
+                    className={`absolute right-0 top-full mt-1 p-3 w-56 rounded-lg shadow-lg z-20 border ${
+                      isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                    }`}
                   >
-                    Clear
-                  </button>
-                </div>
+                    <p className={`text-sm mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                      Clear all recently closed tabs? This cannot be undone.
+                    </p>
+                    <div className="flex gap-2 justify-end">
+                      <button
+                        onClick={() => setShowClearAllConfirm(false)}
+                        tabIndex={-1}
+                        className={`px-3 py-1 text-sm rounded ${
+                          isDark
+                            ? 'text-gray-300 hover:bg-gray-700'
+                            : 'text-gray-600 hover:bg-gray-100'
+                        }`}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleClearAllConfirm}
+                        tabIndex={-1}
+                        className="px-3 py-1 text-sm rounded bg-red-500 text-white hover:bg-red-600"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
       </div>
 

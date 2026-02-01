@@ -854,6 +854,7 @@ export default function App() {
                   isCardFocused={isCardFocused}
                   focusedTabIndex={focusedTabIndex}
                   searchCandidateTabIndex={searchCandidateTabIndex}
+                  isSearching={searchQuery.length > 0}
                   onSelect={handleSelectWindow}
                   onCloseTab={handleCloseTab}
                   onCloseWindow={handleCloseWindow}
@@ -877,6 +878,7 @@ export default function App() {
                 isCardFocused={isRecentlyClosedCardFocused}
                 focusedTabIndex={recentlyClosedFocusedTabIndex}
                 searchCandidateTabIndex={focus.type === 'search' && searchQuery.length > 0 && filteredWindows.length === 0 ? 0 : -1}
+                isSearching={searchQuery.length > 0}
                 onRestore={handleRestoreClosedTab}
                 onRestoreInNewWindow={handleRestoreClosedTabInNewWindow}
                 onRestoreInCurrentWindow={handleRestoreClosedTabInCurrentWindow}

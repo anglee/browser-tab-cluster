@@ -24,6 +24,7 @@ interface WindowCardProps {
   isCardFocused: boolean;
   focusedTabIndex: number;
   searchCandidateTabIndex: number;
+  isSearching: boolean;
   onSelect: (windowId: number, selected: boolean) => void;
   onCloseTab: (tabId: number) => void;
   onCloseWindow: (windowId: number) => void;
@@ -44,6 +45,7 @@ export function WindowCard({
   isCardFocused,
   focusedTabIndex,
   searchCandidateTabIndex,
+  isSearching,
   onSelect,
   onCloseTab,
   onCloseWindow,
@@ -227,67 +229,71 @@ export function WindowCard({
             </div>
           )}
 
-          <div className="relative">
-            <Tooltip text="Sort tabs" theme={theme} position="bottom-right">
-              <button
-                onClick={() => setShowSortMenu(!showSortMenu)}
-                tabIndex={-1}
-                className={`p-1.5 rounded ${
-                  isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <SortAscendingOutlined className="text-base" />
-              </button>
-            </Tooltip>
-            {showSortMenu && (
-              <div className={`absolute right-0 top-full mt-1 py-1 w-36 rounded-lg shadow-lg z-10 border ${
-                isDark ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'
-              }`}>
-                <button
-                  onClick={() => handleSort('domain')}
-                  tabIndex={-1}
-                  className={`w-full px-3 py-1.5 text-left text-sm ${
-                    isDark ? 'text-gray-200 hover:bg-gray-600' : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  By Domain
-                </button>
-                <button
-                  onClick={() => handleSort('title')}
-                  tabIndex={-1}
-                  className={`w-full px-3 py-1.5 text-left text-sm ${
-                    isDark ? 'text-gray-200 hover:bg-gray-600' : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  By Title
-                </button>
+          {!isSearching && (
+            <>
+              <div className="relative">
+                <Tooltip text="Sort tabs" theme={theme} position="bottom-right">
+                  <button
+                    onClick={() => setShowSortMenu(!showSortMenu)}
+                    tabIndex={-1}
+                    className={`p-1.5 rounded ${
+                      isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <SortAscendingOutlined className="text-base" />
+                  </button>
+                </Tooltip>
+                {showSortMenu && (
+                  <div className={`absolute right-0 top-full mt-1 py-1 w-36 rounded-lg shadow-lg z-10 border ${
+                    isDark ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'
+                  }`}>
+                    <button
+                      onClick={() => handleSort('domain')}
+                      tabIndex={-1}
+                      className={`w-full px-3 py-1.5 text-left text-sm ${
+                        isDark ? 'text-gray-200 hover:bg-gray-600' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      By Domain
+                    </button>
+                    <button
+                      onClick={() => handleSort('title')}
+                      tabIndex={-1}
+                      className={`w-full px-3 py-1.5 text-left text-sm ${
+                        isDark ? 'text-gray-200 hover:bg-gray-600' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      By Title
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <Tooltip text="Remove duplicates" theme={theme} position="bottom-right">
-            <button
-              onClick={() => onDedupe(window.id)}
-              tabIndex={-1}
-              className={`p-1.5 rounded ${
-                isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              <MergeOutlined className="text-base" rotate={90} />
-            </button>
-          </Tooltip>
+              <Tooltip text="Remove duplicates" theme={theme} position="bottom-right">
+                <button
+                  onClick={() => onDedupe(window.id)}
+                  tabIndex={-1}
+                  className={`p-1.5 rounded ${
+                    isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <MergeOutlined className="text-base" rotate={90} />
+                </button>
+              </Tooltip>
 
-          <Tooltip text="Close window" theme={theme} position="bottom-right">
-            <button
-              onClick={() => onCloseWindow(window.id)}
-              tabIndex={-1}
-              className={`p-1.5 rounded hover:text-red-400 ${
-                isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-200'
-              }`}
-            >
-              <CloseOutlined className="text-base" />
-            </button>
-          </Tooltip>
+              <Tooltip text="Close window" theme={theme} position="bottom-right">
+                <button
+                  onClick={() => onCloseWindow(window.id)}
+                  tabIndex={-1}
+                  className={`p-1.5 rounded hover:text-red-400 ${
+                    isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-200'
+                  }`}
+                >
+                  <CloseOutlined className="text-base" />
+                </button>
+              </Tooltip>
+            </>
+          )}
         </div>
       </div>
 
