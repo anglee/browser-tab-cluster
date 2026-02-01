@@ -8,13 +8,13 @@ import {
   FileTextOutlined,
   PlusOutlined,
   SelectOutlined,
-  RightOutlined,
   CloseOutlined,
   SortAscendingOutlined,
   MergeOutlined,
 } from '@ant-design/icons';
 import { WindowInfo, SortOption } from '../types';
 import { TabItem } from './TabItem';
+import { Submenu, SubmenuItem } from './Submenu';
 
 interface WindowCardProps {
   window: WindowInfo;
@@ -56,7 +56,6 @@ export function WindowCard({
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [selectedTabs, setSelectedTabs] = useState<Set<number>>(new Set());
   const [showActionsMenu, setShowActionsMenu] = useState(false);
-  const [showBulkWindowSubmenu, setShowBulkWindowSubmenu] = useState(false);
 
   const { setNodeRef, isOver } = useDroppable({
     id: `window-${window.id}`,
@@ -99,7 +98,6 @@ export function WindowCard({
     });
     setSelectedTabs(new Set());
     setShowActionsMenu(false);
-    setShowBulkWindowSubmenu(false);
   };
 
   const handleBulkClose = () => {
@@ -188,43 +186,21 @@ export function WindowCard({
                   </button>
 
                   {otherWindows.length > 0 && (
-                    <div
-                      className="relative"
-                      onMouseEnter={() => setShowBulkWindowSubmenu(true)}
-                      onMouseLeave={() => setShowBulkWindowSubmenu(false)}
+                    <Submenu
+                      label="Move to Window"
+                      icon={<SelectOutlined className="text-base" />}
+                      theme={theme}
                     >
-                      <button
-                        tabIndex={-1}
-                        className={`w-full px-3 py-1.5 text-left text-sm flex items-center justify-between ${
-                          isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">
-                          <SelectOutlined className="text-base" />
-                          Move to Window
-                        </span>
-                        <RightOutlined className="text-xs" />
-                      </button>
-
-                      {showBulkWindowSubmenu && (
-                        <div className={`absolute left-full top-0 ml-1 py-1 w-40 rounded-lg shadow-lg z-30 border ${
-                          isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-                        }`}>
-                          {otherWindows.map(w => (
-                            <button
-                              key={w.id}
-                              onClick={() => handleBulkMoveToWindow(w.id)}
-                              tabIndex={-1}
-                              className={`w-full px-3 py-1.5 text-left text-sm ${
-                                isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
-                              }`}
-                            >
-                              Window {w.id} ({w.tabs.length})
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                      {otherWindows.map(w => (
+                        <SubmenuItem
+                          key={w.id}
+                          onClick={() => handleBulkMoveToWindow(w.id)}
+                          theme={theme}
+                        >
+                          Window {w.id} ({w.tabs.length})
+                        </SubmenuItem>
+                      ))}
+                    </Submenu>
                   )}
 
                   <div className={`my-1 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />

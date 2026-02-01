@@ -1,62 +1,57 @@
 import { useState, useRef, useEffect } from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import {
-  HolderOutlined,
-  PushpinFilled,
-  PushpinOutlined,
   MoreOutlined,
   PlusOutlined,
+  ImportOutlined,
+  HistoryOutlined,
   SelectOutlined,
-  CloseOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons';
-import { TabInfo, WindowInfo } from '../types';
+import { ClosedTabInfo, WindowInfo } from '../types';
 import { Submenu, SubmenuItem } from './Submenu';
 
-interface TabItemProps {
-  tab: TabInfo;
+interface ClosedTabItemProps {
+  tab: ClosedTabInfo;
   windows: WindowInfo[];
   hasFocus?: boolean;
   isChecked?: boolean;
-  onToggleCheck?: (tabId: number, checked: boolean) => void;
-  onClose: (tabId: number) => void;
-  onActivate: (tabId: number, windowId: number) => void;
-  onMoveToWindow: (tabId: number, targetWindowId: number) => void;
-  onMoveToNewWindow: (tabId: number) => void;
-  onTogglePin: (tabId: number, pinned: boolean) => void;
+  onToggleCheck?: (sessionId: string, checked: boolean) => void;
+  onRestore: (sessionId: string) => void;
+  onRestoreInNewWindow: (sessionId: string) => void;
+  onRestoreInCurrentWindow: (sessionId: string) => void;
+  onRestoreToWindow: (sessionId: string, windowId: number) => void;
+  onDelete: (sessionId: string) => void;
   theme: 'light' | 'dark';
 }
 
-export function TabItem({
+function formatTimeAgo(closedTime: number): string {
+  const now = Date.now();
+  const diff = now - closedTime;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes} min ago`;
+  if (hours < 24) return `${hours} hr ago`;
+  return `${days} day${days > 1 ? 's' : ''} ago`;
+}
+
+export function ClosedTabItem({
   tab,
   windows,
   hasFocus = false,
   isChecked = false,
   onToggleCheck,
-  onClose,
-  onActivate,
-  onMoveToWindow,
-  onMoveToNewWindow,
-  onTogglePin,
-  theme
-}: TabItemProps) {
+  onRestore,
+  onRestoreInNewWindow,
+  onRestoreInCurrentWindow,
+  onRestoreToWindow,
+  onDelete,
+  theme,
+}: ClosedTabItemProps) {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: `tab-${tab.id}` });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -72,13 +67,8 @@ export function TabItem({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showMenu]);
 
-  const handleClose = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onClose(tab.id);
-  };
-
   const handleClick = () => {
-    onActivate(tab.id, tab.windowId);
+    onRestore(tab.sessionId);
   };
 
   const handleMenuClick = (e: React.MouseEvent) => {
@@ -86,26 +76,32 @@ export function TabItem({
     setShowMenu(!showMenu);
   };
 
-  const handleMoveToNewWindow = (e: React.MouseEvent) => {
+  const handleRestore = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onMoveToNewWindow(tab.id);
+    onRestore(tab.sessionId);
     setShowMenu(false);
   };
 
-  const handleMoveToWindow = (targetWindowId: number) => {
-    onMoveToWindow(tab.id, targetWindowId);
+  const handleRestoreInNewWindow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onRestoreInNewWindow(tab.sessionId);
     setShowMenu(false);
   };
 
-  const handleCloseFromMenu = (e: React.MouseEvent) => {
+  const handleRestoreInCurrentWindow = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onClose(tab.id);
+    onRestoreInCurrentWindow(tab.sessionId);
     setShowMenu(false);
   };
 
-  const handleTogglePin = (e: React.MouseEvent) => {
+  const handleRestoreToWindow = (windowId: number) => {
+    onRestoreToWindow(tab.sessionId, windowId);
+    setShowMenu(false);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onTogglePin(tab.id, !tab.pinned);
+    onDelete(tab.sessionId);
     setShowMenu(false);
   };
 
@@ -117,16 +113,11 @@ export function TabItem({
   };
 
   const isDark = theme === 'dark';
-  const otherWindows = windows.filter(w => w.id !== tab.windowId);
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
       className={`flex items-center gap-2 px-2 py-1.5 rounded group cursor-pointer relative ${
-        isDark
-          ? `hover:bg-gray-700 ${tab.active ? 'bg-gray-700' : ''}`
-          : `hover:bg-gray-100 ${tab.active ? 'bg-gray-100' : ''}`
+        isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
       } ${hasFocus ? 'border border-dashed border-blue-500' : ''}`}
       onClick={handleClick}
     >
@@ -136,7 +127,7 @@ export function TabItem({
         checked={isChecked}
         onChange={(e) => {
           e.stopPropagation();
-          onToggleCheck?.(tab.id, e.target.checked);
+          onToggleCheck?.(tab.sessionId, e.target.checked);
         }}
         onClick={(e) => e.stopPropagation()}
         tabIndex={-1}
@@ -149,35 +140,25 @@ export function TabItem({
         }`}
       />
 
-      <div
-        {...attributes}
-        {...listeners}
-        tabIndex={-1}
-        className={`cursor-grab active:cursor-grabbing p-1 ${
-          isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
-        }`}
-      >
-        <HolderOutlined className="text-xs" />
-      </div>
-
-      {tab.pinned && (
-        <span title="Pinned">
-          <PushpinFilled className="text-xs text-blue-400 flex-shrink-0" />
-        </span>
-      )}
-
       <img
         src={getFaviconUrl()}
         alt=""
         className="w-4 h-4 flex-shrink-0"
-        onError={e => {
+        onError={(e) => {
           (e.target as HTMLImageElement).src =
             'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236b7280"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>';
         }}
       />
 
-      <span className={`flex-1 text-sm truncate ${isDark ? 'text-gray-200' : 'text-gray-700'}`} title={tab.title}>
+      <span
+        className={`flex-1 text-sm truncate ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
+        title={tab.title}
+      >
         {tab.title || 'Untitled'}
+      </span>
+
+      <span className={`text-xs flex-shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+        {formatTimeAgo(tab.closedTime)}
       </span>
 
       {/* Menu button */}
@@ -186,7 +167,9 @@ export function TabItem({
           onClick={handleMenuClick}
           tabIndex={-1}
           className={`p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded ${
-            isDark ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200'
+            isDark
+              ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-600'
+              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200'
           } ${showMenu ? 'opacity-100' : ''}`}
           title="More options"
         >
@@ -195,76 +178,79 @@ export function TabItem({
 
         {/* Dropdown menu */}
         {showMenu && (
-          <div className={`absolute right-0 top-full mt-1 py-1 w-48 rounded-lg shadow-lg z-20 border ${
-            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-          }`}>
+          <div
+            className={`absolute right-0 top-full mt-1 py-1 w-56 rounded-lg shadow-lg z-20 border ${
+              isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+            }`}
+          >
             <button
-              onClick={handleMoveToNewWindow}
+              onClick={handleRestore}
+              tabIndex={-1}
+              className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
+                isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <HistoryOutlined className="text-base" />
+              Restore to Original Location
+            </button>
+
+            <button
+              onClick={handleRestoreInNewWindow}
               tabIndex={-1}
               className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
                 isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
               <PlusOutlined className="text-base" />
-              Move to New Window
+              Restore in New Window
             </button>
 
-            {/* Move to window submenu */}
-            {otherWindows.length > 0 && (
-              <Submenu
-                label="Move to Window"
-                icon={<SelectOutlined className="text-base" />}
-                theme={theme}
-              >
-                {otherWindows.map(w => (
-                  <SubmenuItem
-                    key={w.id}
-                    onClick={() => handleMoveToWindow(w.id)}
-                    theme={theme}
-                  >
-                    Window {w.id} ({w.tabs.length})
-                  </SubmenuItem>
-                ))}
-              </Submenu>
-            )}
-
             <button
-              onClick={handleTogglePin}
+              onClick={handleRestoreInCurrentWindow}
               tabIndex={-1}
               className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
                 isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <PushpinOutlined className="text-base" />
-              {tab.pinned ? 'Unpin' : 'Pin'}
+              <ImportOutlined className="text-base" />
+              Restore in Current Window
             </button>
+
+            {/* Restore to Window submenu */}
+            {windows.length > 0 && (
+              <Submenu
+                label="Restore to Window"
+                icon={<SelectOutlined className="text-base" />}
+                theme={theme}
+              >
+                {windows.map((w) => (
+                  <SubmenuItem
+                    key={w.id}
+                    onClick={() => handleRestoreToWindow(w.id)}
+                    theme={theme}
+                  >
+                    Window {w.id} ({w.tabs.length})
+                    {w.focused && <span className="text-green-500 ml-1">(current)</span>}
+                  </SubmenuItem>
+                ))}
+              </Submenu>
+            )}
 
             <div className={`my-1 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
 
             <button
-              onClick={handleCloseFromMenu}
+              onClick={handleDelete}
               tabIndex={-1}
               className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 text-red-500 ${
                 isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
               }`}
             >
-              <CloseOutlined className="text-base" />
-              Close Tab
+              <DeleteOutlined className="text-base" />
+              Delete from History
             </button>
           </div>
         )}
       </div>
-
-      <button
-        onClick={handleClose}
-        tabIndex={-1}
-        className={`p-1 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity ${
-          isDark ? 'text-gray-500' : 'text-gray-400'
-        }`}
-        title="Close tab"
-      >
-        <CloseOutlined className="text-xs" />
-      </button>
     </div>
   );
 }

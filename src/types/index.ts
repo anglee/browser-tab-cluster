@@ -23,3 +23,11 @@ export interface DuplicateGroup {
   url: string;
   tabs: TabInfo[];
 }
+
+export interface ClosedTabInfo {
+  sessionId: string;
+  title: string;
+  url: string;
+  favIconUrl?: string;
+  closedTime: number;
+}

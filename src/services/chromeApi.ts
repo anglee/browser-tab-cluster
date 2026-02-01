@@ -1,4 +1,4 @@
-import { WindowInfo } from '../types';
+import { WindowInfo, ClosedTabInfo } from '../types';
 
 export async function getAllWindows(): Promise<WindowInfo[]> {
   const windows = await chrome.windows.getAll({ populate: true });
@@ -94,5 +94,55 @@ export function subscribeToChanges(callback: () => void): () => void {
     chrome.tabs.onDetached.removeListener(listeners.tabDetached);
     chrome.windows.onCreated.removeListener(listeners.windowCreated);
     chrome.windows.onRemoved.removeListener(listeners.windowRemoved);
+  };
+}
+
+// Recently closed tabs API functions
+
+export async function getRecentlyClosed(): Promise<ClosedTabInfo[]> {
+  const sessions = await chrome.sessions.getRecentlyClosed({ maxResults: 25 });
+  const closedTabs: ClosedTabInfo[] = [];
+
+  const isExtensionUrl = (url: string) => url.startsWith('chrome-extension://');
+
+  for (const session of sessions) {
+    if (session.tab) {
+      // Individual closed tab - skip extension pages
+      if (!isExtensionUrl(session.tab.url || '')) {
+        closedTabs.push({
+          sessionId: session.tab.sessionId!,
+          title: session.tab.title || '',
+          url: session.tab.url || '',
+          favIconUrl: session.tab.favIconUrl,
+          closedTime: session.lastModified * 1000, // Convert to milliseconds
+        });
+      }
+    } else if (session.window) {
+      // Closed window - flatten all tabs, skip extension pages
+      for (const tab of session.window.tabs || []) {
+        if (!isExtensionUrl(tab.url || '')) {
+          closedTabs.push({
+            sessionId: tab.sessionId!,
+            title: tab.title || '',
+            url: tab.url || '',
+            favIconUrl: tab.favIconUrl,
+            closedTime: session.lastModified * 1000,
+          });
+        }
+      }
+    }
+  }
+
+  return closedTabs;
+}
+
+export async function restoreClosedTab(sessionId: string): Promise<chrome.sessions.Session> {
+  return chrome.sessions.restore(sessionId);
+}
+
+export function subscribeToSessionChanges(callback: () => void): () => void {
+  chrome.sessions.onChanged.addListener(callback);
+  return () => {
+    chrome.sessions.onChanged.removeListener(callback);
   };
 }

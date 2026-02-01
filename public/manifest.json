@@ -3,7 +3,7 @@
   "name": "Tab Cluster",
   "version": "1.0.0",
   "description": "Manage your browser tabs and windows efficiently",
-  "permissions": ["tabs", "windows"],
+  "permissions": ["tabs", "windows", "sessions"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup/index.html",
