@@ -129,12 +129,15 @@ export default function App() {
       // Enter key
       if (e.key === 'Enter') {
         if (isSearchFocused) {
-          // Switch to first tab in first window
+          // Switch to first tab in first window, or restore first closed tab if no windows
           const firstWindow = filteredWindows[0];
           const firstTab = firstWindow?.tabs[0];
           if (firstTab) {
             e.preventDefault();
             handleActivateTab(firstTab.id, firstWindow.id);
+          } else if (filteredClosedTabs.length > 0) {
+            e.preventDefault();
+            handleRestoreClosedTab(filteredClosedTabs[0].sessionId);
           }
         } else if (focus.type === 'card') {
           // Focus the Chrome window
@@ -817,7 +820,7 @@ export default function App() {
                 windows={windows}
                 isCardFocused={isRecentlyClosedCardFocused}
                 focusedTabIndex={recentlyClosedFocusedTabIndex}
-                searchCandidateTabIndex={-1}
+                searchCandidateTabIndex={focus.type === 'search' && searchQuery.length > 0 && filteredWindows.length === 0 ? 0 : -1}
                 onRestore={handleRestoreClosedTab}
                 onRestoreInNewWindow={handleRestoreClosedTabInNewWindow}
                 onRestoreInCurrentWindow={handleRestoreClosedTabInCurrentWindow}
