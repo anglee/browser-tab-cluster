@@ -248,7 +248,7 @@ export function RecentlyClosedCard({
                     }`}
                   >
                     <DeleteOutlined className="text-base" />
-                    Delete Selected
+                    Hide Selected
                   </button>
                 </div>
               )}

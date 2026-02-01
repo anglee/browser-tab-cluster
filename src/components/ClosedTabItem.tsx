@@ -257,7 +257,7 @@ export function ClosedTabItem({
               }`}
             >
               <DeleteOutlined className="text-base" />
-              Delete from History
+              Hide
             </button>
           </div>
         )}

@@ -38,6 +38,32 @@ type FocusTarget =
   | { type: 'recentlyClosedCard' }
   | { type: 'recentlyClosedTab'; tabIndex: number };
 
+// localStorage key for hidden closed tabs
+const HIDDEN_CLOSED_TABS_KEY = 'tabcluster-hidden-closed-tabs';
+// Cap to prevent unbounded growth (Chrome keeps max 25 sessions, so 50 is plenty)
+const MAX_HIDDEN_CLOSED_TABS = 50;
+
+function getHiddenClosedTabs(): Set<string> {
+  try {
+    const stored = localStorage.getItem(HIDDEN_CLOSED_TABS_KEY);
+    if (stored) {
+      return new Set(JSON.parse(stored));
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return new Set();
+}
+
+function saveHiddenClosedTabs(hidden: Set<string>): void {
+  // Cap the size to prevent unbounded growth
+  const arr = [...hidden];
+  const capped = arr.length > MAX_HIDDEN_CLOSED_TABS
+    ? arr.slice(arr.length - MAX_HIDDEN_CLOSED_TABS)
+    : arr;
+  localStorage.setItem(HIDDEN_CLOSED_TABS_KEY, JSON.stringify(capped));
+}
+
 export default function App() {
   const { windows, loading, error } = useWindows();
   const { closedTabs, loading: closedLoading } = useRecentlyClosed();
@@ -46,6 +72,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabInfo | null>(null);
   const [focus, setFocus] = useState<FocusTarget>({ type: 'search' });
   const [searchQuery, setSearchQuery] = useState('');
+  const [hiddenClosedTabs, setHiddenClosedTabs] = useState<Set<string>>(getHiddenClosedTabs);
   const toolbarRef = useRef<ToolbarHandle>(null);
 
   const sensors = useSensors(
@@ -74,18 +101,41 @@ export default function App() {
       .filter(window => window.tabs.length > 0);
   }, [windows, searchQuery]);
 
-  // Filter closed tabs based on search query
+  // Filter closed tabs: remove hidden tabs first, then apply search query
   const filteredClosedTabs = useMemo(() => {
+    // Filter out hidden tabs
+    const visibleTabs = closedTabs.filter(tab => !hiddenClosedTabs.has(tab.sessionId));
+
     if (!searchQuery.trim()) {
-      return closedTabs;
+      return visibleTabs;
     }
     const lowerQuery = searchQuery.toLowerCase();
-    return closedTabs.filter(
+    return visibleTabs.filter(
       tab =>
         tab.title.toLowerCase().includes(lowerQuery) ||
         tab.url.toLowerCase().includes(lowerQuery)
     );
-  }, [closedTabs, searchQuery]);
+  }, [closedTabs, searchQuery, hiddenClosedTabs]);
+
+  // Clean up hidden tabs that are no longer in the sessions list
+  useEffect(() => {
+    if (closedTabs.length === 0 || hiddenClosedTabs.size === 0) return;
+
+    const currentSessionIds = new Set(closedTabs.map(tab => tab.sessionId));
+    const cleanedHidden = new Set<string>();
+
+    for (const sessionId of hiddenClosedTabs) {
+      if (currentSessionIds.has(sessionId)) {
+        cleanedHidden.add(sessionId);
+      }
+    }
+
+    // Only update if something was cleaned up
+    if (cleanedHidden.size !== hiddenClosedTabs.size) {
+      setHiddenClosedTabs(cleanedHidden);
+      saveHiddenClosedTabs(cleanedHidden);
+    }
+  }, [closedTabs, hiddenClosedTabs]);
 
   // Helper to focus search input
   const focusSearchInput = useCallback(() => {
@@ -583,10 +633,15 @@ export default function App() {
     }
   };
 
-  const handleDeleteClosedTab = async (_sessionId: string) => {
-    // Chrome's sessions API doesn't support deleting individual items.
-    // Items are removed from the list when restored.
-    console.warn('Delete from history is not supported by Chrome sessions API');
+  const handleDeleteClosedTab = (sessionId: string) => {
+    // Chrome's sessions API doesn't support deleting individual items,
+    // so we hide them locally by storing in localStorage
+    setHiddenClosedTabs(prev => {
+      const next = new Set(prev);
+      next.add(sessionId);
+      saveHiddenClosedTabs(next);
+      return next;
+    });
   };
 
   // ---------------------------------------------------------------------------
