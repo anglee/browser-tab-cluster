@@ -53,3 +53,41 @@ dist/
 
 ### Testing Changes
 After making changes, run `npm run build` and reload the extension at `chrome://extensions`.
+
+## Design Decisions
+
+Key design decisions and their motivations:
+
+### Search Behavior (mimics Chrome's Cmd+Shift+A)
+- First matching tab is highlighted with dashed blue border as "candidate"
+- Pressing Enter in search box switches to that first match immediately
+- Focus returns to search input when window gains focus or shortcut is pressed
+- Existing search text is auto-selected so user can type to replace it
+
+### No Confirmation Dialogs
+- Dedupe action executes immediately without confirmation modal
+- Rationale: Faster workflow; user can undo by reopening tabs if needed
+
+### Merge Windows Behavior
+- When merging, if current window (containing Tab Cluster) is selected, it becomes the target
+- Rationale: Keeps Tab Cluster visible after merge operation
+
+### Masonry Layout
+- Window cards use CSS columns layout instead of grid
+- Rationale: Better space utilization, avoids gaps, similar to TabCluster.io
+
+### Keyboard Navigation
+- Tab key cycles through window cards (not individual tabs or buttons)
+- Arrow keys navigate tabs within a focused window card
+- Toolbar buttons have `tabIndex={-1}` to skip them in tab order
+- Rationale: Efficient navigation without excessive tab stops
+
+### Multi-Select Tabs
+- Checkboxes appear on hover, stay visible when checked
+- Bulk actions button appears only when 2+ tabs selected
+- Available actions: Move to New Window, Move to Window, Close All (no Pin All)
+- Rationale: Batch operations for power users
+
+### Icons
+- Uses @ant-design/icons instead of inline SVGs
+- Rationale: Consistent icon style, easier to maintain and swap icons
