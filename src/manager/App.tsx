@@ -11,11 +11,13 @@ import {
 import { useWindows } from '../hooks/useWindows';
 import { useRecentlyClosed } from '../hooks/useRecentlyClosed';
 import { useTheme } from '../hooks/useTheme';
+import { useMasonry } from '../hooks/useMasonry';
+import { useColumnCount } from '../hooks/useColumnCount';
 import { Toolbar, ToolbarHandle } from '../components/Toolbar';
 import { WindowCard } from '../components/WindowCard';
 import { RecentlyClosedCard } from '../components/RecentlyClosedCard';
 import { DragOverlay } from '../components/DragOverlay';
-import { TabInfo, SortOption } from '../types';
+import { TabInfo, SortOption, WindowInfo, ClosedTabInfo } from '../types';
 import {
   closeTab,
   closeWindow,
@@ -37,6 +39,15 @@ type FocusTarget =
   | { type: 'tab'; cardIndex: number; tabIndex: number }
   | { type: 'recentlyClosedCard' }
   | { type: 'recentlyClosedTab'; tabIndex: number };
+
+// CardItem for masonry layout - union of window cards and recently closed card
+type CardItem =
+  | { type: 'window'; window: WindowInfo; cardIndex: number }
+  | { type: 'recentlyClosed'; closedTabs: ClosedTabInfo[] };
+
+// Constants for height estimation in masonry layout
+const CARD_HEADER_HEIGHT = 48;
+const TAB_ITEM_HEIGHT = 32;
 
 // localStorage key for hidden closed tabs
 const HIDDEN_CLOSED_TABS_KEY = 'tabcluster-hidden-closed-tabs';
@@ -116,6 +127,36 @@ export default function App() {
         tab.url.toLowerCase().includes(lowerQuery)
     );
   }, [closedTabs, searchQuery, hiddenClosedTabs]);
+
+  // Masonry layout: distribute cards across columns using "shortest column first" algorithm
+  const columnCount = useColumnCount();
+
+  const cardItems = useMemo((): CardItem[] => {
+    const items: CardItem[] = filteredWindows.map((window, cardIndex) => ({
+      type: 'window' as const,
+      window,
+      cardIndex,
+    }));
+
+    if (filteredClosedTabs.length > 0) {
+      items.push({
+        type: 'recentlyClosed' as const,
+        closedTabs: filteredClosedTabs,
+      });
+    }
+
+    return items;
+  }, [filteredWindows, filteredClosedTabs]);
+
+  const getCardHeight = useCallback((item: CardItem): number => {
+    if (item.type === 'window') {
+      return CARD_HEADER_HEIGHT + item.window.tabs.length * TAB_ITEM_HEIGHT;
+    } else {
+      return CARD_HEADER_HEIGHT + item.closedTabs.length * TAB_ITEM_HEIGHT;
+    }
+  }, []);
+
+  const masonryColumns = useMasonry(cardItems, getCardHeight, columnCount);
 
   // Clean up hidden tabs that are no longer in the sessions list
   useEffect(() => {
@@ -839,60 +880,68 @@ export default function App() {
         onDragEnd={handleDragEnd}
       >
         <div className="flex-1 overflow-auto p-4">
-          <div className="columns-1 md:columns-2 2xl:columns-3 gap-4">
-            {filteredWindows.map((window, cardIndex) => {
-              const isCardFocused = focus.type === 'card' && focus.cardIndex === cardIndex;
-              const focusedTabIndex = focus.type === 'tab' && focus.cardIndex === cardIndex ? focus.tabIndex : -1;
-              const searchCandidateTabIndex = focus.type === 'search' && searchQuery.length > 0 && cardIndex === 0 ? 0 : -1;
+          <div className="flex gap-4 w-full">
+            {masonryColumns.map((columnItems, colIndex) => (
+              <div key={colIndex} className="flex-1 min-w-0 flex flex-col gap-4">
+                {columnItems.map((item) => {
+                  if (item.type === 'window') {
+                    const { window, cardIndex } = item;
+                    const isCardFocused = focus.type === 'card' && focus.cardIndex === cardIndex;
+                    const focusedTabIndex = focus.type === 'tab' && focus.cardIndex === cardIndex ? focus.tabIndex : -1;
+                    const searchCandidateTabIndex = focus.type === 'search' && searchQuery.length > 0 && cardIndex === 0 ? 0 : -1;
 
-              return (
-                <WindowCard
-                  key={window.id}
-                  window={window}
-                  allWindows={windows}
-                  isSelected={selectedWindows.has(window.id)}
-                  isCardFocused={isCardFocused}
-                  focusedTabIndex={focusedTabIndex}
-                  searchCandidateTabIndex={searchCandidateTabIndex}
-                  isSearching={searchQuery.length > 0}
-                  onSelect={handleSelectWindow}
-                  onCloseTab={handleCloseTab}
-                  onCloseWindow={handleCloseWindow}
-                  onFocusWindow={handleFocusWindow}
-                  onActivateTab={handleActivateTab}
-                  onMoveToWindow={handleMoveToWindow}
-                  onMoveToNewWindow={handleMoveToNewWindow}
-                  onTogglePin={handleTogglePin}
-                  onSort={handleSort}
-                  onDedupe={handleDedupe}
-                  theme={theme}
-                />
-              );
-            })}
-
-            {/* Recently Closed Card - always last */}
-            {filteredClosedTabs.length > 0 && (
-              <RecentlyClosedCard
-                closedTabs={filteredClosedTabs}
-                windows={windows}
-                isCardFocused={isRecentlyClosedCardFocused}
-                focusedTabIndex={recentlyClosedFocusedTabIndex}
-                searchCandidateTabIndex={focus.type === 'search' && searchQuery.length > 0 && filteredWindows.length === 0 ? 0 : -1}
-                isSearching={searchQuery.length > 0}
-                onRestore={handleRestoreClosedTab}
-                onRestoreInNewWindow={handleRestoreClosedTabInNewWindow}
-                onRestoreInCurrentWindow={handleRestoreClosedTabInCurrentWindow}
-                onRestoreToWindow={handleRestoreClosedTabToWindow}
-                onDelete={handleDeleteClosedTab}
-                onBulkRestore={handleBulkRestoreClosedTabs}
-                onBulkRestoreInNewWindow={handleBulkRestoreClosedTabsInNewWindow}
-                onBulkRestoreInCurrentWindow={handleBulkRestoreClosedTabsInCurrentWindow}
-                onBulkRestoreToWindow={handleBulkRestoreClosedTabsToWindow}
-                onRestoreAll={handleRestoreAllClosedTabs}
-                onClearAll={handleClearAllClosedTabs}
-                theme={theme}
-              />
-            )}
+                    return (
+                      <WindowCard
+                        key={window.id}
+                        window={window}
+                        allWindows={windows}
+                        isSelected={selectedWindows.has(window.id)}
+                        isCardFocused={isCardFocused}
+                        focusedTabIndex={focusedTabIndex}
+                        searchCandidateTabIndex={searchCandidateTabIndex}
+                        isSearching={searchQuery.length > 0}
+                        onSelect={handleSelectWindow}
+                        onCloseTab={handleCloseTab}
+                        onCloseWindow={handleCloseWindow}
+                        onFocusWindow={handleFocusWindow}
+                        onActivateTab={handleActivateTab}
+                        onMoveToWindow={handleMoveToWindow}
+                        onMoveToNewWindow={handleMoveToNewWindow}
+                        onTogglePin={handleTogglePin}
+                        onSort={handleSort}
+                        onDedupe={handleDedupe}
+                        theme={theme}
+                      />
+                    );
+                  } else {
+                    // Recently Closed Card
+                    return (
+                      <RecentlyClosedCard
+                        key="recently-closed"
+                        closedTabs={filteredClosedTabs}
+                        windows={windows}
+                        isCardFocused={isRecentlyClosedCardFocused}
+                        focusedTabIndex={recentlyClosedFocusedTabIndex}
+                        searchCandidateTabIndex={focus.type === 'search' && searchQuery.length > 0 && filteredWindows.length === 0 ? 0 : -1}
+                        isSearching={searchQuery.length > 0}
+                        onRestore={handleRestoreClosedTab}
+                        onRestoreInNewWindow={handleRestoreClosedTabInNewWindow}
+                        onRestoreInCurrentWindow={handleRestoreClosedTabInCurrentWindow}
+                        onRestoreToWindow={handleRestoreClosedTabToWindow}
+                        onDelete={handleDeleteClosedTab}
+                        onBulkRestore={handleBulkRestoreClosedTabs}
+                        onBulkRestoreInNewWindow={handleBulkRestoreClosedTabsInNewWindow}
+                        onBulkRestoreInCurrentWindow={handleBulkRestoreClosedTabsInCurrentWindow}
+                        onBulkRestoreToWindow={handleBulkRestoreClosedTabsToWindow}
+                        onRestoreAll={handleRestoreAllClosedTabs}
+                        onClearAll={handleClearAllClosedTabs}
+                        theme={theme}
+                      />
+                    );
+                  }
+                })}
+              </div>
+            ))}
           </div>
 
           {filteredWindows.length === 0 && filteredClosedTabs.length === 0 && searchQuery && (

@@ -138,7 +138,7 @@ export function RecentlyClosedCard({
 
   return (
     <div
-      className={`rounded-lg border outline-none break-inside-avoid mb-4 ${
+      className={`rounded-lg border outline-none ${
         isDark ? 'bg-gray-800' : 'bg-white'
       } ${isDark ? 'border-gray-700' : 'border-gray-300'} ${
         isCardFocused ? 'ring-2 ring-blue-500' : ''
