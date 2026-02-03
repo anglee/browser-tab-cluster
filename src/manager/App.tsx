@@ -510,6 +510,13 @@ export default function App() {
     setCollapsedCards(new Set());
   };
 
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    if (query.length > 0) {
+      setCollapsedCards(new Set());
+    }
+  };
+
   const handleCloseTab = async (tabId: number) => {
     try {
       await closeTab(tabId);
@@ -901,7 +908,7 @@ export default function App() {
       <Toolbar
         ref={toolbarRef}
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={handleSearchChange}
         onFocus={() => setFocus({ type: 'search' })}
         tabCount={totalTabs}
         windowCount={windows.length}
