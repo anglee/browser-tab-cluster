@@ -31,6 +31,8 @@ rm -rf dist    # Remove dist/
 - `src/hooks/useWindows.ts` - Windows/tabs state with real-time updates
 - `src/hooks/useRecentlyClosed.ts` - Recently closed tabs via sessions API
 - `src/hooks/useTheme.ts` - Theme persistence to localStorage
+- `src/hooks/useMasonry.ts` - Shortest-column-first layout algorithm
+- `src/hooks/useColumnCount.ts` - Responsive column count (1/2/3 based on viewport)
 - `public/manifest.json` - Chrome extension manifest
 - `public/background.js` - Service worker for keyboard shortcuts
 
@@ -71,12 +73,19 @@ Key design decisions and their motivations:
 - Rationale: Faster workflow; user can undo by reopening tabs if needed
 
 ### Merge Windows Behavior
-- When merging, if current window (containing Tab Cluster) is selected, it becomes the target
-- Rationale: Keeps Tab Cluster visible after merge operation
+- Click merge button in toolbar to open popover with window list
+- Select 2+ windows via checkboxes, then click "Merge Selected"
+- If current window (containing Tab Cluster) is selected, it becomes the target
+- After merge, Tab Cluster stays focused (doesn't switch to merged window)
+- Rationale: Keeps Tab Cluster visible and accessible during workflow
 
 ### Masonry Layout
-- Window cards use CSS columns layout instead of grid
-- Rationale: Better space utilization, avoids gaps, similar to TabCluster.io
+- Uses JavaScript-based "shortest-column-first" algorithm (not CSS columns)
+- Each card is placed in whichever column currently has the smallest cumulative height
+- Height is estimated using: header height + (tab count × tab row height)
+- Responsive: 1 column (<768px), 2 columns (768-1535px), 3 columns (≥1536px)
+- Implementation: `useMasonry` hook distributes items, `useColumnCount` tracks responsive breakpoints
+- Rationale: Optimal space utilization, predictable card placement
 
 ### Keyboard Navigation
 - Tab key cycles through window cards (not individual tabs or buttons)
@@ -95,10 +104,26 @@ Key design decisions and their motivations:
 - Rationale: Consistent icon style, easier to maintain and swap icons
 
 ### Recently Closed Tabs
+- Limited to 30 tabs maximum (Chrome sessions API returns up to 25 sessions, but closed windows can contain many tabs)
 - Chrome sessions API doesn't support deletion, so "Hide" stores session IDs in localStorage
 - Hidden IDs are capped at 50 entries to prevent unbounded growth
 - Auto-cleanup removes stale IDs when sessions expire or are restored
 - Rationale: Provides expected "delete" UX despite API limitation
+
+### Card Ordering
+- Current (focused) window is always sorted first, appearing at top of first column
+- Recently Closed card is placed at top of last column in multi-column layouts
+- In single-column layout, Recently Closed appears at bottom
+- Rationale: Current window is most relevant; Recently Closed is secondary
+
+### Collapsible Cards
+- Each card has a collapse toggle button (rightmost in header)
+- Collapsed cards show only the header
+- Collapse All / Expand All button in toolbar
+- "Expand All" shown only when ALL cards are collapsed
+- Collapsing doesn't change card positions (layout uses expanded heights)
+- Icon animates rotation on collapse/expand
+- Rationale: Reduces visual clutter while maintaining spatial consistency
 
 ### Keyboard Shortcut Behavior
 - Option+M opens Tab Cluster in the currently focused window and pins it

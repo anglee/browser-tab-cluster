@@ -9,13 +9,14 @@ A Chrome browser extension for managing tabs and windows, similar to TabCluster.
 - **Close tabs/windows** - Close individual tabs or entire windows
 - **Drag & drop reorder** - Reorder tabs within a window
 - **Drag & drop between windows** - Move tabs from one window to another
-- **Merge windows** - Combine 2+ selected windows into one
+- **Merge windows** - Click merge icon to open popover, select windows, and combine them
 - **Sort tabs** - Organize tabs by domain or title
 - **Deduplicate tabs** - Instantly remove duplicate tabs
 - **Pin/Unpin tabs** - Pin indicator and toggle via context menu
 - **Multi-select tabs** - Checkbox selection with bulk actions (move, close)
 - **Keyboard navigation** - Tab through windows, arrow keys for tabs, Enter to activate
 - **Click window name** - Click window name in card header to switch to that window
+- **Collapsible cards** - Collapse/expand individual cards or all at once
 - **Light/Dark theme** - Toggle theme with persistence
 
 ## Tech Stack
@@ -50,7 +51,9 @@ A Chrome browser extension for managing tabs and windows, similar to TabCluster.
 │   │   ├── useWindows.ts  # Chrome windows API wrapper
 │   │   ├── useRecentlyClosed.ts # Chrome sessions API wrapper
 │   │   ├── useSearch.ts   # Search/filter logic
-│   │   └── useTheme.ts    # Theme toggle with persistence
+│   │   ├── useTheme.ts    # Theme toggle with persistence
+│   │   ├── useMasonry.ts  # Shortest-column-first layout algorithm
+│   │   └── useColumnCount.ts # Responsive column count
 │   ├── services/
 │   │   ├── chromeApi.ts   # Chrome API abstractions
 │   │   └── tabOperations.ts # Tab manipulation functions
@@ -112,9 +115,10 @@ Note: For extension development, you'll need to build and reload the extension i
 2. Or use the keyboard shortcut: **Option+M** (Mac) / **Alt+M** (Windows/Linux)
 3. Use the toolbar buttons to:
    - Search tabs by typing in the search box (Enter switches to first match)
-   - Select windows with checkboxes, then click merge icon to combine them
+   - Click merge icon to select windows and combine them
    - Click dedupe icon to remove duplicate tabs
    - Click sort icon to sort all windows by domain
+   - Click collapse/expand icon to collapse or expand all cards
    - Click sun/moon icon to toggle light/dark theme
 
 ### Keyboard Navigation
