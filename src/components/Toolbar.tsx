@@ -243,8 +243,10 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
                       type="checkbox"
                       checked={selectedForMerge.has(win.id)}
                       onChange={() => handleToggleWindowSelection(win.id)}
-                      className={`w-4 h-4 rounded text-blue-500 focus:ring-blue-500 ${
-                        isDark ? 'border-mist-600 bg-mist-700' : 'border-mist-300 bg-mist-50'
+                      className={`w-4 h-4 rounded ${
+                        isDark
+                          ? 'border-mist-600 bg-mist-700 accent-mist-400'
+                          : 'border-mist-300 bg-mist-50 accent-mist-600'
                       }`}
                     />
                     <span className={`text-sm flex-1 truncate ${isDark ? 'text-mist-200' : 'text-mist-700'}`}>
@@ -276,7 +278,9 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
                   disabled={selectedForMerge.size < 2}
                   className={`px-3 py-1.5 text-sm rounded ${
                     selectedForMerge.size >= 2
-                      ? 'bg-blue-500 text-white hover:bg-blue-600'
+                      ? isDark
+                        ? 'bg-mist-400 text-mist-950 hover:bg-mist-300'
+                        : 'bg-mist-600 text-white hover:bg-mist-500'
                       : isDark
                         ? 'bg-mist-700 text-mist-500 cursor-not-allowed'
                         : 'bg-mist-200 text-mist-400 cursor-not-allowed'

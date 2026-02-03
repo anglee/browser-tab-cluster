@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Tab Cluster",
   "version": "1.0.0",
-  "description": "Manage your browser tabs and windows efficiently",
+  "description": "Organize your tabs with drag & drop, search, merge windows, deduplicate, and restore recently closed tabs. All local, no cloud.",
   "permissions": ["tabs", "windows", "sessions"],
   "host_permissions": ["<all_urls>"],
   "action": {

@@ -19,3 +19,7 @@ clean:
 
 # Rebuild from scratch
 rebuild: clean build
+
+# Create zip for Chrome Web Store submission
+zip: build
+    cd dist && zip -r ../tab-cluster-v1.0.0.zip . -x "*.DS_Store"

@@ -146,8 +146,8 @@ export function ClosedTabItem({
           isChecked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
         } transition-opacity ${
           isDark
-            ? 'border-mist-600 bg-mist-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-mist-900'
-            : 'border-mist-300 bg-mist-50 text-blue-500 focus:ring-blue-500 focus:ring-offset-mist-50'
+            ? 'border-mist-600 bg-mist-700 accent-mist-400'
+            : 'border-mist-300 bg-mist-50 accent-mist-600'
         }`}
       />
 
