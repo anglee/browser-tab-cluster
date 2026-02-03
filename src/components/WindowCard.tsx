@@ -138,7 +138,7 @@ export function WindowCard({
           ? isDark ? 'ring-2 ring-mist-600' : 'ring-2 ring-mist-400'
           : isCardFocused
             ? isDark ? 'ring-2 ring-mist-600' : 'ring-2 ring-mist-400'
-            : isDark ? 'ring-1 ring-mist-700' : 'ring-1 ring-mist-200'
+            : isDark ? 'border border-white/10' : 'border border-mist-950/10'
       }`}
     >
       <div
