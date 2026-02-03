@@ -149,8 +149,8 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
           <clipPath id="rounded-clip">
             <rect x="0" y="0" width="32" height="32" rx="2" ry="2"/>
           </clipPath>
-          <rect x="0" y="0" width="32" height="32" rx="2" ry="2" fill={isDark ? '#768368' : '#a5af9a'}/>
-          <path d="M0,32 L0,2 Q0,0 2,0 L18,0 L32,32 Z" fill={isDark ? '#97a9b2' : '#647c87'} clipPath="url(#rounded-clip)"/>
+          <rect x="0" y="0" width="32" height="32" rx="2" ry="2" fill="#a5af9a"/>
+          <path d="M0,32 L0,2 Q0,0 2,0 L18,0 L32,32 Z" fill="#647c87" clipPath="url(#rounded-clip)"/>
         </svg>
       </div>
 
