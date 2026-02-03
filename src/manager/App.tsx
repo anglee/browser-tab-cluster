@@ -94,13 +94,20 @@ export default function App() {
     })
   );
 
-  // Filter windows based on search query
+  // Sort windows with current (focused) window first, then filter based on search query
   const filteredWindows = useMemo(() => {
+    // Sort so current window is first
+    const sortedWindows = [...windows].sort((a, b) => {
+      if (a.focused && !b.focused) return -1;
+      if (!a.focused && b.focused) return 1;
+      return 0;
+    });
+
     if (!searchQuery.trim()) {
-      return windows;
+      return sortedWindows;
     }
     const lowerQuery = searchQuery.toLowerCase();
-    return windows
+    return sortedWindows
       .map(window => ({
         ...window,
         tabs: window.tabs.filter(
