@@ -99,6 +99,8 @@ export function subscribeToChanges(callback: () => void): () => void {
 
 // Recently closed tabs API functions
 
+const MAX_RECENTLY_CLOSED_TABS = 30;
+
 export async function getRecentlyClosed(): Promise<ClosedTabInfo[]> {
   const sessions = await chrome.sessions.getRecentlyClosed({ maxResults: 25 });
   const closedTabs: ClosedTabInfo[] = [];
@@ -116,6 +118,7 @@ export async function getRecentlyClosed(): Promise<ClosedTabInfo[]> {
           favIconUrl: session.tab.favIconUrl,
           closedTime: session.lastModified * 1000, // Convert to milliseconds
         });
+        if (closedTabs.length >= MAX_RECENTLY_CLOSED_TABS) break;
       }
     } else if (session.window) {
       // Closed window - flatten all tabs, skip extension pages
@@ -128,8 +131,10 @@ export async function getRecentlyClosed(): Promise<ClosedTabInfo[]> {
             favIconUrl: tab.favIconUrl,
             closedTime: session.lastModified * 1000,
           });
+          if (closedTabs.length >= MAX_RECENTLY_CLOSED_TABS) break;
         }
       }
+      if (closedTabs.length >= MAX_RECENTLY_CLOSED_TABS) break;
     }
   }
 
