@@ -141,12 +141,11 @@ export function WindowCard({
         className={`flex items-center justify-between px-3 py-1.5 border-b cursor-pointer ${
           isDark ? 'bg-gray-750 border-gray-700' : 'bg-gray-50 border-gray-200'
         }`}
-        onClick={onToggleCollapse}
+        onClick={() => onFocusWindow(window.id)}
       >
         <div className="flex items-center gap-2">
           <span
-            onClick={(e) => { e.stopPropagation(); onFocusWindow(window.id); }}
-            className={`text-sm font-medium cursor-pointer hover:underline ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
+            className={`text-sm font-medium ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
           >
             Window {displayNumber}
             {window.focused && (
