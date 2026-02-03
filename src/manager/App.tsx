@@ -139,21 +139,33 @@ export default function App() {
   const columnCount = useColumnCount();
 
   const cardItems = useMemo((): CardItem[] => {
-    const items: CardItem[] = filteredWindows.map((window, cardIndex) => ({
+    const windowCards: CardItem[] = filteredWindows.map((window, cardIndex) => ({
       type: 'window' as const,
       window,
       cardIndex,
     }));
 
-    if (filteredClosedTabs.length > 0) {
-      items.push({
-        type: 'recentlyClosed' as const,
-        closedTabs: filteredClosedTabs,
-      });
+    if (filteredClosedTabs.length === 0) {
+      return windowCards;
     }
 
+    const recentlyClosedCard: CardItem = {
+      type: 'recentlyClosed' as const,
+      closedTabs: filteredClosedTabs,
+    };
+
+    // Position Recently Closed card:
+    // - Single column: at the bottom
+    // - Multiple columns: at top of last column (or last available column if fewer cards than columns)
+    if (columnCount === 1) {
+      return [...windowCards, recentlyClosedCard];
+    }
+
+    const insertIndex = Math.min(columnCount - 1, windowCards.length);
+    const items = [...windowCards];
+    items.splice(insertIndex, 0, recentlyClosedCard);
     return items;
-  }, [filteredWindows, filteredClosedTabs]);
+  }, [filteredWindows, filteredClosedTabs, columnCount]);
 
   const getCardHeight = useCallback((item: CardItem): number => {
     if (item.type === 'window') {
