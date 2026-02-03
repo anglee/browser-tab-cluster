@@ -8,6 +8,7 @@ import {
   ImportOutlined,
   UndoOutlined,
   SelectOutlined,
+  RightOutlined,
 } from '@ant-design/icons';
 import { ClosedTabInfo, WindowInfo } from '../types';
 import { ClosedTabItem } from './ClosedTabItem';
@@ -21,6 +22,8 @@ interface RecentlyClosedCardProps {
   focusedTabIndex: number;
   searchCandidateTabIndex: number;
   isSearching: boolean;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
   // Single item handlers (switch to restored tab)
   onRestore: (sessionId: string) => void;
   onRestoreInNewWindow: (sessionId: string) => void;
@@ -44,6 +47,8 @@ export function RecentlyClosedCard({
   focusedTabIndex,
   searchCandidateTabIndex,
   isSearching,
+  isCollapsed,
+  onToggleCollapse,
   onRestore,
   onRestoreInNewWindow,
   onRestoreInCurrentWindow,
@@ -352,12 +357,28 @@ export function RecentlyClosedCard({
               </div>
             </>
           )}
+
+          {/* Collapse Toggle */}
+          <Tooltip text={isCollapsed ? 'Expand' : 'Collapse'} theme={theme} position="bottom-right">
+            <button
+              onClick={onToggleCollapse}
+              tabIndex={-1}
+              className={`p-1.5 rounded ${
+                isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <span className={`inline-block transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}>
+                <RightOutlined className="text-base" />
+              </span>
+            </button>
+          </Tooltip>
         </div>
       </div>
 
-      <div className="p-2">
-        {closedTabs.map((tab, index) => (
-          <ClosedTabItem
+      {!isCollapsed && (
+        <div className="p-2">
+          {closedTabs.map((tab, index) => (
+            <ClosedTabItem
             key={tab.sessionId}
             tab={tab}
             windows={windows}
@@ -371,8 +392,9 @@ export function RecentlyClosedCard({
             onDelete={onDelete}
             theme={theme}
           />
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -83,7 +83,11 @@ export default function App() {
   const [focus, setFocus] = useState<FocusTarget>({ type: 'search' });
   const [searchQuery, setSearchQuery] = useState('');
   const [hiddenClosedTabs, setHiddenClosedTabs] = useState<Set<string>>(getHiddenClosedTabs);
+  const [collapsedCards, setCollapsedCards] = useState<Set<string>>(new Set());
   const toolbarRef = useRef<ToolbarHandle>(null);
+
+  // Special key for the recently closed card
+  const RECENTLY_CLOSED_KEY = 'recently-closed';
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -468,6 +472,41 @@ export default function App() {
     () => windows.reduce((sum, w) => sum + w.tabs.length, 0),
     [windows]
   );
+
+  // Collapse handlers
+  const handleToggleCollapse = (cardId: string) => {
+    setCollapsedCards(prev => {
+      const next = new Set(prev);
+      if (next.has(cardId)) {
+        next.delete(cardId);
+      } else {
+        next.add(cardId);
+      }
+      return next;
+    });
+  };
+
+  const allCardsCollapsed = useMemo(() => {
+    const totalCards = filteredWindows.length + (filteredClosedTabs.length > 0 ? 1 : 0);
+    if (totalCards === 0) return false;
+
+    const allWindowsCollapsed = filteredWindows.every(w => collapsedCards.has(String(w.id)));
+    const recentlyClosedCollapsed = filteredClosedTabs.length === 0 || collapsedCards.has(RECENTLY_CLOSED_KEY);
+    return allWindowsCollapsed && recentlyClosedCollapsed;
+  }, [filteredWindows, filteredClosedTabs, collapsedCards, RECENTLY_CLOSED_KEY]);
+
+  const handleCollapseAll = () => {
+    const allIds = new Set<string>();
+    filteredWindows.forEach(w => allIds.add(String(w.id)));
+    if (filteredClosedTabs.length > 0) {
+      allIds.add(RECENTLY_CLOSED_KEY);
+    }
+    setCollapsedCards(allIds);
+  };
+
+  const handleExpandAll = () => {
+    setCollapsedCards(new Set());
+  };
 
   const handleCloseTab = async (tabId: number) => {
     try {
@@ -868,6 +907,9 @@ export default function App() {
         onMerge={handleMerge}
         onDedupeAll={handleDedupeAll}
         onSortAll={handleSortAll}
+        allCollapsed={allCardsCollapsed}
+        onCollapseAll={handleCollapseAll}
+        onExpandAll={handleExpandAll}
         theme={theme}
         onToggleTheme={toggleTheme}
       />
@@ -898,6 +940,8 @@ export default function App() {
                         focusedTabIndex={focusedTabIndex}
                         searchCandidateTabIndex={searchCandidateTabIndex}
                         isSearching={searchQuery.length > 0}
+                        isCollapsed={collapsedCards.has(String(window.id))}
+                        onToggleCollapse={() => handleToggleCollapse(String(window.id))}
                         onCloseTab={handleCloseTab}
                         onCloseWindow={handleCloseWindow}
                         onFocusWindow={handleFocusWindow}
@@ -921,6 +965,8 @@ export default function App() {
                         focusedTabIndex={recentlyClosedFocusedTabIndex}
                         searchCandidateTabIndex={focus.type === 'search' && searchQuery.length > 0 && filteredWindows.length === 0 ? 0 : -1}
                         isSearching={searchQuery.length > 0}
+                        isCollapsed={collapsedCards.has(RECENTLY_CLOSED_KEY)}
+                        onToggleCollapse={() => handleToggleCollapse(RECENTLY_CLOSED_KEY)}
                         onRestore={handleRestoreClosedTab}
                         onRestoreInNewWindow={handleRestoreClosedTabInNewWindow}
                         onRestoreInCurrentWindow={handleRestoreClosedTabInCurrentWindow}

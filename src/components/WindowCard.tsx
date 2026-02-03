@@ -11,6 +11,7 @@ import {
   CloseOutlined,
   SortAscendingOutlined,
   MergeOutlined,
+  RightOutlined,
 } from '@ant-design/icons';
 import { WindowInfo, SortOption } from '../types';
 import { TabItem } from './TabItem';
@@ -24,6 +25,8 @@ interface WindowCardProps {
   focusedTabIndex: number;
   searchCandidateTabIndex: number;
   isSearching: boolean;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
   onCloseTab: (tabId: number) => void;
   onCloseWindow: (windowId: number) => void;
   onFocusWindow: (windowId: number) => void;
@@ -43,6 +46,8 @@ export function WindowCard({
   focusedTabIndex,
   searchCandidateTabIndex,
   isSearching,
+  isCollapsed,
+  onToggleCollapse,
   onCloseTab,
   onCloseWindow,
   onFocusWindow,
@@ -277,10 +282,26 @@ export function WindowCard({
               </Tooltip>
             </>
           )}
+
+          {/* Collapse Toggle */}
+          <Tooltip text={isCollapsed ? 'Expand' : 'Collapse'} theme={theme} position="bottom-right">
+            <button
+              onClick={onToggleCollapse}
+              tabIndex={-1}
+              className={`p-1.5 rounded ${
+                isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <span className={`inline-block transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}>
+                <RightOutlined className="text-base" />
+              </span>
+            </button>
+          </Tooltip>
         </div>
       </div>
 
-      <div className="p-2">
+      {!isCollapsed && (
+        <div className="p-2">
         <SortableContext
           items={window.tabs.map(t => `tab-${t.id}`)}
           strategy={verticalListSortingStrategy}
@@ -302,7 +323,8 @@ export function WindowCard({
             />
           ))}
         </SortableContext>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

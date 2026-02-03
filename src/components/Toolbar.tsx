@@ -8,6 +8,8 @@ import {
   SortAscendingOutlined,
   SunOutlined,
   MoonOutlined,
+  ShrinkOutlined,
+  ArrowsAltOutlined,
 } from '@ant-design/icons';
 import { Tooltip } from './Tooltip';
 import { WindowInfo } from '../types';
@@ -26,6 +28,9 @@ interface ToolbarProps {
   onMerge: (windowIds: number[]) => void;
   onDedupeAll: () => void;
   onSortAll: () => void;
+  allCollapsed: boolean;
+  onCollapseAll: () => void;
+  onExpandAll: () => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
 }
@@ -40,6 +45,9 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
   onMerge,
   onDedupeAll,
   onSortAll,
+  allCollapsed,
+  onCollapseAll,
+  onExpandAll,
   theme,
   onToggleTheme,
 }, ref) {
@@ -301,6 +309,25 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
             }`}
           >
             <SortAscendingOutlined className="text-lg" />
+          </button>
+        </Tooltip>
+
+        {/* Collapse/Expand All */}
+        <Tooltip text={allCollapsed ? 'Expand all cards' : 'Collapse all cards'} theme={theme} position="bottom-right">
+          <button
+            onClick={allCollapsed ? onExpandAll : onCollapseAll}
+            tabIndex={-1}
+            className={`p-2 rounded transition-colors ${
+              isDark
+                ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+            }`}
+          >
+            {allCollapsed ? (
+              <ArrowsAltOutlined className="text-lg" />
+            ) : (
+              <ShrinkOutlined className="text-lg" />
+            )}
           </button>
         </Tooltip>
 
