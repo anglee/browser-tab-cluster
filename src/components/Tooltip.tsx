@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 
 interface TooltipProps {
-  text: string;
+  text: ReactNode;
   children: ReactNode;
   theme: 'light' | 'dark';
   position?: 'bottom' | 'bottom-right';
@@ -22,7 +22,7 @@ export function Tooltip({ text, children, theme, position = 'bottom', flex1 = fa
       <div
         className={`absolute ${positionClasses} px-2 py-1 text-xs rounded shadow-lg z-50
           opacity-0 group-hover/tooltip:opacity-100 transition-opacity delay-300
-          pointer-events-none ${wrap ? 'max-w-xs break-all' : 'whitespace-nowrap'}
+          pointer-events-none ${wrap ? 'max-w-xs break-all whitespace-pre-line' : 'whitespace-nowrap'}
           ${isDark ? 'bg-gray-700 text-gray-200' : 'bg-gray-800 text-white'}`}
       >
         {text}

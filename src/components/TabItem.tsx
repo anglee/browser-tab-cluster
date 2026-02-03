@@ -189,7 +189,7 @@ export function TabItem({
         />
       </Tooltip>
 
-      <Tooltip text={tab.url} theme={theme} flex1 wrap>
+      <Tooltip text={<>{tab.title || 'Untitled'}<br /><span className="text-gray-400">{tab.url}</span></>} theme={theme} flex1 wrap>
         <span className={`text-sm truncate block ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
           {tab.title || 'Untitled'}
         </span>
