@@ -20,12 +20,10 @@ import { Tooltip } from './Tooltip';
 interface WindowCardProps {
   window: WindowInfo;
   allWindows: WindowInfo[];
-  isSelected: boolean;
   isCardFocused: boolean;
   focusedTabIndex: number;
   searchCandidateTabIndex: number;
   isSearching: boolean;
-  onSelect: (windowId: number, selected: boolean) => void;
   onCloseTab: (tabId: number) => void;
   onCloseWindow: (windowId: number) => void;
   onFocusWindow: (windowId: number) => void;
@@ -41,12 +39,10 @@ interface WindowCardProps {
 export function WindowCard({
   window,
   allWindows,
-  isSelected,
   isCardFocused,
   focusedTabIndex,
   searchCandidateTabIndex,
   isSearching,
-  onSelect,
   onCloseTab,
   onCloseWindow,
   onFocusWindow,
@@ -114,10 +110,6 @@ export function WindowCard({
     setShowActionsMenu(false);
   };
 
-  const handleSelectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSelect(window.id, e.target.checked);
-  };
-
   const handleSort = (option: SortOption) => {
     onSort(window.id, option);
     setShowSortMenu(false);
@@ -134,21 +126,12 @@ export function WindowCard({
         isDark ? 'bg-gray-800' : 'bg-white'
       } ${
         isOver ? 'border-blue-500 ring-2 ring-blue-500/50' : isDark ? 'border-gray-700' : 'border-gray-300'
-      } ${isSelected ? 'ring-2 ring-green-500/50' : ''} ${isCardFocused ? 'ring-2 ring-blue-500' : ''}`}
+      } ${isCardFocused ? 'ring-2 ring-blue-500' : ''}`}
     >
       <div className={`flex items-center justify-between px-3 py-2 border-b ${
         isDark ? 'bg-gray-750 border-gray-700' : 'bg-gray-50 border-gray-200'
       }`}>
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={handleSelectChange}
-            tabIndex={-1}
-            className={`w-4 h-4 rounded text-green-500 focus:ring-green-500 ${
-              isDark ? 'border-gray-600 bg-gray-700 focus:ring-offset-gray-800' : 'border-gray-300 bg-white focus:ring-offset-white'
-            }`}
-          />
           <span
             onClick={() => onFocusWindow(window.id)}
             className={`text-sm font-medium cursor-pointer hover:underline ${isDark ? 'text-gray-200' : 'text-gray-700'}`}

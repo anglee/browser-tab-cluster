@@ -79,7 +79,6 @@ export default function App() {
   const { windows, loading, error } = useWindows();
   const { closedTabs, loading: closedLoading } = useRecentlyClosed();
   const { theme, toggleTheme } = useTheme();
-  const [selectedWindows, setSelectedWindows] = useState<Set<number>>(new Set());
   const [activeTab, setActiveTab] = useState<TabInfo | null>(null);
   const [focus, setFocus] = useState<FocusTarget>({ type: 'search' });
   const [searchQuery, setSearchQuery] = useState('');
@@ -470,18 +469,6 @@ export default function App() {
     [windows]
   );
 
-  const handleSelectWindow = (windowId: number, selected: boolean) => {
-    setSelectedWindows(prev => {
-      const next = new Set(prev);
-      if (selected) {
-        next.add(windowId);
-      } else {
-        next.delete(windowId);
-      }
-      return next;
-    });
-  };
-
   const handleCloseTab = async (tabId: number) => {
     try {
       await closeTab(tabId);
@@ -493,11 +480,6 @@ export default function App() {
   const handleCloseWindow = async (windowId: number) => {
     try {
       await closeWindow(windowId);
-      setSelectedWindows(prev => {
-        const next = new Set(prev);
-        next.delete(windowId);
-        return next;
-      });
     } catch (err) {
       console.error('Failed to close window:', err);
     }
@@ -580,18 +562,16 @@ export default function App() {
     }
   };
 
-  const handleMerge = async () => {
-    if (selectedWindows.size < 2) return;
+  const handleMerge = async (windowIds: number[]) => {
+    if (windowIds.length < 2) return;
 
-    const windowIds = Array.from(selectedWindows);
-    const focusedWindow = windows.find(w => w.focused && selectedWindows.has(w.id));
+    const selectedSet = new Set(windowIds);
+    const focusedWindow = windows.find(w => w.focused && selectedSet.has(w.id));
     const targetWindowId = focusedWindow ? focusedWindow.id : windowIds[0];
     const sourceWindowIds = windowIds.filter(id => id !== targetWindowId);
 
     try {
       await mergeWindows(sourceWindowIds, targetWindowId, windows);
-      setSelectedWindows(new Set());
-      await chrome.windows.update(targetWindowId, { focused: true });
     } catch (err) {
       console.error('Failed to merge windows:', err);
     }
@@ -884,7 +864,7 @@ export default function App() {
         onFocus={() => setFocus({ type: 'search' })}
         tabCount={totalTabs}
         windowCount={windows.length}
-        selectedCount={selectedWindows.size}
+        windows={windows}
         onMerge={handleMerge}
         onDedupeAll={handleDedupeAll}
         onSortAll={handleSortAll}
@@ -914,12 +894,10 @@ export default function App() {
                         key={window.id}
                         window={window}
                         allWindows={windows}
-                        isSelected={selectedWindows.has(window.id)}
                         isCardFocused={isCardFocused}
                         focusedTabIndex={focusedTabIndex}
                         searchCandidateTabIndex={searchCandidateTabIndex}
                         isSearching={searchQuery.length > 0}
-                        onSelect={handleSelectWindow}
                         onCloseTab={handleCloseTab}
                         onCloseWindow={handleCloseWindow}
                         onFocusWindow={handleFocusWindow}
