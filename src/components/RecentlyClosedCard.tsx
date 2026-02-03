@@ -152,9 +152,10 @@ export function RecentlyClosedCard({
       }`}
     >
       <div
-        className={`flex items-center justify-between px-3 py-2 border-b ${
+        className={`flex items-center justify-between px-3 py-1.5 border-b cursor-pointer ${
           isDark ? 'bg-gray-750 border-gray-700' : 'bg-gray-50 border-gray-200'
         }`}
+        onClick={onToggleCollapse}
       >
         <div className="flex items-center gap-2">
           <HistoryOutlined
@@ -174,7 +175,7 @@ export function RecentlyClosedCard({
             <div className="relative">
               <Tooltip text={`Actions for ${selectedTabCount} tabs`} theme={theme} position="bottom-right">
                 <button
-                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                  onClick={(e) => { e.stopPropagation(); setShowActionsMenu(!showActionsMenu); }}
                   tabIndex={-1}
                   className={`p-1.5 rounded flex items-center gap-1 ${
                     isDark
@@ -269,7 +270,7 @@ export function RecentlyClosedCard({
               <div className="relative">
                 <Tooltip text="Restore all" theme={theme} position="bottom-right">
                   <button
-                    onClick={handleRestoreAllClick}
+                    onClick={(e) => { e.stopPropagation(); handleRestoreAllClick(); }}
                     tabIndex={-1}
                     className={`p-1.5 rounded ${
                       isDark
@@ -316,7 +317,7 @@ export function RecentlyClosedCard({
               <div className="relative">
                 <Tooltip text="Clear all" theme={theme} position="bottom-right">
                   <button
-                    onClick={handleClearAllClick}
+                    onClick={(e) => { e.stopPropagation(); handleClearAllClick(); }}
                     tabIndex={-1}
                     className={`p-1.5 rounded hover:text-red-400 ${
                       isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-200'
@@ -363,7 +364,7 @@ export function RecentlyClosedCard({
           {/* Collapse Toggle */}
           <Tooltip text={isCollapsed ? 'Expand' : 'Collapse'} theme={theme} position="bottom-right">
             <button
-              onClick={onToggleCollapse}
+              onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
               tabIndex={-1}
               className={`p-1.5 rounded ${
                 isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
