@@ -14,6 +14,7 @@ import { Tooltip } from './Tooltip';
 interface ClosedTabItemProps {
   tab: ClosedTabInfo;
   windows: WindowInfo[];
+  getWindowNumber: (windowId: number) => number;
   hasFocus?: boolean;
   isChecked?: boolean;
   onToggleCheck?: (sessionId: string, checked: boolean) => void;
@@ -41,6 +42,7 @@ function formatTimeAgo(closedTime: number): string {
 export function ClosedTabItem({
   tab,
   windows,
+  getWindowNumber,
   hasFocus = false,
   isChecked = false,
   onToggleCheck,
@@ -240,7 +242,7 @@ export function ClosedTabItem({
                     onClick={() => handleRestoreToWindow(w.id)}
                     theme={theme}
                   >
-                    Window {w.id} ({w.tabs.length})
+                    Window {getWindowNumber(w.id)} ({w.tabs.length})
                     {w.focused && <span className="text-green-500 ml-1">(current)</span>}
                   </SubmenuItem>
                 ))}

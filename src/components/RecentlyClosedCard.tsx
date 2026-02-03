@@ -18,6 +18,7 @@ import { Tooltip } from './Tooltip';
 interface RecentlyClosedCardProps {
   closedTabs: ClosedTabInfo[];
   windows: WindowInfo[];
+  getWindowNumber: (windowId: number) => number;
   isCardFocused: boolean;
   focusedTabIndex: number;
   searchCandidateTabIndex: number;
@@ -43,6 +44,7 @@ interface RecentlyClosedCardProps {
 export function RecentlyClosedCard({
   closedTabs,
   windows,
+  getWindowNumber,
   isCardFocused,
   focusedTabIndex,
   searchCandidateTabIndex,
@@ -236,7 +238,7 @@ export function RecentlyClosedCard({
                           onClick={() => handleBulkRestoreToWindow(w.id)}
                           theme={theme}
                         >
-                          Window {w.id} ({w.tabs.length})
+                          Window {getWindowNumber(w.id)} ({w.tabs.length})
                           {w.focused && <span className="text-green-500 ml-1">(current)</span>}
                         </SubmenuItem>
                       ))}
@@ -382,6 +384,7 @@ export function RecentlyClosedCard({
             key={tab.sessionId}
             tab={tab}
             windows={windows}
+            getWindowNumber={getWindowNumber}
             hasFocus={focusedTabIndex === index || searchCandidateTabIndex === index}
             isChecked={selectedTabs.has(tab.sessionId)}
             onToggleCheck={handleTabCheck}

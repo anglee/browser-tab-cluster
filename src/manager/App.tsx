@@ -13,6 +13,7 @@ import { useRecentlyClosed } from '../hooks/useRecentlyClosed';
 import { useTheme } from '../hooks/useTheme';
 import { useMasonry } from '../hooks/useMasonry';
 import { useColumnCount } from '../hooks/useColumnCount';
+import { useWindowNumbers } from '../hooks/useWindowNumbers';
 import { Toolbar, ToolbarHandle } from '../components/Toolbar';
 import { WindowCard } from '../components/WindowCard';
 import { RecentlyClosedCard } from '../components/RecentlyClosedCard';
@@ -79,6 +80,7 @@ export default function App() {
   const { windows, loading, error } = useWindows();
   const { closedTabs, loading: closedLoading } = useRecentlyClosed();
   const { theme, toggleTheme } = useTheme();
+  const getWindowNumber = useWindowNumbers(windows);
   const [activeTab, setActiveTab] = useState<TabInfo | null>(null);
   const [focus, setFocus] = useState<FocusTarget>({ type: 'search' });
   const [searchQuery, setSearchQuery] = useState('');
@@ -904,6 +906,7 @@ export default function App() {
         tabCount={totalTabs}
         windowCount={windows.length}
         windows={windows}
+        getWindowNumber={getWindowNumber}
         onMerge={handleMerge}
         onDedupeAll={handleDedupeAll}
         onSortAll={handleSortAll}
@@ -936,6 +939,8 @@ export default function App() {
                         key={window.id}
                         window={window}
                         allWindows={windows}
+                        displayNumber={getWindowNumber(window.id)}
+                        getWindowNumber={getWindowNumber}
                         isCardFocused={isCardFocused}
                         focusedTabIndex={focusedTabIndex}
                         searchCandidateTabIndex={searchCandidateTabIndex}
@@ -961,6 +966,7 @@ export default function App() {
                         key="recently-closed"
                         closedTabs={filteredClosedTabs}
                         windows={windows}
+                        getWindowNumber={getWindowNumber}
                         isCardFocused={isRecentlyClosedCardFocused}
                         focusedTabIndex={recentlyClosedFocusedTabIndex}
                         searchCandidateTabIndex={focus.type === 'search' && searchQuery.length > 0 && filteredWindows.length === 0 ? 0 : -1}

@@ -25,6 +25,7 @@ interface ToolbarProps {
   tabCount: number;
   windowCount: number;
   windows: WindowInfo[];
+  getWindowNumber: (windowId: number) => number;
   onMerge: (windowIds: number[]) => void;
   onDedupeAll: () => void;
   onSortAll: () => void;
@@ -42,6 +43,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
   tabCount,
   windowCount,
   windows,
+  getWindowNumber,
   onMerge,
   onDedupeAll,
   onSortAll,
@@ -238,7 +240,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
                       }`}
                     />
                     <span className={`text-sm flex-1 truncate ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
-                      Window {win.id}
+                      Window {getWindowNumber(win.id)}
                       {win.focused && (
                         <span className="ml-1 text-xs text-green-500">(current)</span>
                       )}

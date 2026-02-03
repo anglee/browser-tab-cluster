@@ -21,6 +21,8 @@ import { Tooltip } from './Tooltip';
 interface WindowCardProps {
   window: WindowInfo;
   allWindows: WindowInfo[];
+  displayNumber: number;
+  getWindowNumber: (windowId: number) => number;
   isCardFocused: boolean;
   focusedTabIndex: number;
   searchCandidateTabIndex: number;
@@ -42,6 +44,8 @@ interface WindowCardProps {
 export function WindowCard({
   window,
   allWindows,
+  displayNumber,
+  getWindowNumber,
   isCardFocused,
   focusedTabIndex,
   searchCandidateTabIndex,
@@ -141,7 +145,7 @@ export function WindowCard({
             onClick={() => onFocusWindow(window.id)}
             className={`text-sm font-medium cursor-pointer hover:underline ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
           >
-            Window {window.id}
+            Window {displayNumber}
             {window.focused && (
               <span className="ml-2 text-xs text-green-500">(current)</span>
             )}
@@ -194,7 +198,7 @@ export function WindowCard({
                           onClick={() => handleBulkMoveToWindow(w.id)}
                           theme={theme}
                         >
-                          Window {w.id} ({w.tabs.length})
+                          Window {getWindowNumber(w.id)} ({w.tabs.length})
                         </SubmenuItem>
                       ))}
                     </Submenu>
@@ -311,6 +315,7 @@ export function WindowCard({
               key={tab.id}
               tab={tab}
               windows={allWindows}
+              getWindowNumber={getWindowNumber}
               hasFocus={focusedTabIndex === index || searchCandidateTabIndex === index}
               isChecked={selectedTabs.has(tab.id)}
               onToggleCheck={handleTabCheck}

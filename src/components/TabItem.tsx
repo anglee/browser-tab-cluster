@@ -17,6 +17,7 @@ import { Tooltip } from './Tooltip';
 interface TabItemProps {
   tab: TabInfo;
   windows: WindowInfo[];
+  getWindowNumber: (windowId: number) => number;
   hasFocus?: boolean;
   isChecked?: boolean;
   onToggleCheck?: (tabId: number, checked: boolean) => void;
@@ -31,6 +32,7 @@ interface TabItemProps {
 export function TabItem({
   tab,
   windows,
+  getWindowNumber,
   hasFocus = false,
   isChecked = false,
   onToggleCheck,
@@ -236,7 +238,7 @@ export function TabItem({
                     onClick={() => handleMoveToWindow(w.id)}
                     theme={theme}
                   >
-                    Window {w.id} ({w.tabs.length})
+                    Window {getWindowNumber(w.id)} ({w.tabs.length})
                   </SubmenuItem>
                 ))}
               </Submenu>
