@@ -52,8 +52,8 @@ const TAB_ITEM_HEIGHT = 32;
 
 // localStorage key for hidden closed tabs
 const HIDDEN_CLOSED_TABS_KEY = 'tabcluster-hidden-closed-tabs';
-// Cap to prevent unbounded growth (Chrome keeps max 25 sessions, so 50 is plenty)
-const MAX_HIDDEN_CLOSED_TABS = 50;
+// Cap to prevent unbounded growth
+const MAX_HIDDEN_CLOSED_TABS = 1000;
 
 function getHiddenClosedTabs(): Set<string> {
   try {
@@ -78,13 +78,13 @@ function saveHiddenClosedTabs(hidden: Set<string>): void {
 
 export default function App() {
   const { windows, loading, error } = useWindows();
-  const { closedTabs, loading: closedLoading } = useRecentlyClosed();
+  const [hiddenClosedTabs, setHiddenClosedTabs] = useState<Set<string>>(getHiddenClosedTabs);
+  const { closedTabs, loading: closedLoading } = useRecentlyClosed(hiddenClosedTabs);
   const { theme, toggleTheme } = useTheme();
   const getWindowNumber = useWindowNumbers(windows);
   const [activeTab, setActiveTab] = useState<TabInfo | null>(null);
   const [focus, setFocus] = useState<FocusTarget>({ type: 'search' });
   const [searchQuery, setSearchQuery] = useState('');
-  const [hiddenClosedTabs, setHiddenClosedTabs] = useState<Set<string>>(getHiddenClosedTabs);
   const [collapsedCards, setCollapsedCards] = useState<Set<string>>(new Set());
   const toolbarRef = useRef<ToolbarHandle>(null);
 
@@ -124,21 +124,18 @@ export default function App() {
       .filter(window => window.tabs.length > 0);
   }, [windows, searchQuery]);
 
-  // Filter closed tabs: remove hidden tabs first, then apply search query
+  // Filter closed tabs by search query (hidden tabs already excluded at API level)
   const filteredClosedTabs = useMemo(() => {
-    // Filter out hidden tabs
-    const visibleTabs = closedTabs.filter(tab => !hiddenClosedTabs.has(tab.sessionId));
-
     if (!searchQuery.trim()) {
-      return visibleTabs;
+      return closedTabs;
     }
     const lowerQuery = searchQuery.toLowerCase();
-    return visibleTabs.filter(
+    return closedTabs.filter(
       tab =>
         tab.title.toLowerCase().includes(lowerQuery) ||
         tab.url.toLowerCase().includes(lowerQuery)
     );
-  }, [closedTabs, searchQuery, hiddenClosedTabs]);
+  }, [closedTabs, searchQuery]);
 
   // Masonry layout: distribute cards across columns using "shortest column first" algorithm
   const columnCount = useColumnCount();
@@ -181,26 +178,6 @@ export default function App() {
   }, []);
 
   const masonryColumns = useMasonry(cardItems, getCardHeight, columnCount);
-
-  // Clean up hidden tabs that are no longer in the sessions list
-  useEffect(() => {
-    if (closedTabs.length === 0 || hiddenClosedTabs.size === 0) return;
-
-    const currentSessionIds = new Set(closedTabs.map(tab => tab.sessionId));
-    const cleanedHidden = new Set<string>();
-
-    for (const sessionId of hiddenClosedTabs) {
-      if (currentSessionIds.has(sessionId)) {
-        cleanedHidden.add(sessionId);
-      }
-    }
-
-    // Only update if something was cleaned up
-    if (cleanedHidden.size !== hiddenClosedTabs.size) {
-      setHiddenClosedTabs(cleanedHidden);
-      saveHiddenClosedTabs(cleanedHidden);
-    }
-  }, [closedTabs, hiddenClosedTabs]);
 
   // Helper to focus search input
   const focusSearchInput = useCallback(() => {

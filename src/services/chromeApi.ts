@@ -101,18 +101,20 @@ export function subscribeToChanges(callback: () => void): () => void {
 
 const MAX_RECENTLY_CLOSED_TABS = 30;
 
-export async function getRecentlyClosed(): Promise<ClosedTabInfo[]> {
+export async function getRecentlyClosed(hiddenIds?: Set<string>): Promise<ClosedTabInfo[]> {
   const sessions = await chrome.sessions.getRecentlyClosed({ maxResults: 25 });
   const closedTabs: ClosedTabInfo[] = [];
 
   const isExtensionUrl = (url: string) => url.startsWith('chrome-extension://');
+  const isHidden = (sessionId: string) => hiddenIds?.has(sessionId) ?? false;
 
   for (const session of sessions) {
     if (session.tab) {
-      // Individual closed tab - skip extension pages
-      if (!isExtensionUrl(session.tab.url || '')) {
+      // Individual closed tab - skip extension pages and hidden tabs
+      const sessionId = session.tab.sessionId!;
+      if (!isExtensionUrl(session.tab.url || '') && !isHidden(sessionId)) {
         closedTabs.push({
-          sessionId: session.tab.sessionId!,
+          sessionId,
           title: session.tab.title || '',
           url: session.tab.url || '',
           favIconUrl: session.tab.favIconUrl,
@@ -121,11 +123,12 @@ export async function getRecentlyClosed(): Promise<ClosedTabInfo[]> {
         if (closedTabs.length >= MAX_RECENTLY_CLOSED_TABS) break;
       }
     } else if (session.window) {
-      // Closed window - flatten all tabs, skip extension pages
+      // Closed window - flatten all tabs, skip extension pages and hidden tabs
       for (const tab of session.window.tabs || []) {
-        if (!isExtensionUrl(tab.url || '')) {
+        const sessionId = tab.sessionId!;
+        if (!isExtensionUrl(tab.url || '') && !isHidden(sessionId)) {
           closedTabs.push({
-            sessionId: tab.sessionId!,
+            sessionId,
             title: tab.title || '',
             url: tab.url || '',
             favIconUrl: tab.favIconUrl,
