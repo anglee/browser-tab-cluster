@@ -143,11 +143,14 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
       {/* Logo */}
       <div className="flex-shrink-0">
         <svg
-          viewBox="0 0 24 24"
-          className={`w-6 h-6 ${isDark ? 'text-mist-400' : 'text-mist-600'}`}
-          fill="currentColor"
+          viewBox="0 0 32 32"
+          className="w-7 h-7"
         >
-          <path d="M0,24 L0,0 L12,0 L24,24 Z" />
+          <clipPath id="rounded-clip">
+            <rect x="0" y="0" width="32" height="32" rx="2" ry="2"/>
+          </clipPath>
+          <rect x="0" y="0" width="32" height="32" rx="2" ry="2" fill={isDark ? '#768368' : '#a5af9a'}/>
+          <path d="M0,32 L0,2 Q0,0 2,0 L18,0 L32,32 Z" fill={isDark ? '#97a9b2' : '#647c87'} clipPath="url(#rounded-clip)"/>
         </svg>
       </div>
 
