@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
-  AppstoreOutlined,
   SearchOutlined,
   CloseOutlined,
   ForkOutlined,
@@ -143,7 +142,13 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
     }`}>
       {/* Logo */}
       <div className="flex-shrink-0">
-        <AppstoreOutlined className={`text-2xl ${isDark ? 'text-mist-400' : 'text-mist-600'}`} />
+        <svg
+          viewBox="0 0 24 24"
+          className={`w-6 h-6 ${isDark ? 'text-mist-400' : 'text-mist-600'}`}
+          fill="currentColor"
+        >
+          <path d="M0,24 L0,0 L12,0 L24,24 Z" />
+        </svg>
       </div>
 
       {/* Search */}
