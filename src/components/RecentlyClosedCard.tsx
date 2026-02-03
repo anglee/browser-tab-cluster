@@ -145,26 +145,28 @@ export function RecentlyClosedCard({
 
   return (
     <div
-      className={`rounded-lg border outline-none ${
-        isDark ? 'bg-gray-800' : 'bg-white'
-      } ${isDark ? 'border-gray-700' : 'border-gray-300'} ${
-        isCardFocused ? 'ring-2 ring-blue-500' : ''
+      className={`rounded-xl outline-none ${
+        isDark ? 'bg-white/5' : 'bg-mist-950/[0.025]'
+      } ${
+        isCardFocused
+          ? isDark ? 'ring-2 ring-mist-600' : 'ring-2 ring-mist-400'
+          : isDark ? 'ring-1 ring-mist-700' : 'ring-1 ring-mist-200'
       }`}
     >
       <div
-        className={`flex items-center justify-between px-3 py-1.5 border-b cursor-pointer ${
-          isDark ? 'bg-gray-750 border-gray-700' : 'bg-gray-50 border-gray-200'
+        className={`flex items-center justify-between px-3 py-1.5 cursor-pointer border-b rounded-t-xl ${
+          isDark ? 'bg-mist-900 border-white/10' : 'bg-mist-200 border-mist-950/10'
         }`}
         onClick={onToggleCollapse}
       >
         <div className="flex items-center gap-2">
           <HistoryOutlined
-            className={`text-base ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+            className={`text-base ${isDark ? 'text-mist-400' : 'text-mist-500'}`}
           />
-          <span className={`text-sm font-medium ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+          <span className={`text-sm font-medium ${isDark ? 'text-mist-200' : 'text-mist-700'}`}>
             Recently Closed
           </span>
-          <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className={`text-xs ${isDark ? 'text-mist-400' : 'text-mist-500'}`}>
             ({closedTabs.length})
           </span>
         </div>
@@ -179,8 +181,8 @@ export function RecentlyClosedCard({
                   tabIndex={-1}
                   className={`p-1.5 rounded flex items-center gap-1 ${
                     isDark
-                      ? 'text-blue-400 hover:text-blue-300 hover:bg-gray-700'
-                      : 'text-blue-600 hover:text-blue-700 hover:bg-gray-200'
+                      ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700'
+                      : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
                   }`}
                 >
                   <FileTextOutlined className="text-base" />
@@ -189,15 +191,15 @@ export function RecentlyClosedCard({
               </Tooltip>
               {showActionsMenu && (
                 <div
-                  className={`absolute right-0 top-full mt-1 py-1 w-56 rounded-lg shadow-lg z-20 border ${
-                    isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                  className={`absolute right-0 top-full mt-1 py-1 w-56 rounded-xl shadow-lg z-20 ring-1 ${
+                    isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
                   }`}
                 >
                   <button
                     onClick={handleBulkRestore}
                     tabIndex={-1}
                     className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                      isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+                      isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
                     }`}
                   >
                     <UndoOutlined className="text-base" />
@@ -208,7 +210,7 @@ export function RecentlyClosedCard({
                     onClick={handleBulkRestoreInNewWindow}
                     tabIndex={-1}
                     className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                      isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+                      isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
                     }`}
                   >
                     <PlusOutlined className="text-base" />
@@ -219,7 +221,7 @@ export function RecentlyClosedCard({
                     onClick={handleBulkRestoreInCurrentWindow}
                     tabIndex={-1}
                     className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                      isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+                      isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
                     }`}
                   >
                     <ImportOutlined className="text-base" />
@@ -240,21 +242,21 @@ export function RecentlyClosedCard({
                           theme={theme}
                         >
                           Window {getWindowNumber(w.id)} ({w.tabs.length})
-                          {w.focused && <span className="text-green-500 ml-1">(current)</span>}
+                          {w.focused && <span className={`ml-1 ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>}
                         </SubmenuItem>
                       ))}
                     </Submenu>
                   )}
 
                   <div
-                    className={`my-1 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}
+                    className={`my-1 border-t ${isDark ? 'border-white/10' : 'border-mist-950/10'}`}
                   />
 
                   <button
                     onClick={handleBulkDelete}
                     tabIndex={-1}
                     className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 text-red-500 ${
-                      isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                      isDark ? 'hover:bg-mist-700' : 'hover:bg-mist-100'
                     }`}
                   >
                     <DeleteOutlined className="text-base" />
@@ -274,8 +276,8 @@ export function RecentlyClosedCard({
                     tabIndex={-1}
                     className={`p-1.5 rounded ${
                       isDark
-                        ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                        ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700'
+                        : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
                     }`}
                   >
                     <ReloadOutlined className="text-base" />
@@ -283,11 +285,11 @@ export function RecentlyClosedCard({
                 </Tooltip>
                 {showRestoreAllConfirm && (
                   <div
-                    className={`absolute right-0 top-full mt-1 p-3 w-56 rounded-lg shadow-lg z-20 border ${
-                      isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                    className={`absolute right-0 top-full mt-1 p-3 w-56 rounded-xl shadow-lg z-20 ring-1 ${
+                      isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
                     }`}
                   >
-                    <p className={`text-sm mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                    <p className={`text-sm mb-3 ${isDark ? 'text-mist-200' : 'text-mist-700'}`}>
                       Restore all {closedTabs.length} tabs in a new window?
                     </p>
                     <div className="flex gap-2 justify-end">
@@ -296,8 +298,8 @@ export function RecentlyClosedCard({
                         tabIndex={-1}
                         className={`px-3 py-1 text-sm rounded ${
                           isDark
-                            ? 'text-gray-300 hover:bg-gray-700'
-                            : 'text-gray-600 hover:bg-gray-100'
+                            ? 'text-mist-300 hover:bg-mist-700'
+                            : 'text-mist-600 hover:bg-mist-100'
                         }`}
                       >
                         Cancel
@@ -320,7 +322,7 @@ export function RecentlyClosedCard({
                     onClick={(e) => { e.stopPropagation(); handleClearAllClick(); }}
                     tabIndex={-1}
                     className={`p-1.5 rounded hover:text-red-400 ${
-                      isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-200'
+                      isDark ? 'text-mist-400 hover:bg-mist-700' : 'text-mist-500 hover:bg-mist-200'
                     }`}
                   >
                     <DeleteOutlined className="text-base" />
@@ -328,11 +330,11 @@ export function RecentlyClosedCard({
                 </Tooltip>
                 {showClearAllConfirm && (
                   <div
-                    className={`absolute right-0 top-full mt-1 p-3 w-56 rounded-lg shadow-lg z-20 border ${
-                      isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                    className={`absolute right-0 top-full mt-1 p-3 w-56 rounded-xl shadow-lg z-20 ring-1 ${
+                      isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
                     }`}
                   >
-                    <p className={`text-sm mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                    <p className={`text-sm mb-3 ${isDark ? 'text-mist-200' : 'text-mist-700'}`}>
                       Clear all recently closed tabs? This cannot be undone.
                     </p>
                     <div className="flex gap-2 justify-end">
@@ -341,8 +343,8 @@ export function RecentlyClosedCard({
                         tabIndex={-1}
                         className={`px-3 py-1 text-sm rounded ${
                           isDark
-                            ? 'text-gray-300 hover:bg-gray-700'
-                            : 'text-gray-600 hover:bg-gray-100'
+                            ? 'text-mist-300 hover:bg-mist-700'
+                            : 'text-mist-600 hover:bg-mist-100'
                         }`}
                       >
                         Cancel
@@ -367,7 +369,7 @@ export function RecentlyClosedCard({
               onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
               tabIndex={-1}
               className={`p-1.5 rounded ${
-                isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
               }`}
             >
               <span className={`inline-block transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}>

@@ -20,10 +20,10 @@ export function Tooltip({ text, children, theme, position = 'bottom', flex1 = fa
     <div className={`relative group/tooltip ${flex1 ? 'flex-1 min-w-0' : ''}`}>
       {children}
       <div
-        className={`absolute ${positionClasses} px-2 py-1 text-xs rounded shadow-lg z-50
+        className={`absolute ${positionClasses} px-2 py-1 text-xs rounded-md shadow-lg z-50
           opacity-0 group-hover/tooltip:opacity-100 transition-opacity delay-300
           pointer-events-none ${wrap ? 'max-w-xs break-all whitespace-pre-line' : 'whitespace-nowrap'}
-          ${isDark ? 'bg-gray-700 text-gray-200' : 'bg-gray-800 text-white'}`}
+          ${isDark ? 'bg-mist-800 text-mist-200' : 'bg-mist-950 text-white'}`}
       >
         {text}
       </div>

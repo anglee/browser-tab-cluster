@@ -8,7 +8,7 @@ import {
   SortAscendingOutlined,
   SunOutlined,
   MoonOutlined,
-  ShrinkOutlined,
+  VerticalAlignMiddleOutlined,
   ArrowsAltOutlined,
 } from '@ant-design/icons';
 import { Tooltip } from './Tooltip';
@@ -139,11 +139,11 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
 
   return (
     <div className={`flex items-center gap-2 px-4 py-2 border-b ${
-      isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+      isDark ? 'bg-mist-900 border-mist-700' : 'bg-mist-50 border-mist-200'
     }`}>
       {/* Logo */}
       <div className="flex-shrink-0">
-        <AppstoreOutlined className="text-2xl text-blue-500" />
+        <AppstoreOutlined className={`text-2xl ${isDark ? 'text-mist-400' : 'text-mist-600'}`} />
       </div>
 
       {/* Search */}
@@ -156,21 +156,21 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
           onChange={e => onSearchChange(e.target.value)}
           onFocus={onFocus}
           autoFocus
-          className={`w-full px-3 py-1.5 pl-8 text-sm border rounded focus:outline-none focus:border-blue-500 ${
+          className={`w-full px-3 py-1.5 pl-8 text-sm rounded focus:outline-none focus:ring-2 ${
             isDark
-              ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400'
-              : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500'
+              ? 'bg-mist-950 ring-1 ring-mist-700 text-mist-100 placeholder-mist-400 focus:ring-mist-600'
+              : 'bg-mist-50 ring-1 ring-mist-200 text-mist-950 placeholder-mist-500 focus:ring-mist-400'
           }`}
         />
         <SearchOutlined
-          className={`absolute left-2.5 top-1/2 -translate-y-1/2 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+          className={`absolute left-2.5 top-1/2 -translate-y-1/2 text-sm ${isDark ? 'text-mist-400' : 'text-mist-500'}`}
         />
         {searchQuery && (
           <button
             onClick={() => onSearchChange('')}
             tabIndex={-1}
             className={`absolute right-2 top-1/2 -translate-y-1/2 ${
-              isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+              isDark ? 'text-mist-400 hover:text-mist-200' : 'text-mist-500 hover:text-mist-700'
             }`}
           >
             <CloseOutlined className="text-sm" />
@@ -179,7 +179,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
       </div>
 
       {/* Stats */}
-      <div className={`text-sm px-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+      <div className={`text-sm px-2 ${isDark ? 'text-mist-400' : 'text-mist-500'}`}>
         {windowCount} Windows | {tabCount} Tabs
       </div>
 
@@ -201,11 +201,11 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
               className={`p-2 rounded transition-colors ${
                 showMergePopover
                   ? isDark
-                    ? 'bg-gray-700 text-white'
-                    : 'bg-gray-200 text-gray-900'
+                    ? 'bg-mist-700 text-white'
+                    : 'bg-mist-200 text-mist-950'
                   : isDark
-                    ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'text-mist-300 hover:bg-mist-700 hover:text-white'
+                    : 'text-mist-600 hover:bg-mist-100 hover:text-mist-950'
               }`}
             >
               <ForkOutlined className="text-lg" />
@@ -214,11 +214,11 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
 
           {/* Merge Popover */}
           {showMergePopover && (
-            <div className={`absolute right-0 top-full mt-2 w-72 rounded-lg shadow-lg border z-50 ${
-              isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+            <div className={`absolute right-0 top-full mt-2 w-72 rounded-xl shadow-lg ring-1 z-50 ${
+              isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
             }`}>
-              <div className={`px-3 py-2 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-                <span className={`text-sm font-medium ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+              <div className={`px-3 py-2 border-b ${isDark ? 'border-white/10' : 'border-mist-950/10'}`}>
+                <span className={`text-sm font-medium ${isDark ? 'text-mist-200' : 'text-mist-700'}`}>
                   Select windows to merge
                 </span>
               </div>
@@ -228,7 +228,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
                   <label
                     key={win.id}
                     className={`flex items-center gap-3 px-3 py-2 cursor-pointer ${
-                      isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+                      isDark ? 'hover:bg-mist-700' : 'hover:bg-mist-100'
                     }`}
                   >
                     <input
@@ -236,29 +236,29 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
                       checked={selectedForMerge.has(win.id)}
                       onChange={() => handleToggleWindowSelection(win.id)}
                       className={`w-4 h-4 rounded text-blue-500 focus:ring-blue-500 ${
-                        isDark ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-white'
+                        isDark ? 'border-mist-600 bg-mist-700' : 'border-mist-300 bg-mist-50'
                       }`}
                     />
-                    <span className={`text-sm flex-1 truncate ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                    <span className={`text-sm flex-1 truncate ${isDark ? 'text-mist-200' : 'text-mist-700'}`}>
                       Window {getWindowNumber(win.id)}
                       {win.focused && (
-                        <span className="ml-1 text-xs text-green-500">(current)</span>
+                        <span className={`ml-1 text-xs ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>
                       )}
                     </span>
-                    <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <span className={`text-xs ${isDark ? 'text-mist-400' : 'text-mist-500'}`}>
                       {win.tabs.length} tabs
                     </span>
                   </label>
                 ))}
               </div>
 
-              <div className={`flex justify-end gap-2 px-3 py-2 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className={`flex justify-end gap-2 px-3 py-2 border-t ${isDark ? 'border-white/10' : 'border-mist-950/10'}`}>
                 <button
                   onClick={handleCancel}
                   className={`px-3 py-1.5 text-sm rounded ${
                     isDark
-                      ? 'text-gray-300 hover:bg-gray-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'text-mist-300 hover:bg-mist-700'
+                      : 'text-mist-600 hover:bg-mist-100'
                   }`}
                 >
                   Cancel
@@ -270,8 +270,8 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
                     selectedForMerge.size >= 2
                       ? 'bg-blue-500 text-white hover:bg-blue-600'
                       : isDark
-                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        ? 'bg-mist-700 text-mist-500 cursor-not-allowed'
+                        : 'bg-mist-200 text-mist-400 cursor-not-allowed'
                   }`}
                 >
                   Merge Selected ({selectedForMerge.size})
@@ -282,7 +282,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
         </div>
 
         {/* Divider */}
-        <div className={`w-px h-6 mx-1 ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`} />
+        <div className={`w-px h-6 mx-1 ${isDark ? 'bg-mist-600' : 'bg-mist-300'}`} />
 
         {/* Dedupe All */}
         <Tooltip text="Remove all duplicates" theme={theme} position="bottom-right">
@@ -291,8 +291,8 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
             tabIndex={-1}
             className={`p-2 rounded transition-colors ${
               isDark
-                ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                ? 'text-mist-300 hover:bg-mist-700 hover:text-white'
+                : 'text-mist-600 hover:bg-mist-100 hover:text-mist-950'
             }`}
           >
             <MergeOutlined className="text-lg" rotate={90} />
@@ -306,8 +306,8 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
             tabIndex={-1}
             className={`p-2 rounded transition-colors ${
               isDark
-                ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                ? 'text-mist-300 hover:bg-mist-700 hover:text-white'
+                : 'text-mist-600 hover:bg-mist-100 hover:text-mist-950'
             }`}
           >
             <SortAscendingOutlined className="text-lg" />
@@ -321,20 +321,20 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
             tabIndex={-1}
             className={`p-2 rounded transition-colors ${
               isDark
-                ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                ? 'text-mist-300 hover:bg-mist-700 hover:text-white'
+                : 'text-mist-600 hover:bg-mist-100 hover:text-mist-950'
             }`}
           >
             {allCollapsed ? (
-              <ArrowsAltOutlined className="text-lg" />
+              <ArrowsAltOutlined className="text-base -rotate-45" />
             ) : (
-              <ShrinkOutlined className="text-lg" />
+              <VerticalAlignMiddleOutlined className="text-lg" />
             )}
           </button>
         </Tooltip>
 
         {/* Divider */}
-        <div className={`w-px h-6 mx-1 ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`} />
+        <div className={`w-px h-6 mx-1 ${isDark ? 'bg-mist-600' : 'bg-mist-300'}`} />
 
         {/* Theme Toggle */}
         <Tooltip text="Toggle theme" theme={theme} position="bottom-right">
@@ -343,8 +343,8 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
             tabIndex={-1}
             className={`p-2 rounded transition-colors ${
               isDark
-                ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                ? 'text-mist-300 hover:bg-mist-700 hover:text-white'
+                : 'text-mist-600 hover:bg-mist-100 hover:text-mist-950'
             }`}
           >
             {theme === 'dark' ? (

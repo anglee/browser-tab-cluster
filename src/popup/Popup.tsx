@@ -6,7 +6,7 @@ export default function Popup() {
   };
 
   return (
-    <div className="w-64 p-4 bg-gray-900 text-gray-100">
+    <div className="w-64 p-4 bg-mist-950 text-mist-100">
       <h1 className="text-lg font-semibold mb-3">Tab Cluster</h1>
       <button
         onClick={openManager}

@@ -886,7 +886,7 @@ export default function App() {
 
   if (loading || closedLoading) {
     return (
-      <div className={`flex items-center justify-center h-screen ${theme === 'dark' ? 'bg-gray-900 text-gray-400' : 'bg-gray-100 text-gray-600'}`}>
+      <div className={`flex items-center justify-center h-screen ${theme === 'dark' ? 'bg-mist-950 text-mist-400' : 'bg-mist-100 text-mist-600'}`}>
         Loading...
       </div>
     );
@@ -894,7 +894,7 @@ export default function App() {
 
   if (error) {
     return (
-      <div className={`flex items-center justify-center h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'} text-red-400`}>
+      <div className={`flex items-center justify-center h-screen ${theme === 'dark' ? 'bg-mist-950' : 'bg-mist-100'} text-red-400`}>
         Error: {error}
       </div>
     );
@@ -904,7 +904,7 @@ export default function App() {
   const recentlyClosedFocusedTabIndex = focus.type === 'recentlyClosedTab' ? focus.tabIndex : -1;
 
   return (
-    <div className={`flex flex-col h-screen ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'}`}>
+    <div className={`flex flex-col h-screen ${theme === 'dark' ? 'bg-mist-950 text-mist-100' : 'bg-mist-100 text-mist-950'}`} data-theme={theme}>
       <Toolbar
         ref={toolbarRef}
         searchQuery={searchQuery}
@@ -1001,13 +1001,13 @@ export default function App() {
           </div>
 
           {filteredWindows.length === 0 && filteredClosedTabs.length === 0 && searchQuery && (
-            <div className="text-center text-gray-500 mt-8">
+            <div className="text-center text-mist-500 mt-8">
               No tabs match "{searchQuery}"
             </div>
           )}
         </div>
 
-        <DragOverlay activeTab={activeTab} />
+        <DragOverlay activeTab={activeTab} theme={theme} />
       </DndContext>
     </div>
   );

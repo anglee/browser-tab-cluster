@@ -136,9 +136,9 @@ export function TabItem({
       style={style}
       className={`flex items-center gap-2 px-2 py-1.5 rounded group cursor-pointer relative ${
         isDark
-          ? `hover:bg-gray-700 ${tab.active ? 'bg-gray-700' : ''}`
-          : `hover:bg-gray-100 ${tab.active ? 'bg-gray-100' : ''}`
-      } ${hasFocus ? 'border border-dashed border-blue-500' : ''}`}
+          ? `hover:bg-mist-950 ${tab.active ? 'bg-mist-900' : ''}`
+          : `hover:bg-mist-50 ${tab.active ? 'bg-mist-100' : ''}`
+      } ${hasFocus ? (isDark ? 'border border-dashed border-mist-500' : 'border border-dashed border-mist-950') : ''}`}
       onClick={handleClick}
     >
       {/* Checkbox for multi-select */}
@@ -155,8 +155,8 @@ export function TabItem({
           isChecked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
         } transition-opacity ${
           isDark
-            ? 'border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-800'
-            : 'border-gray-300 bg-white text-blue-500 focus:ring-blue-500 focus:ring-offset-white'
+            ? 'border-mist-600 bg-mist-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-mist-900'
+            : 'border-mist-300 bg-mist-50 text-blue-500 focus:ring-blue-500 focus:ring-offset-mist-50'
         }`}
       />
 
@@ -165,7 +165,7 @@ export function TabItem({
         {...listeners}
         tabIndex={-1}
         className={`cursor-grab active:cursor-grabbing p-1 ${
-          isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
+          isDark ? 'text-mist-500 hover:text-mist-300' : 'text-mist-400 hover:text-mist-600'
         }`}
       >
         <HolderOutlined className="text-xs" />
@@ -189,8 +189,8 @@ export function TabItem({
         />
       </Tooltip>
 
-      <Tooltip text={<>{tab.title || 'Untitled'}<br /><span className="text-gray-400">{tab.url}</span></>} theme={theme} flex1 wrap>
-        <span className={`text-sm truncate block ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+      <Tooltip text={<>{tab.title || 'Untitled'}<br /><span className="text-mist-400">{tab.url}</span></>} theme={theme} flex1 wrap>
+        <span className={`text-sm truncate block ${isDark ? 'text-mist-200' : 'text-mist-700'}`}>
           {tab.title || 'Untitled'}
         </span>
       </Tooltip>
@@ -202,7 +202,7 @@ export function TabItem({
             onClick={handleMenuClick}
             tabIndex={-1}
             className={`p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded ${
-              isDark ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200'
+              isDark ? 'text-mist-500 hover:text-mist-300 hover:bg-mist-600' : 'text-mist-400 hover:text-mist-600 hover:bg-mist-200'
             } ${showMenu ? 'opacity-100' : ''}`}
           >
             <MoreOutlined className="text-xs" />
@@ -211,14 +211,14 @@ export function TabItem({
 
         {/* Dropdown menu */}
         {showMenu && (
-          <div className={`absolute right-0 top-full mt-1 py-1 w-48 rounded-lg shadow-lg z-20 border ${
-            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+          <div className={`absolute right-0 top-full mt-1 py-1 w-48 rounded-xl shadow-lg z-20 ring-1 ${
+            isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
           }`}>
             <button
               onClick={handleMoveToNewWindow}
               tabIndex={-1}
               className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+                isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
               }`}
             >
               <PlusOutlined className="text-base" />
@@ -248,20 +248,20 @@ export function TabItem({
               onClick={handleTogglePin}
               tabIndex={-1}
               className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+                isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
               }`}
             >
               <PushpinOutlined className="text-base" />
               {tab.pinned ? 'Unpin' : 'Pin'}
             </button>
 
-            <div className={`my-1 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
+            <div className={`my-1 border-t ${isDark ? 'border-white/10' : 'border-mist-950/10'}`} />
 
             <button
               onClick={handleCloseFromMenu}
               tabIndex={-1}
               className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 text-red-500 ${
-                isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                isDark ? 'hover:bg-mist-700' : 'hover:bg-mist-100'
               }`}
             >
               <CloseOutlined className="text-base" />
@@ -276,7 +276,7 @@ export function TabItem({
           onClick={handleClose}
           tabIndex={-1}
           className={`p-1 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity ${
-            isDark ? 'text-gray-500' : 'text-gray-400'
+            isDark ? 'text-mist-500' : 'text-mist-400'
           }`}
         >
           <CloseOutlined className="text-xs" />

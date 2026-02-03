@@ -39,7 +39,7 @@ export function Submenu({ label, icon, children, theme }: SubmenuProps) {
       <button
         tabIndex={-1}
         className={`w-full px-3 py-1.5 text-left text-sm flex items-center justify-between ${
-          isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+          isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
         }`}
       >
         <span className="flex items-center gap-2">
@@ -51,9 +51,9 @@ export function Submenu({ label, icon, children, theme }: SubmenuProps) {
 
       {showSubmenu && (
         <div
-          className={`absolute top-0 py-1 min-w-40 rounded-lg shadow-lg z-30 border ${
+          className={`absolute top-0 py-1 min-w-40 rounded-xl shadow-lg z-30 ring-1 ${
             openLeft ? 'right-full mr-1' : 'left-full ml-1'
-          } ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
+          } ${isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'}`}
         >
           {children}
         </div>
@@ -79,7 +79,7 @@ export function SubmenuItem({ children, onClick, theme }: SubmenuItemProps) {
       }}
       tabIndex={-1}
       className={`w-full px-3 py-1.5 text-left text-sm whitespace-nowrap ${
-        isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+        isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
       }`}
     >
       {children}

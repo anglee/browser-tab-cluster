@@ -131,28 +131,32 @@ export function WindowCard({
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-lg border outline-none ${
-        isDark ? 'bg-gray-800' : 'bg-white'
+      className={`rounded-xl outline-none ${
+        isDark ? 'bg-white/5' : 'bg-mist-950/[0.025]'
       } ${
-        isOver ? 'border-blue-500 ring-2 ring-blue-500/50' : isDark ? 'border-gray-700' : 'border-gray-300'
-      } ${isCardFocused ? 'ring-2 ring-blue-500' : ''}`}
+        isOver
+          ? isDark ? 'ring-2 ring-mist-600' : 'ring-2 ring-mist-400'
+          : isCardFocused
+            ? isDark ? 'ring-2 ring-mist-600' : 'ring-2 ring-mist-400'
+            : isDark ? 'ring-1 ring-mist-700' : 'ring-1 ring-mist-200'
+      }`}
     >
       <div
-        className={`flex items-center justify-between px-3 py-1.5 border-b cursor-pointer ${
-          isDark ? 'bg-gray-750 border-gray-700' : 'bg-gray-50 border-gray-200'
+        className={`flex items-center justify-between px-3 py-1.5 cursor-pointer border-b rounded-t-xl ${
+          isDark ? 'bg-mist-900 border-white/10' : 'bg-mist-200 border-mist-950/10'
         }`}
         onClick={() => onFocusWindow(window.id)}
       >
         <div className="flex items-center gap-2">
           <span
-            className={`text-sm font-medium ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
+            className={`text-sm font-medium ${isDark ? 'text-mist-200' : 'text-mist-700'}`}
           >
             Window {displayNumber}
             {window.focused && (
-              <span className="ml-2 text-xs text-green-500">(current)</span>
+              <span className={`ml-2 text-xs ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>
             )}
           </span>
-          <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span className={`text-xs ${isDark ? 'text-mist-400' : 'text-mist-500'}`}>
             ({window.tabs.length})
           </span>
         </div>
@@ -166,7 +170,7 @@ export function WindowCard({
                   onClick={(e) => { e.stopPropagation(); setShowActionsMenu(!showActionsMenu); }}
                   tabIndex={-1}
                   className={`p-1.5 rounded flex items-center gap-1 ${
-                    isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-gray-700' : 'text-blue-600 hover:text-blue-700 hover:bg-gray-200'
+                    isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700' : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
                   }`}
                 >
                   <FileTextOutlined className="text-base" />
@@ -174,14 +178,14 @@ export function WindowCard({
                 </button>
               </Tooltip>
               {showActionsMenu && (
-                <div className={`absolute right-0 top-full mt-1 py-1 w-48 rounded-lg shadow-lg z-20 border ${
-                  isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                <div className={`absolute right-0 top-full mt-1 py-1 w-48 rounded-xl shadow-lg z-20 ring-1 ${
+                  isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
                 }`}>
                   <button
                     onClick={handleBulkMoveToNewWindow}
                     tabIndex={-1}
                     className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                      isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+                      isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
                     }`}
                   >
                     <PlusOutlined className="text-base" />
@@ -206,13 +210,13 @@ export function WindowCard({
                     </Submenu>
                   )}
 
-                  <div className={`my-1 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
+                  <div className={`my-1 border-t ${isDark ? 'border-white/10' : 'border-mist-950/10'}`} />
 
                   <button
                     onClick={handleBulkClose}
                     tabIndex={-1}
                     className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 text-red-500 ${
-                      isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                      isDark ? 'hover:bg-mist-700' : 'hover:bg-mist-100'
                     }`}
                   >
                     <CloseOutlined className="text-base" />
@@ -231,21 +235,21 @@ export function WindowCard({
                     onClick={(e) => { e.stopPropagation(); setShowSortMenu(!showSortMenu); }}
                     tabIndex={-1}
                     className={`p-1.5 rounded ${
-                      isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                      isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
                     }`}
                   >
                     <SortAscendingOutlined className="text-base" />
                   </button>
                 </Tooltip>
                 {showSortMenu && (
-                  <div className={`absolute right-0 top-full mt-1 py-1 w-36 rounded-lg shadow-lg z-10 border ${
-                    isDark ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'
+                  <div className={`absolute right-0 top-full mt-1 py-1 w-36 rounded-xl shadow-lg z-10 ring-1 ${
+                    isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
                   }`}>
                     <button
                       onClick={() => handleSort('domain')}
                       tabIndex={-1}
                       className={`w-full px-3 py-1.5 text-left text-sm ${
-                        isDark ? 'text-gray-200 hover:bg-gray-600' : 'text-gray-700 hover:bg-gray-100'
+                        isDark ? 'text-mist-200 hover:bg-mist-600' : 'text-mist-700 hover:bg-mist-100'
                       }`}
                     >
                       By Domain
@@ -254,7 +258,7 @@ export function WindowCard({
                       onClick={() => handleSort('title')}
                       tabIndex={-1}
                       className={`w-full px-3 py-1.5 text-left text-sm ${
-                        isDark ? 'text-gray-200 hover:bg-gray-600' : 'text-gray-700 hover:bg-gray-100'
+                        isDark ? 'text-mist-200 hover:bg-mist-600' : 'text-mist-700 hover:bg-mist-100'
                       }`}
                     >
                       By Title
@@ -268,7 +272,7 @@ export function WindowCard({
                   onClick={(e) => { e.stopPropagation(); onDedupe(window.id); }}
                   tabIndex={-1}
                   className={`p-1.5 rounded ${
-                    isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                    isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
                   }`}
                 >
                   <MergeOutlined className="text-base" rotate={90} />
@@ -280,7 +284,7 @@ export function WindowCard({
                   onClick={(e) => { e.stopPropagation(); onCloseWindow(window.id); }}
                   tabIndex={-1}
                   className={`p-1.5 rounded hover:text-red-400 ${
-                    isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-200'
+                    isDark ? 'text-mist-400 hover:bg-mist-700' : 'text-mist-500 hover:bg-mist-200'
                   }`}
                 >
                   <CloseOutlined className="text-base" />
@@ -295,7 +299,7 @@ export function WindowCard({
               onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
               tabIndex={-1}
               className={`p-1.5 rounded ${
-                isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
               }`}
             >
               <span className={`inline-block transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}>
