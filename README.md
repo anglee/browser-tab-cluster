@@ -132,7 +132,10 @@ Note: For extension development, you'll need to build and reload the extension i
 
 - **Tab** - Move focus between window cards
 - **Arrow Up/Down** - Navigate tabs within a focused window
+- **Arrow Left/Right** - Navigate between window cards
+- **Ctrl+h/j/k/l** - Vim-style navigation (left/down/up/right)
 - **Enter** - Activate focused tab or window
+- **Escape** - Clear search and focus search input
 - **Option+M / Alt+M** - Open Tab Cluster or focus search (selects existing text)
 
 ### Multi-Select Tabs

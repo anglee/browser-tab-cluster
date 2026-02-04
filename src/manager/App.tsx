@@ -323,8 +323,8 @@ export default function App() {
         return;
       }
 
-      // Down arrow
-      if (e.key === 'ArrowDown') {
+      // Down arrow or Ctrl+j (vim style)
+      if (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'j')) {
         e.preventDefault();
         if (isSearchFocused) {
           if (searchQuery.length > 0) {
@@ -369,8 +369,8 @@ export default function App() {
         return;
       }
 
-      // Up arrow
-      if (e.key === 'ArrowUp') {
+      // Up arrow or Ctrl+k (vim style)
+      if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'k')) {
         e.preventDefault();
         if (isSearchFocused) {
           // → Last item in first window
@@ -399,11 +399,13 @@ export default function App() {
         return;
       }
 
-      // Left/Right arrows
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      // Left/Right arrows or Ctrl+h/l (vim style)
+      const isLeftKey = e.key === 'ArrowLeft' || (e.ctrlKey && e.key === 'h');
+      const isRightKey = e.key === 'ArrowRight' || (e.ctrlKey && e.key === 'l');
+      if (isLeftKey || isRightKey) {
         if (focus.type === 'card' || focus.type === 'tab') {
           e.preventDefault();
-          if (e.key === 'ArrowLeft') {
+          if (isLeftKey) {
             // → Previous card (cycles)
             if (currentCardIndex <= 0) {
               if (hasRecentlyClosed) {
@@ -427,7 +429,7 @@ export default function App() {
           }
         } else if (focus.type === 'recentlyClosedCard' || focus.type === 'recentlyClosedTab') {
           e.preventDefault();
-          if (e.key === 'ArrowLeft') {
+          if (isLeftKey) {
             // → Last window card
             if (windowCardCount > 0) {
               setFocus({ type: 'card', cardIndex: windowCardCount - 1 });

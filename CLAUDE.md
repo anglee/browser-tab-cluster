@@ -96,6 +96,7 @@ Key design decisions and their motivations:
 ### Keyboard Navigation
 - Tab key cycles through window cards (not individual tabs or buttons)
 - Arrow keys navigate tabs within a focused window card
+- Ctrl+h/j/k/l for vim-style navigation (left/down/up/right)
 - Toolbar buttons have `tabIndex={-1}` to skip them in tab order
 - Rationale: Efficient navigation without excessive tab stops
 
