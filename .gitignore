@@ -16,8 +16,9 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Claude
-.claude/
+# Claude (ignore all except skills)
+.claude/*
+!.claude/skills/
 
 # Release archives
 *.zip
