@@ -13,14 +13,18 @@ just build     # Build to dist/
 just dev       # Dev server (limited use for extensions)
 just clean     # Remove dist/
 just rebuild   # Clean + build
+just bump <major|minor|patch>  # Bump version in package.json and manifest.json
+just zip       # Build and create zip for Chrome Web Store
 ```
 
 Otherwise use npm directly:
 ```bash
-npm install    # Install dependencies
-npm run build  # Build to dist/
-npm run dev    # Dev server (limited use for extensions)
-rm -rf dist    # Remove dist/
+npm install              # Install dependencies
+npm run build            # Build to dist/
+npm run dev              # Dev server (limited use for extensions)
+rm -rf dist              # Remove dist/
+npm run bump -- patch    # Bump version (major, minor, or patch)
+npm run zip              # Create zip (run after build)
 ```
 
 ### Key Files
@@ -35,6 +39,8 @@ rm -rf dist    # Remove dist/
 - `src/hooks/useColumnCount.ts` - Responsive column count (1/2/3 based on viewport)
 - `public/manifest.json` - Chrome extension manifest
 - `public/background.js` - Service worker for keyboard shortcuts
+- `scripts/bump.js` - Version bump script (updates package.json and manifest.json)
+- `scripts/zip.js` - Creates zip for Chrome Web Store submission
 
 ### Architecture Notes
 - Uses Chrome Extension Manifest V3

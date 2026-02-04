@@ -67,6 +67,9 @@ A Chrome browser extension for managing tabs and windows, similar to TabCluster.
 │       ├── Popup.tsx
 │       ├── main.tsx
 │       └── index.html
+├── scripts/
+│   ├── bump.js           # Version bump script
+│   └── zip.js            # Chrome Web Store zip script
 ├── vite.config.ts
 ├── tailwind.config.js
 └── tsconfig.json
@@ -89,14 +92,18 @@ just build     # Build to dist/
 just dev       # Dev server
 just clean     # Remove dist/
 just rebuild   # Clean + build
+just bump <major|minor|patch>  # Bump version in package.json and manifest.json
+just zip       # Build and create zip for Chrome Web Store
 ```
 
 Otherwise use npm directly:
 ```bash
-npm install    # Install dependencies
-npm run build  # Build to dist/
-npm run dev    # Dev server
-rm -rf dist    # Remove dist/
+npm install              # Install dependencies
+npm run build            # Build to dist/
+npm run dev              # Dev server
+rm -rf dist              # Remove dist/
+npm run bump -- patch    # Bump version (major, minor, or patch)
+npm run zip              # Create zip (run after build)
 ```
 
 Note: For extension development, you'll need to build and reload the extension in Chrome after changes.

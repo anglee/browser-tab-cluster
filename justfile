@@ -20,6 +20,10 @@ clean:
 # Rebuild from scratch
 rebuild: clean build
 
+# Bump version (usage: just bump major|minor|patch)
+bump type:
+    npm run bump -- {{type}}
+
 # Create zip for Chrome Web Store submission
 zip: build
-    cd dist && zip -r ../tab-cluster-v1.0.0.zip . -x "*.DS_Store"
+    npm run zip

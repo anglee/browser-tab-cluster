@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "zip": "node scripts/zip.js",
+    "bump": "node scripts/bump.js"
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
