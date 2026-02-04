@@ -24,6 +24,10 @@ rebuild: clean build
 bump type:
     npm run bump -- {{type}}
 
+# Push commits and tags
+push:
+    git push --follow-tags
+
 # Create zip for Chrome Web Store submission
 zip: build
     npm run zip

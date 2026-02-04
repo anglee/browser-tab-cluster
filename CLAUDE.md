@@ -14,6 +14,7 @@ just dev       # Dev server (limited use for extensions)
 just clean     # Remove dist/
 just rebuild   # Clean + build
 just bump <major|minor|patch>  # Bump version, commit, and tag
+just push      # Push commits and tags to remote
 just zip       # Build and create zip for Chrome Web Store
 ```
 
@@ -39,7 +40,7 @@ npm run zip              # Create zip (run after build)
 - `src/hooks/useColumnCount.ts` - Responsive column count (1/2/3 based on viewport)
 - `public/manifest.json` - Chrome extension manifest
 - `public/background.js` - Service worker for keyboard shortcuts
-- `scripts/bump.js` - Version bump script (updates package.json and manifest.json)
+- `scripts/bump.js` - Version bump script (updates package.json and manifest.json, commits, and tags)
 - `scripts/zip.js` - Creates zip for Chrome Web Store submission
 
 ### Architecture Notes
@@ -113,7 +114,7 @@ Key design decisions and their motivations:
 ### Recently Closed Tabs
 - Limited to 30 tabs maximum (Chrome sessions API returns up to 25 sessions, but closed windows can contain many tabs)
 - Chrome sessions API doesn't support deletion, so "Hide" stores session IDs in localStorage
-- Hidden IDs are capped at 50 entries to prevent unbounded growth
+- Hidden IDs are capped at 1000 entries to prevent unbounded growth
 - Auto-cleanup removes stale IDs when sessions expire or are restored
 - Rationale: Provides expected "delete" UX despite API limitation
 

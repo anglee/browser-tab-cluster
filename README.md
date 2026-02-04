@@ -93,6 +93,7 @@ just dev       # Dev server
 just clean     # Remove dist/
 just rebuild   # Clean + build
 just bump <major|minor|patch>  # Bump version, commit, and tag
+just push      # Push commits and tags to remote
 just zip       # Build and create zip for Chrome Web Store
 ```
 
