@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { execSync } from 'child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, '..');
@@ -33,6 +34,10 @@ function bumpVersion(version, type) {
   }
 }
 
+function git(command) {
+  execSync(`git ${command}`, { cwd: rootDir, stdio: 'inherit' });
+}
+
 const type = process.argv[2];
 
 if (!type) {
@@ -53,3 +58,10 @@ writeJson(packageJsonPath, packageJson);
 writeJson(manifestJsonPath, manifestJson);
 
 console.log(`Bumped version: ${currentVersion} → ${newVersion}`);
+
+// Commit and tag
+git('add package.json public/manifest.json');
+git(`commit -m "v${newVersion}"`);
+git(`tag v${newVersion}`);
+
+console.log(`Committed and tagged v${newVersion}`);

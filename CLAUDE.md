@@ -13,7 +13,7 @@ just build     # Build to dist/
 just dev       # Dev server (limited use for extensions)
 just clean     # Remove dist/
 just rebuild   # Clean + build
-just bump <major|minor|patch>  # Bump version in package.json and manifest.json
+just bump <major|minor|patch>  # Bump version, commit, and tag
 just zip       # Build and create zip for Chrome Web Store
 ```
 
@@ -23,7 +23,7 @@ npm install              # Install dependencies
 npm run build            # Build to dist/
 npm run dev              # Dev server (limited use for extensions)
 rm -rf dist              # Remove dist/
-npm run bump -- patch    # Bump version (major, minor, or patch)
+npm run bump -- patch    # Bump version, commit, and tag
 npm run zip              # Create zip (run after build)
 ```
 
