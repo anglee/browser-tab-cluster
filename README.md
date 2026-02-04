@@ -173,7 +173,5 @@ To customize the shortcut:
 ## Permissions
 
 The extension requires:
-- `tabs` - Access to tab information
-- `windows` - Access to window management
+- `tabs` - Access to tab information (title, URL, favicon)
 - `sessions` - Access to recently closed tabs
-- `<all_urls>` - For favicon access

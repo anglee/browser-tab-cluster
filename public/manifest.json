@@ -3,7 +3,7 @@
   "name": "Tab Cluster",
   "version": "1.0.0",
   "description": "Organize your tabs with drag & drop, search, merge windows, deduplicate, and restore recently closed tabs. All local, no cloud.",
-  "permissions": ["tabs", "windows", "sessions"],
+  "permissions": ["tabs", "sessions"],
   "action": {
     "default_popup": "popup/index.html",
     "default_icon": {
