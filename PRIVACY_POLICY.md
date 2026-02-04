@@ -22,7 +22,7 @@ Tab Cluster accesses the following browser information to provide its functional
 Tab Cluster stores minimal data locally on your device:
 
 - **Theme Preference**: Your light/dark theme selection (stored in browser localStorage)
-- **Hidden Tabs List**: IDs of closed tabs you've chosen to hide from the recently closed list (stored in browser localStorage)
+- **Hidden Tabs List**: IDs of closed tabs you've chosen to hide from the recently closed list (stored in browser localStorage; older entries are automatically removed)
 
 ### What We Do NOT Do
 
@@ -38,10 +38,8 @@ Tab Cluster requires the following Chrome permissions:
 
 | Permission | Why It's Needed |
 |------------|-----------------|
-| `tabs` | To read tab titles, URLs, and manage tab operations (move, close, activate) |
-| `windows` | To manage browser windows (create, close, merge, focus) |
+| `tabs` | To read tab titles, URLs, favicons, and manage tab operations (move, close, activate) |
 | `sessions` | To access and restore recently closed tabs |
-| `<all_urls>` | To access favicon URLs from tabs (Chrome stores favicons at various URLs that require this permission to read) |
 
 ## Data Retention
 
