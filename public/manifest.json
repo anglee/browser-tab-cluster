@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tab Cluster",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Organize your tabs with drag & drop, search, merge windows, deduplicate, and restore recently closed tabs. All local, no cloud.",
   "permissions": [
     "tabs",
