@@ -40,7 +40,7 @@ npm run zip              # Create zip (run after build)
 - `src/hooks/useColumnCount.ts` - Responsive column count (1/2/3 based on viewport)
 - `public/manifest.json` - Chrome extension manifest
 - `public/background.js` - Service worker for keyboard shortcuts
-- `scripts/bump.js` - Version bump script (updates package.json and manifest.json, commits, and tags)
+- `scripts/bump.js` - Version bump script (updates package.json, manifest.json, and CHANGELOG.md; commits and creates annotated tag)
 - `scripts/zip.js` - Creates zip for Chrome Web Store submission
 
 ### Architecture Notes

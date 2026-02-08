@@ -60,7 +60,7 @@ writeJson(manifestJsonPath, manifestJson);
 console.log(`Bumped version: ${currentVersion} → ${newVersion}`);
 
 // Commit and tag
-git('add package.json public/manifest.json');
+git('add package.json public/manifest.json CHANGELOG.md');
 git(`commit -m "v${newVersion}"`);
 git(`tag -a v${newVersion} -m "v${newVersion}"`);
 

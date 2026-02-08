@@ -49,14 +49,22 @@ Create a new release for this project.
    - If "cancel": stop here
    - If "yes": proceed
 
-7. **Update CHANGELOG.md**:
+7. **Update CHANGELOG.md** (must happen before the bump command):
    - If the file doesn't exist, create it with a header
    - Insert the new entry at the top (after the header)
+   - Do NOT commit CHANGELOG.md separately — the bump script handles it
 
 8. **Run the bump command**:
    ```
    just bump <type>
    ```
-   This will update version numbers, commit, and create a git tag.
+   This will stage `package.json`, `manifest.json`, and `CHANGELOG.md`, commit them all together, and create an annotated git tag.
 
-9. **Report success** with the new version number and remind about `git push --tags`.
+9. **Push and create zip**:
+   ```
+   just push
+   just zip
+   ```
+   `just push` runs `git push --follow-tags` which pushes both commits and annotated tags.
+
+10. **Report success** with the new version number and zip file name.

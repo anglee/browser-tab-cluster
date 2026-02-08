@@ -68,7 +68,7 @@ A Chrome browser extension for managing tabs and windows, similar to TabCluster.
 │       ├── main.tsx
 │       └── index.html
 ├── scripts/
-│   ├── bump.js           # Version bump script
+│   ├── bump.js           # Version bump script (includes CHANGELOG.md)
 │   └── zip.js            # Chrome Web Store zip script
 ├── vite.config.ts
 ├── tailwind.config.js
