@@ -62,6 +62,6 @@ console.log(`Bumped version: ${currentVersion} → ${newVersion}`);
 // Commit and tag
 git('add package.json public/manifest.json');
 git(`commit -m "v${newVersion}"`);
-git(`tag v${newVersion}`);
+git(`tag -a v${newVersion} -m "v${newVersion}"`);
 
 console.log(`Committed and tagged v${newVersion}`);

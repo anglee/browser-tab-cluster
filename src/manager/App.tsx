@@ -76,6 +76,21 @@ function saveHiddenClosedTabs(hidden: Set<string>): void {
   localStorage.setItem(HIDDEN_CLOSED_TABS_KEY, JSON.stringify(capped));
 }
 
+const MAC_MODIFIER_MAP: Record<string, string> = {
+  Ctrl: '⌃',
+  Command: '⌘',
+  Meta: '⌘',
+  Alt: '⌥',
+  Shift: '⇧',
+};
+
+function parseShortcutKeys(shortcut: string): string[] {
+  const isMac = navigator.platform.toUpperCase().includes('MAC');
+  const parts = shortcut.split('+');
+  if (!isMac) return parts;
+  return parts.map(p => MAC_MODIFIER_MAP[p] ?? p);
+}
+
 export default function App() {
   const { windows, loading, error } = useWindows();
   const [hiddenClosedTabs, setHiddenClosedTabs] = useState<Set<string>>(getHiddenClosedTabs);
@@ -86,7 +101,18 @@ export default function App() {
   const [focus, setFocus] = useState<FocusTarget>({ type: 'search' });
   const [searchQuery, setSearchQuery] = useState('');
   const [collapsedCards, setCollapsedCards] = useState<Set<string>>(new Set());
+  const [shortcutKeys, setShortcutKeys] = useState<string[]>([]);
   const toolbarRef = useRef<ToolbarHandle>(null);
+
+  // Query configured keyboard shortcut on mount
+  useEffect(() => {
+    chrome.commands.getAll().then(commands => {
+      const cmd = commands.find(c => c.name === 'open-tab-cluster');
+      if (cmd?.shortcut) {
+        setShortcutKeys(parseShortcutKeys(cmd.shortcut));
+      }
+    });
+  }, []);
 
   // Special key for the recently closed card
   const RECENTLY_CLOSED_KEY = 'recently-closed';
@@ -903,6 +929,7 @@ export default function App() {
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         onFocus={() => setFocus({ type: 'search' })}
+        shortcutKeys={shortcutKeys}
         tabCount={totalTabs}
         windowCount={windows.length}
         windows={windows}

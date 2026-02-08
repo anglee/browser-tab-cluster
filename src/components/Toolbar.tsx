@@ -22,6 +22,7 @@ interface ToolbarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
   onFocus: () => void;
+  shortcutKeys?: string[];
   tabCount: number;
   windowCount: number;
   windows: WindowInfo[];
@@ -40,6 +41,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
   searchQuery,
   onSearchChange,
   onFocus,
+  shortcutKeys,
   tabCount,
   windowCount,
   windows,
@@ -174,7 +176,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
         <SearchOutlined
           className={`absolute left-2.5 top-1/2 -translate-y-1/2 text-sm ${isDark ? 'text-mist-400' : 'text-mist-500'}`}
         />
-        {searchQuery && (
+        {searchQuery ? (
           <button
             onClick={() => onSearchChange('')}
             tabIndex={-1}
@@ -184,6 +186,21 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
           >
             <CloseOutlined className="text-sm" />
           </button>
+        ) : shortcutKeys && shortcutKeys.length > 0 && (
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-0.5 pointer-events-none">
+            {shortcutKeys.map((key, i) => (
+              <span
+                key={i}
+                className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1 text-[11px] leading-none rounded border ${
+                  isDark
+                    ? 'bg-mist-800 border-mist-600 text-mist-400 shadow-[0_1px_0_0_rgba(0,0,0,0.4)]'
+                    : 'bg-mist-100 border-mist-300 text-mist-500 shadow-[0_1px_0_0_rgba(0,0,0,0.08)]'
+                }`}
+              >
+                {key}
+              </span>
+            ))}
+          </div>
         )}
       </div>
 
