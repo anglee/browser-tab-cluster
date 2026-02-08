@@ -403,6 +403,20 @@ export default function App() {
       const isLeftKey = e.key === 'ArrowLeft' || (e.ctrlKey && e.key === 'h');
       const isRightKey = e.key === 'ArrowRight' || (e.ctrlKey && e.key === 'l');
       if (isLeftKey || isRightKey) {
+        if (isRightKey && isSearchFocused) {
+          const input = document.activeElement as HTMLInputElement;
+          if (input?.selectionStart === searchQuery.length) {
+            e.preventDefault();
+            if (windowCardCount > 1) {
+              setFocus({ type: 'card', cardIndex: 1 });
+            } else if (hasRecentlyClosed) {
+              setFocus({ type: 'recentlyClosedCard' });
+            } else if (windowCardCount === 1) {
+              setFocus({ type: 'card', cardIndex: 0 });
+            }
+          }
+          return;
+        }
         if (focus.type === 'card' || focus.type === 'tab') {
           e.preventDefault();
           if (isLeftKey) {
