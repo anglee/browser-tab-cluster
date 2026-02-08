@@ -9,6 +9,7 @@ import {
   MoonOutlined,
   VerticalAlignMiddleOutlined,
   ArrowsAltOutlined,
+  QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { Tooltip } from './Tooltip';
 import { WindowInfo } from '../types';
@@ -342,6 +343,21 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
             ) : (
               <VerticalAlignMiddleOutlined className="text-lg" />
             )}
+          </button>
+        </Tooltip>
+
+        {/* Documentation */}
+        <Tooltip text="Documentation" theme={theme} position="bottom-right">
+          <button
+            onClick={() => chrome.tabs.create({ url: 'https://github.com/anglee/browser-tab-cluster/wiki/User-Guide' })}
+            tabIndex={-1}
+            className={`p-2 rounded transition-colors ${
+              isDark
+                ? 'text-mist-300 hover:bg-mist-700 hover:text-white'
+                : 'text-mist-600 hover:bg-mist-100 hover:text-mist-950'
+            }`}
+          >
+            <QuestionCircleOutlined className="text-lg" />
           </button>
         </Tooltip>
 
