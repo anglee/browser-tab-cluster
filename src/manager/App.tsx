@@ -360,6 +360,9 @@ export default function App() {
               setFocus({ type: 'tab', cardIndex: 0, tabIndex: 1 });
             } else if (firstWindow && firstWindow.tabs.length === 1) {
               setFocus({ type: 'tab', cardIndex: 0, tabIndex: 0 });
+            } else if (hasRecentlyClosed) {
+              const idx = filteredClosedTabs.length > 1 ? 1 : 0;
+              setFocus({ type: 'recentlyClosedTab', tabIndex: idx });
             }
           } else {
             // Empty → first card
@@ -403,6 +406,8 @@ export default function App() {
           const firstWindow = filteredWindows[0];
           if (firstWindow && firstWindow.tabs.length > 0) {
             setFocus({ type: 'tab', cardIndex: 0, tabIndex: firstWindow.tabs.length - 1 });
+          } else if (hasRecentlyClosed) {
+            setFocus({ type: 'recentlyClosedTab', tabIndex: filteredClosedTabs.length - 1 });
           }
         } else if (focus.type === 'card') {
           // → Search input
