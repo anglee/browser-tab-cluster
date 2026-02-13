@@ -229,8 +229,6 @@ export default function App() {
       const hasRecentlyClosed = filteredClosedTabs.length > 0;
       const totalCardCount = windowCardCount + (hasRecentlyClosed ? 1 : 0);
 
-      if (totalCardCount === 0) return;
-
       // Escape: clear search and focus search input
       if (e.key === 'Escape') {
         e.preventDefault();
@@ -238,6 +236,8 @@ export default function App() {
         focusSearchInput();
         return;
       }
+
+      if (totalCardCount === 0) return;
 
       // Get current focus context
       const isSearchFocused = focus.type === 'search';
