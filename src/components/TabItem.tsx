@@ -151,7 +151,7 @@ export function TabItem({
         }}
         onClick={(e) => e.stopPropagation()}
         tabIndex={-1}
-        className={`w-3.5 h-3.5 rounded flex-shrink-0 cursor-pointer ${
+        className={`w-4 h-4 -mr-1 rounded flex-shrink-0 cursor-pointer ${
           isChecked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
         } transition-opacity ${
           isDark

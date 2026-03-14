@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -128,6 +128,24 @@ export function WindowCard({
   const otherWindows = allWindows.filter(w => w.id !== window.id);
   const selectedTabCount = selectedTabs.size;
 
+  const selectAllRef = useRef<HTMLInputElement>(null);
+  const allSelected = selectedTabCount === window.tabs.length && window.tabs.length > 0;
+  const someSelected = selectedTabCount > 0 && !allSelected;
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = someSelected;
+    }
+  }, [someSelected]);
+
+  const handleSelectAll = () => {
+    if (allSelected) {
+      setSelectedTabs(new Set());
+    } else {
+      setSelectedTabs(new Set(window.tabs.map(t => t.id)));
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -156,8 +174,17 @@ export function WindowCard({
               <span className={`ml-2 text-xs ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>
             )}
           </span>
-          <span className={`text-xs ${isDark ? 'text-mist-400' : 'text-mist-500'}`}>
-            ({window.tabs.length})
+          <span
+            className={`text-xs flex items-center gap-1 cursor-pointer ${isDark ? 'text-mist-400' : 'text-mist-500'}`}
+            onClick={(e) => { e.stopPropagation(); handleSelectAll(); }}
+          >
+            (<input
+              ref={selectAllRef}
+              type="checkbox"
+              checked={allSelected}
+              onChange={() => {}}
+              className={`w-4 h-4 rounded cursor-pointer translate-y-px ${isDark ? 'accent-mist-400' : 'accent-mist-600'}`}
+            />{window.tabs.length})
           </span>
         </div>
 
