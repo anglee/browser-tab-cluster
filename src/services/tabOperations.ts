@@ -63,7 +63,7 @@ function getDomain(url: string): string {
 export function normalizeUrl(url: string): string {
   try {
     const urlObj = new URL(url);
-    // Remove hash and trailing slash
+    // Start with origin + pathname
     let normalized = urlObj.origin + urlObj.pathname;
     if (normalized.endsWith('/')) {
       normalized = normalized.slice(0, -1);
@@ -71,6 +71,11 @@ export function normalizeUrl(url: string): string {
     // Include search params for uniqueness
     if (urlObj.search) {
       normalized += urlObj.search;
+    }
+    // Preserve hash-based routes (#/ or #!/) — these are different pages in SPAs.
+    // Strip plain anchor hashes (#section, #top) as before.
+    if (urlObj.hash && (urlObj.hash.startsWith('#/') || urlObj.hash.startsWith('#!/'))) {
+      normalized += urlObj.hash;
     }
     return normalized.toLowerCase();
   } catch {
