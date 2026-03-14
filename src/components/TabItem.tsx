@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Checkbox } from './Checkbox';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
@@ -142,23 +143,13 @@ export function TabItem({
       onClick={handleClick}
     >
       {/* Checkbox for multi-select */}
-      <input
-        type="checkbox"
-        checked={isChecked}
-        onChange={(e) => {
-          e.stopPropagation();
-          onToggleCheck?.(tab.id, e.target.checked);
-        }}
-        onClick={(e) => e.stopPropagation()}
-        tabIndex={-1}
-        className={`w-4 h-4 -mr-1 rounded flex-shrink-0 cursor-pointer ${
-          isChecked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-        } transition-opacity ${
-          isDark
-            ? 'border-mist-600 bg-mist-700 accent-mist-400'
-            : 'border-mist-300 bg-mist-50 accent-mist-600'
-        }`}
-      />
+      <div className={`-mr-1 ${isChecked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+        <Checkbox
+          checked={isChecked}
+          onChange={() => onToggleCheck?.(tab.id, !isChecked)}
+          theme={theme}
+        />
+      </div>
 
       <div
         {...attributes}
@@ -190,7 +181,7 @@ export function TabItem({
       </Tooltip>
 
       <Tooltip text={<>{tab.title || 'Untitled'}<br /><span className="text-mist-400">{tab.url}</span></>} theme={theme} flex1 wrap>
-        <span className={`text-sm truncate block ${isDark ? 'text-mist-200' : 'text-mist-700'}`}>
+        <span className={`text-sm truncate block ${isDark ? 'text-mist-400' : 'text-mist-700'}`}>
           {tab.title || 'Untitled'}
         </span>
       </Tooltip>

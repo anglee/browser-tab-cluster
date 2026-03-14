@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { Checkbox } from './Checkbox';
 import {
   SearchOutlined,
   CloseOutlined,
@@ -251,21 +252,17 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
 
               <div className="max-h-64 overflow-y-auto py-1">
                 {windows.map(win => (
-                  <label
+                  <div
                     key={win.id}
                     className={`flex items-center gap-3 px-3 py-2 cursor-pointer ${
                       isDark ? 'hover:bg-mist-700' : 'hover:bg-mist-100'
                     }`}
+                    onClick={() => handleToggleWindowSelection(win.id)}
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={selectedForMerge.has(win.id)}
                       onChange={() => handleToggleWindowSelection(win.id)}
-                      className={`w-4 h-4 rounded ${
-                        isDark
-                          ? 'border-mist-600 bg-mist-700 accent-mist-400'
-                          : 'border-mist-300 bg-mist-50 accent-mist-600'
-                      }`}
+                      theme={theme}
                     />
                     <span className={`text-sm flex-1 truncate ${isDark ? 'text-mist-200' : 'text-mist-700'}`}>
                       Window {getWindowNumber(win.id)}
@@ -276,7 +273,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
                     <span className={`text-xs ${isDark ? 'text-mist-400' : 'text-mist-500'}`}>
                       {win.tabs.length} tabs
                     </span>
-                  </label>
+                  </div>
                 ))}
               </div>
 
