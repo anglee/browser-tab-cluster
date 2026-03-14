@@ -194,7 +194,7 @@ export function RecentlyClosedCard({
               checked={allSelected}
               onChange={() => {}}
               className={`w-4 h-4 rounded cursor-pointer translate-y-px ${isDark ? 'accent-mist-400' : 'accent-mist-600'}`}
-            />{closedTabs.length})
+            />{closedTabs.length} tabs)
           </span>
         </div>
 

@@ -184,7 +184,7 @@ export function WindowCard({
               checked={allSelected}
               onChange={() => {}}
               className={`w-4 h-4 rounded cursor-pointer translate-y-px ${isDark ? 'accent-mist-400' : 'accent-mist-600'}`}
-            />{window.tabs.length})
+            />{window.tabs.length} tabs)
           </span>
         </div>
 

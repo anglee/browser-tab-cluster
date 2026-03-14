@@ -206,7 +206,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
 
       {/* Stats */}
       <div className={`text-sm px-2 ${isDark ? 'text-mist-400' : 'text-mist-500'}`}>
-        {windowCount} Windows | {tabCount} Tabs
+        {windowCount} windows | {tabCount} tabs
       </div>
 
       {/* Spacer */}
