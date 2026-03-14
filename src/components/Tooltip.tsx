@@ -4,7 +4,7 @@ interface TooltipProps {
   text: ReactNode;
   children: ReactNode;
   theme: 'light' | 'dark';
-  position?: 'bottom' | 'bottom-right';
+  position?: 'bottom' | 'bottom-right' | 'top';
   flex1?: boolean;
   wrap?: boolean;
 }
@@ -14,6 +14,8 @@ export function Tooltip({ text, children, theme, position = 'bottom', flex1 = fa
 
   const positionClasses = position === 'bottom-right'
     ? 'right-0 top-full mt-1'
+    : position === 'top'
+    ? 'left-1/2 -translate-x-1/2 bottom-full -mb-0.5'
     : 'left-0 top-full mt-1';
 
   return (

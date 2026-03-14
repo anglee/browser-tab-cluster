@@ -149,7 +149,7 @@ export function WindowCard({
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-xl outline-none ${
+      className={`rounded-xl outline-none overflow-visible ${
         isDark ? 'bg-white/5' : 'bg-mist-950/[0.025]'
       } ${
         isOver
@@ -193,12 +193,12 @@ export function WindowCard({
           {/* Bulk Actions Button - only visible when 2+ tabs selected */}
           {selectedTabCount >= 2 && (
             <div className="relative">
-              <Tooltip text={`Actions for ${selectedTabCount} tabs`} theme={theme} position="bottom-right">
+              <Tooltip text={`Actions for ${selectedTabCount} tabs`} theme={theme} position="top">
                 <button
                   onClick={(e) => { e.stopPropagation(); setShowActionsMenu(!showActionsMenu); }}
                   tabIndex={-1}
                   className={`p-1.5 rounded flex items-center gap-1 ${
-                    isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700' : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
+                    isDark ? 'text-mist-300 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
                   }`}
                 >
                   <FileTextOutlined className="text-base" />
@@ -232,7 +232,7 @@ export function WindowCard({
                           onClick={() => handleBulkMoveToWindow(w.id)}
                           theme={theme}
                         >
-                          Window {getWindowNumber(w.id)} ({w.tabs.length})
+                          Window {getWindowNumber(w.id)} ({w.tabs.length} tabs)
                         </SubmenuItem>
                       ))}
                     </Submenu>
@@ -248,7 +248,7 @@ export function WindowCard({
                     }`}
                   >
                     <CloseOutlined className="text-base" />
-                    Close All Tabs
+                    Close All {selectedTabCount} tabs
                   </button>
                 </div>
               )}
@@ -258,7 +258,7 @@ export function WindowCard({
           {!isSearching && (
             <>
               <div className="relative">
-                <Tooltip text="Sort tabs" theme={theme} position="bottom-right">
+                <Tooltip text="Sort tabs" theme={theme} position="top">
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowSortMenu(!showSortMenu); }}
                     tabIndex={-1}
@@ -295,7 +295,7 @@ export function WindowCard({
                 )}
               </div>
 
-              <Tooltip text="Remove duplicates" theme={theme} position="bottom-right">
+              <Tooltip text="Remove duplicates" theme={theme} position="top">
                 <button
                   onClick={(e) => { e.stopPropagation(); onDedupe(window.id); }}
                   tabIndex={-1}
@@ -307,7 +307,7 @@ export function WindowCard({
                 </button>
               </Tooltip>
 
-              <Tooltip text="Close window" theme={theme} position="bottom-right">
+              <Tooltip text="Close window" theme={theme} position="top">
                 <button
                   onClick={(e) => { e.stopPropagation(); onCloseWindow(window.id); }}
                   tabIndex={-1}
@@ -322,7 +322,7 @@ export function WindowCard({
           )}
 
           {/* Collapse Toggle */}
-          <Tooltip text={isCollapsed ? 'Expand' : 'Collapse'} theme={theme} position="bottom-right">
+          <Tooltip text={isCollapsed ? 'Expand' : 'Collapse'} theme={theme} position="top">
             <button
               onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
               tabIndex={-1}

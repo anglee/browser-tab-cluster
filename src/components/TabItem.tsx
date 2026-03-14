@@ -238,7 +238,7 @@ export function TabItem({
                     onClick={() => handleMoveToWindow(w.id)}
                     theme={theme}
                   >
-                    Window {getWindowNumber(w.id)} ({w.tabs.length})
+                    Window {getWindowNumber(w.id)} ({w.tabs.length} tabs)
                   </SubmenuItem>
                 ))}
               </Submenu>

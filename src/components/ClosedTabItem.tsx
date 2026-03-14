@@ -242,7 +242,7 @@ export function ClosedTabItem({
                     onClick={() => handleRestoreToWindow(w.id)}
                     theme={theme}
                   >
-                    Window {getWindowNumber(w.id)} ({w.tabs.length})
+                    Window {getWindowNumber(w.id)} ({w.tabs.length} tabs)
                     {w.focused && <span className={`ml-1 ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>}
                   </SubmenuItem>
                 ))}

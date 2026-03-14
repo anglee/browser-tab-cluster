@@ -163,7 +163,7 @@ export function RecentlyClosedCard({
 
   return (
     <div
-      className={`rounded-xl outline-none ${
+      className={`rounded-xl outline-none overflow-visible ${
         isDark ? 'bg-white/5' : 'bg-mist-950/[0.025]'
       } ${
         isCardFocused
@@ -202,14 +202,14 @@ export function RecentlyClosedCard({
           {/* Bulk Actions Button - only visible when 2+ tabs selected */}
           {selectedTabCount >= 2 && (
             <div className="relative">
-              <Tooltip text={`Actions for ${selectedTabCount} tabs`} theme={theme} position="bottom-right">
+              <Tooltip text={`Actions for ${selectedTabCount} tabs`} theme={theme} position="top">
                 <button
                   onClick={(e) => { e.stopPropagation(); setShowActionsMenu(!showActionsMenu); }}
                   tabIndex={-1}
                   className={`p-1.5 rounded flex items-center gap-1 ${
                     isDark
-                      ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700'
-                      : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
+                      ? 'text-mist-300 hover:text-mist-200 hover:bg-mist-700'
+                      : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
                   }`}
                 >
                   <FileTextOutlined className="text-base" />
@@ -268,7 +268,7 @@ export function RecentlyClosedCard({
                           onClick={() => handleBulkRestoreToWindow(w.id)}
                           theme={theme}
                         >
-                          Window {getWindowNumber(w.id)} ({w.tabs.length})
+                          Window {getWindowNumber(w.id)} ({w.tabs.length} tabs)
                           {w.focused && <span className={`ml-1 ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>}
                         </SubmenuItem>
                       ))}
@@ -287,7 +287,7 @@ export function RecentlyClosedCard({
                     }`}
                   >
                     <DeleteOutlined className="text-base" />
-                    Hide Selected
+                    Hide {selectedTabCount} Selected
                   </button>
                 </div>
               )}
@@ -297,7 +297,7 @@ export function RecentlyClosedCard({
           {!isSearching && (
             <>
               <div className="relative">
-                <Tooltip text="Restore all" theme={theme} position="bottom-right">
+                <Tooltip text="Restore all" theme={theme} position="top">
                   <button
                     onClick={(e) => { e.stopPropagation(); handleRestoreAllClick(); }}
                     tabIndex={-1}
@@ -344,7 +344,7 @@ export function RecentlyClosedCard({
               </div>
 
               <div className="relative">
-                <Tooltip text="Clear all" theme={theme} position="bottom-right">
+                <Tooltip text="Clear all" theme={theme} position="top">
                   <button
                     onClick={(e) => { e.stopPropagation(); handleClearAllClick(); }}
                     tabIndex={-1}
@@ -391,7 +391,7 @@ export function RecentlyClosedCard({
           )}
 
           {/* Collapse Toggle */}
-          <Tooltip text={isCollapsed ? 'Expand' : 'Collapse'} theme={theme} position="bottom-right">
+          <Tooltip text={isCollapsed ? 'Expand' : 'Collapse'} theme={theme} position="top">
             <button
               onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
               tabIndex={-1}
