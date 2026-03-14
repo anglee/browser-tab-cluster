@@ -175,7 +175,7 @@ export function RecentlyClosedCard({
         className={`flex items-center justify-between px-3 py-1.5 cursor-pointer border-b rounded-t-xl ${
           isDark ? 'bg-mist-900 border-white/10' : 'bg-mist-200 border-mist-950/10'
         }`}
-        onClick={onToggleCollapse}
+        onMouseDown={onToggleCollapse}
       >
         <div className="flex items-center gap-2">
           <HistoryOutlined
@@ -186,7 +186,7 @@ export function RecentlyClosedCard({
           </span>
           <span
             className={`text-xs flex items-center gap-1 cursor-pointer ${isDark ? 'text-mist-400' : 'text-mist-500'}`}
-            onClick={(e) => { e.stopPropagation(); handleSelectAll(); }}
+            onMouseDown={(e) => { e.stopPropagation(); handleSelectAll(); }}
           >
             (<input
               ref={selectAllRef}
@@ -204,7 +204,7 @@ export function RecentlyClosedCard({
             <div className="relative">
               <Tooltip text={`Actions for ${selectedTabCount} tabs`} theme={theme} position="bottom-right">
                 <button
-                  onClick={(e) => { e.stopPropagation(); setShowActionsMenu(!showActionsMenu); }}
+                  onMouseDown={(e) => { e.stopPropagation(); setShowActionsMenu(!showActionsMenu); }}
                   tabIndex={-1}
                   className={`p-1.5 rounded flex items-center gap-1 ${
                     isDark
@@ -218,6 +218,7 @@ export function RecentlyClosedCard({
               </Tooltip>
               {showActionsMenu && (
                 <div
+                  onMouseDown={(e) => e.stopPropagation()}
                   className={`absolute right-0 top-full mt-1 py-1 w-56 rounded-xl shadow-lg z-20 ring-1 ${
                     isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
                   }`}
@@ -299,7 +300,7 @@ export function RecentlyClosedCard({
               <div className="relative">
                 <Tooltip text="Restore all" theme={theme} position="bottom-right">
                   <button
-                    onClick={(e) => { e.stopPropagation(); handleRestoreAllClick(); }}
+                    onMouseDown={(e) => { e.stopPropagation(); handleRestoreAllClick(); }}
                     tabIndex={-1}
                     className={`p-1.5 rounded ${
                       isDark
@@ -312,6 +313,7 @@ export function RecentlyClosedCard({
                 </Tooltip>
                 {showRestoreAllConfirm && (
                   <div
+                    onMouseDown={(e) => e.stopPropagation()}
                     className={`absolute right-0 top-full mt-1 p-3 w-56 rounded-xl shadow-lg z-20 ring-1 ${
                       isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
                     }`}
@@ -346,7 +348,7 @@ export function RecentlyClosedCard({
               <div className="relative">
                 <Tooltip text="Clear all" theme={theme} position="bottom-right">
                   <button
-                    onClick={(e) => { e.stopPropagation(); handleClearAllClick(); }}
+                    onMouseDown={(e) => { e.stopPropagation(); handleClearAllClick(); }}
                     tabIndex={-1}
                     className={`p-1.5 rounded hover:text-red-400 ${
                       isDark ? 'text-mist-400 hover:bg-mist-700' : 'text-mist-500 hover:bg-mist-200'
@@ -357,6 +359,7 @@ export function RecentlyClosedCard({
                 </Tooltip>
                 {showClearAllConfirm && (
                   <div
+                    onMouseDown={(e) => e.stopPropagation()}
                     className={`absolute right-0 top-full mt-1 p-3 w-56 rounded-xl shadow-lg z-20 ring-1 ${
                       isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
                     }`}
@@ -393,7 +396,7 @@ export function RecentlyClosedCard({
           {/* Collapse Toggle */}
           <Tooltip text={isCollapsed ? 'Expand' : 'Collapse'} theme={theme} position="bottom-right">
             <button
-              onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
+              onMouseDown={(e) => { e.stopPropagation(); onToggleCollapse(); }}
               tabIndex={-1}
               className={`p-1.5 rounded ${
                 isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'

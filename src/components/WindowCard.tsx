@@ -163,12 +163,12 @@ export function WindowCard({
         className={`flex items-center justify-between px-3 py-1.5 cursor-pointer border-b rounded-t-xl ${
           isDark ? 'bg-mist-900 border-white/10' : 'bg-mist-200 border-mist-950/10'
         }`}
-        onClick={onToggleCollapse}
+        onMouseDown={onToggleCollapse}
       >
         <div className="flex items-center gap-2">
           <span
             className={`text-sm font-medium ${window.focused ? '' : 'cursor-pointer hover:underline'} ${isDark ? 'text-mist-200' : 'text-mist-700'}`}
-            {...(!window.focused && { onClick: (e: React.MouseEvent) => { e.stopPropagation(); onFocusWindow(window.id); } })}
+            {...(!window.focused && { onMouseDown: (e: React.MouseEvent) => { e.stopPropagation(); onFocusWindow(window.id); } })}
           >
             Window {displayNumber}
             {window.focused && (
@@ -177,7 +177,7 @@ export function WindowCard({
           </span>
           <span
             className={`text-xs flex items-center gap-1 cursor-pointer ${isDark ? 'text-mist-400' : 'text-mist-500'}`}
-            onClick={(e) => { e.stopPropagation(); handleSelectAll(); }}
+            onMouseDown={(e) => { e.stopPropagation(); handleSelectAll(); }}
           >
             (<input
               ref={selectAllRef}
@@ -195,7 +195,7 @@ export function WindowCard({
             <div className="relative">
               <Tooltip text={`Actions for ${selectedTabCount} tabs`} theme={theme} position="bottom-right">
                 <button
-                  onClick={(e) => { e.stopPropagation(); setShowActionsMenu(!showActionsMenu); }}
+                  onMouseDown={(e) => { e.stopPropagation(); setShowActionsMenu(!showActionsMenu); }}
                   tabIndex={-1}
                   className={`p-1.5 rounded flex items-center gap-1 ${
                     isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700' : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
@@ -206,7 +206,9 @@ export function WindowCard({
                 </button>
               </Tooltip>
               {showActionsMenu && (
-                <div className={`absolute right-0 top-full mt-1 py-1 w-48 rounded-xl shadow-lg z-20 ring-1 ${
+                <div
+                  onMouseDown={(e) => e.stopPropagation()}
+                  className={`absolute right-0 top-full mt-1 py-1 w-48 rounded-xl shadow-lg z-20 ring-1 ${
                   isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
                 }`}>
                   <button
@@ -260,7 +262,7 @@ export function WindowCard({
               <div className="relative">
                 <Tooltip text="Sort tabs" theme={theme} position="bottom-right">
                   <button
-                    onClick={(e) => { e.stopPropagation(); setShowSortMenu(!showSortMenu); }}
+                    onMouseDown={(e) => { e.stopPropagation(); setShowSortMenu(!showSortMenu); }}
                     tabIndex={-1}
                     className={`p-1.5 rounded ${
                       isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
@@ -270,7 +272,9 @@ export function WindowCard({
                   </button>
                 </Tooltip>
                 {showSortMenu && (
-                  <div className={`absolute right-0 top-full mt-1 py-1 w-36 rounded-xl shadow-lg z-10 ring-1 ${
+                  <div
+                    onMouseDown={(e) => e.stopPropagation()}
+                    className={`absolute right-0 top-full mt-1 py-1 w-36 rounded-xl shadow-lg z-10 ring-1 ${
                     isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
                   }`}>
                     <button
@@ -297,7 +301,7 @@ export function WindowCard({
 
               <Tooltip text="Remove duplicates" theme={theme} position="bottom-right">
                 <button
-                  onClick={(e) => { e.stopPropagation(); onDedupe(window.id); }}
+                  onMouseDown={(e) => { e.stopPropagation(); onDedupe(window.id); }}
                   tabIndex={-1}
                   className={`p-1.5 rounded ${
                     isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
@@ -309,7 +313,7 @@ export function WindowCard({
 
               <Tooltip text="Close window" theme={theme} position="bottom-right">
                 <button
-                  onClick={(e) => { e.stopPropagation(); onCloseWindow(window.id); }}
+                  onMouseDown={(e) => { e.stopPropagation(); onCloseWindow(window.id); }}
                   tabIndex={-1}
                   className={`p-1.5 rounded hover:text-red-400 ${
                     isDark ? 'text-mist-400 hover:bg-mist-700' : 'text-mist-500 hover:bg-mist-200'
@@ -324,7 +328,7 @@ export function WindowCard({
           {/* Collapse Toggle */}
           <Tooltip text={isCollapsed ? 'Expand' : 'Collapse'} theme={theme} position="bottom-right">
             <button
-              onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
+              onMouseDown={(e) => { e.stopPropagation(); onToggleCollapse(); }}
               tabIndex={-1}
               className={`p-1.5 rounded ${
                 isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
