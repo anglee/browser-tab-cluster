@@ -51,11 +51,15 @@ export function Submenu({ label, icon, children, theme }: SubmenuProps) {
 
       {showSubmenu && (
         <div
-          className={`absolute top-0 py-1 min-w-40 rounded-xl shadow-lg z-30 ring-1 ${
-            openLeft ? 'right-full mr-1' : 'left-full ml-1'
-          } ${isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'}`}
+          className={`absolute top-0 ${openLeft ? 'right-full pr-1' : 'left-full pl-1'}`}
         >
-          {children}
+          <div
+            className={`py-1 min-w-40 rounded-xl shadow-lg z-30 ring-1 ${
+              isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
+            }`}
+          >
+            {children}
+          </div>
         </div>
       )}
     </div>
