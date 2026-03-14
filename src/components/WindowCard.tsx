@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
+import { Checkbox } from './Checkbox';
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -128,15 +129,8 @@ export function WindowCard({
   const otherWindows = allWindows.filter(w => w.id !== window.id);
   const selectedTabCount = selectedTabs.size;
 
-  const selectAllRef = useRef<HTMLInputElement>(null);
   const allSelected = selectedTabCount === window.tabs.length && window.tabs.length > 0;
   const someSelected = selectedTabCount > 0 && !allSelected;
-
-  useEffect(() => {
-    if (selectAllRef.current) {
-      selectAllRef.current.indeterminate = someSelected;
-    }
-  }, [someSelected]);
 
   const handleSelectAll = () => {
     if (allSelected) {
@@ -167,7 +161,7 @@ export function WindowCard({
       >
         <div className="flex items-center gap-2">
           <span
-            className={`text-sm font-medium ${window.focused ? '' : 'cursor-pointer hover:underline'} ${isDark ? 'text-mist-200' : 'text-mist-700'}`}
+            className={`text-sm font-medium ${window.focused ? '' : 'cursor-pointer hover:underline'} ${isDark ? 'text-mist-300' : 'text-mist-700'}`}
             {...(!window.focused && { onMouseDown: (e: React.MouseEvent) => { e.stopPropagation(); onFocusWindow(window.id); } })}
           >
             Window {displayNumber}
@@ -179,12 +173,12 @@ export function WindowCard({
             className={`text-xs flex items-center gap-1 cursor-pointer ${isDark ? 'text-mist-400' : 'text-mist-500'}`}
             onMouseDown={(e) => { e.stopPropagation(); handleSelectAll(); }}
           >
-            (<input
-              ref={selectAllRef}
-              type="checkbox"
+            (<Checkbox
               checked={allSelected}
-              onChange={() => {}}
-              className={`w-4 h-4 rounded cursor-pointer translate-y-px ${isDark ? 'accent-mist-400' : 'accent-mist-600'}`}
+              indeterminate={someSelected}
+              onChange={handleSelectAll}
+              className="translate-y-px"
+              theme={theme}
             />{window.tabs.length} tabs)
           </span>
         </div>

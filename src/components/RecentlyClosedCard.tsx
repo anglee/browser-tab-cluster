@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
+import { Checkbox } from './Checkbox';
 import {
   HistoryOutlined,
   ReloadOutlined,
@@ -139,15 +140,8 @@ export function RecentlyClosedCard({
   const isDark = theme === 'dark';
   const selectedTabCount = selectedTabs.size;
 
-  const selectAllRef = useRef<HTMLInputElement>(null);
   const allSelected = selectedTabCount === closedTabs.length && closedTabs.length > 0;
   const someSelected = selectedTabCount > 0 && !allSelected;
-
-  useEffect(() => {
-    if (selectAllRef.current) {
-      selectAllRef.current.indeterminate = someSelected;
-    }
-  }, [someSelected]);
 
   const handleSelectAll = () => {
     if (allSelected) {
@@ -181,19 +175,19 @@ export function RecentlyClosedCard({
           <HistoryOutlined
             className={`text-base ${isDark ? 'text-mist-400' : 'text-mist-500'}`}
           />
-          <span className={`text-sm font-medium ${isDark ? 'text-mist-200' : 'text-mist-700'}`}>
+          <span className={`text-sm font-medium ${isDark ? 'text-mist-300' : 'text-mist-700'}`}>
             Recently Closed
           </span>
           <span
             className={`text-xs flex items-center gap-1 cursor-pointer ${isDark ? 'text-mist-400' : 'text-mist-500'}`}
             onMouseDown={(e) => { e.stopPropagation(); handleSelectAll(); }}
           >
-            (<input
-              ref={selectAllRef}
-              type="checkbox"
+            (<Checkbox
               checked={allSelected}
-              onChange={() => {}}
-              className={`w-4 h-4 rounded cursor-pointer translate-y-px ${isDark ? 'accent-mist-400' : 'accent-mist-600'}`}
+              indeterminate={someSelected}
+              onChange={handleSelectAll}
+              className="translate-y-px"
+              theme={theme}
             />{closedTabs.length} tabs)
           </span>
         </div>
