@@ -430,6 +430,8 @@ export function WindowCard({
               windows={allWindows}
               getWindowNumber={getWindowNumber}
               hasFocus={focusedTabIndex === index || searchCandidateTabIndex === index}
+              isFirstInGroup={tab.groupId !== -1 && (index === 0 || window.tabs[index - 1].groupId !== tab.groupId)}
+              isLastInGroup={tab.groupId !== -1 && (index === window.tabs.length - 1 || window.tabs[index + 1].groupId !== tab.groupId)}
               isChecked={selectedTabs.has(tab.id)}
               onToggleCheck={handleTabCheck}
               onClose={onCloseTab}

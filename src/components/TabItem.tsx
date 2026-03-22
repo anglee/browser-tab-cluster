@@ -21,6 +21,8 @@ interface TabItemProps {
   windows: WindowInfo[];
   getWindowNumber: (windowId: number) => number;
   hasFocus?: boolean;
+  isFirstInGroup: boolean;
+  isLastInGroup: boolean;
   isChecked?: boolean;
   onToggleCheck?: (tabId: number, checked: boolean) => void;
   onClose: (tabId: number) => void;
@@ -52,6 +54,8 @@ export function TabItem({
   windows,
   getWindowNumber,
   hasFocus = false,
+  isFirstInGroup,
+  isLastInGroup,
   isChecked = false,
   onToggleCheck,
   onClose,
@@ -121,9 +125,9 @@ export function TabItem({
       onClick={handleClick}
     >
       {tabGroup && (
-        <Tooltip title={`Group: ${tabGroup.title}` || 'Unnamed group'} placement="top" mouseEnterDelay={0.3}>
+        <Tooltip title={`Group: ${tabGroup.title}` || 'Unnamed group'} placement="left" mouseEnterDelay={0.3}>
           <span
-            className="absolute left-0 top-px bottom-px w-2 cursor-pointer"
+            className={`absolute ${isFirstInGroup && isLastInGroup ? 'rounded' : isFirstInGroup ? 'rounded-t' : isLastInGroup ? 'rounded-b' : ''} left-0 top-px bottom-px w-2 cursor-pointer`}
             style={{ backgroundColor: (TAB_GROUP_COLORS[tabGroup.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }}
             onClick={(e) => { e.stopPropagation(); onToggleGroupSelect?.(tabGroup.id); }}
           />
