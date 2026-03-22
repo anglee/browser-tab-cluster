@@ -133,8 +133,11 @@ export function ClosedTabItem({
       } ${hasFocus ? (isDark ? 'border border-dashed border-mist-500' : 'border border-dashed border-mist-950') : ''}`}
       onClick={handleClick}
     >
-      {/* Checkbox for multi-select */}
-      <div className={`${isChecked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+      {/* Checkbox for multi-select — enlarged click zone for Fitts' law */}
+      <div
+        className={`cursor-hand flex items-center self-stretch p-2 -m-2 ${isChecked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
+        onClick={(e) => { e.stopPropagation(); onToggleCheck?.(tab.sessionId, !isChecked); }}
+      >
         <Checkbox
           checked={isChecked}
           onChange={() => onToggleCheck?.(tab.sessionId, !isChecked)}
