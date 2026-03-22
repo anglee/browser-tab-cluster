@@ -173,13 +173,13 @@ export function WindowCard({
             className={`text-xs flex items-center gap-1 cursor-pointer ${isDark ? 'text-mist-400' : 'text-mist-500'}`}
             onMouseDown={(e) => { e.stopPropagation(); handleSelectAll(); }}
           >
-            (<Checkbox
+            <Checkbox
               checked={allSelected}
               indeterminate={someSelected}
               onChange={handleSelectAll}
               className="translate-y-px"
               theme={theme}
-            />{window.tabs.length} tabs)
+            />{window.tabs.length} tabs
           </span>
         </div>
 
