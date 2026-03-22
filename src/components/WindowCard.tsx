@@ -237,6 +237,26 @@ export function WindowCard({
                     </Submenu>
                   )}
 
+                  <button
+                    onClick={async () => {
+                      const tabIds = Array.from(selectedTabs);
+                      const existingNames = new Set(tabGroups.map(g => g.title));
+                      let n = 1;
+                      while (existingNames.has(`Tab Group ${n}`)) n++;
+                      const groupId = await chrome.tabs.group({ tabIds, createProperties: { windowId: window.id } });
+                      await chrome.tabGroups.update(groupId, { title: `Tab Group ${n}` });
+                      setSelectedTabs(new Set());
+                      setShowActionsMenu(false);
+                    }}
+                    tabIndex={-1}
+                    className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
+                      isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
+                    }`}
+                  >
+                    <GroupOutlined className="text-base" />
+                    Create New Group
+                  </button>
+
                   {tabGroups.length > 0 && (
                     <Submenu
                       label="Move to Group"
