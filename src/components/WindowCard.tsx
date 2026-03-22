@@ -16,11 +16,15 @@ import {
   GroupOutlined,
   EditOutlined,
 } from '@ant-design/icons';
-import { Button, Dropdown, Input, Modal, Tooltip } from 'antd';
+import { Button, Dropdown, Input, Modal, Select, Tooltip } from 'antd';
 import type { InputRef } from 'antd';
 import type { MenuProps } from 'antd';
 import { WindowInfo, SortOption, TabGroupInfo } from '../types';
 import { TabItem, TAB_GROUP_COLORS } from './TabItem';
+
+const GROUP_COLOR_OPTIONS: chrome.tabGroups.ColorEnum[] = [
+  'grey', 'blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange',
+];
 
 interface WindowCardProps {
   window: WindowInfo;
@@ -75,7 +79,12 @@ export function WindowCard({
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [renameModalOpen, setRenameModalOpen] = useState(false);
   const [renameValue, setRenameValue] = useState('');
+  const [renameColor, setRenameColor] = useState<chrome.tabGroups.ColorEnum>('grey');
   const renameInputRef = useRef<InputRef>(null);
+  const [createGroupModalOpen, setCreateGroupModalOpen] = useState(false);
+  const [createGroupName, setCreateGroupName] = useState('');
+  const [createGroupColor, setCreateGroupColor] = useState<chrome.tabGroups.ColorEnum>('grey');
+  const createGroupInputRef = useRef<InputRef>(null);
 
   const { setNodeRef, isOver } = useDroppable({
     id: `window-${window.id}`,
@@ -264,6 +273,7 @@ export function WindowCard({
                     onClick: ({ domEvent }) => {
                       domEvent.stopPropagation();
                       setRenameValue(selectedGroupMatch.title || '');
+                      setRenameColor(selectedGroupMatch.color);
                       setRenameModalOpen(true);
                     } },
                   { type: 'divider' },
@@ -305,16 +315,15 @@ export function WindowCard({
                     });
                   }
                   items.push({
-                    key: 'create-group', icon: <GroupOutlined />, label: 'Create New Group',
-                    onClick: async ({ domEvent }) => {
+                    key: 'create-group', icon: <GroupOutlined />, label: 'Move to New Group',
+                    onClick: ({ domEvent }) => {
                       domEvent.stopPropagation();
-                      const tabIds = Array.from(selectedTabs);
                       const existingNames = new Set(tabGroups.map(g => g.title));
                       let n = 1;
                       while (existingNames.has(`Tab Group ${n}`)) n++;
-                      const groupId = await chrome.tabs.group({ tabIds, createProperties: { windowId: window.id } });
-                      await chrome.tabGroups.update(groupId, { title: `Tab Group ${n}` });
-                      setSelectedTabs(new Set());
+                      setCreateGroupName(`Tab Group ${n}`);
+                      setCreateGroupColor('grey');
+                      setCreateGroupModalOpen(true);
                     },
                   });
                   if (tabGroups.length > 0) {
@@ -439,7 +448,7 @@ export function WindowCard({
         open={renameModalOpen}
         onOk={() => {
           if (selectedGroupMatch) {
-            chrome.tabGroups.update(selectedGroupMatch.id, { title: renameValue });
+            chrome.tabGroups.update(selectedGroupMatch.id, { title: renameValue, color: renameColor });
           }
           setRenameModalOpen(false);
         }}
@@ -456,17 +465,81 @@ export function WindowCard({
           }
         }}
       >
-        <Input
-          ref={renameInputRef}
-          value={renameValue}
-          onChange={(e) => setRenameValue(e.target.value)}
-          onPressEnter={() => {
-            if (selectedGroupMatch) {
-              chrome.tabGroups.update(selectedGroupMatch.id, { title: renameValue });
-            }
-            setRenameModalOpen(false);
-          }}
-        />
+        <div className="flex items-center gap-2">
+          <Select
+            value={renameColor}
+            onChange={setRenameColor}
+            style={{ width: 120 }}
+            options={GROUP_COLOR_OPTIONS.map(c => ({
+              value: c,
+              label: <span className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: (TAB_GROUP_COLORS[c] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }} />
+                {c}
+              </span>,
+            }))}
+          />
+          <Input
+            ref={renameInputRef}
+            value={renameValue}
+            onChange={(e) => setRenameValue(e.target.value)}
+            onPressEnter={() => {
+              if (selectedGroupMatch) {
+                chrome.tabGroups.update(selectedGroupMatch.id, { title: renameValue, color: renameColor });
+              }
+              setRenameModalOpen(false);
+            }}
+          />
+        </div>
+      </Modal>
+      <Modal
+        title="Create New Group"
+        open={createGroupModalOpen}
+        onOk={async () => {
+          const tabIds = Array.from(selectedTabs);
+          const groupId = await chrome.tabs.group({ tabIds, createProperties: { windowId: window.id } });
+          await chrome.tabGroups.update(groupId, { title: createGroupName, color: createGroupColor });
+          setSelectedTabs(new Set());
+          setCreateGroupModalOpen(false);
+        }}
+        onCancel={() => setCreateGroupModalOpen(false)}
+        afterOpenChange={(open) => {
+          if (open) {
+            setTimeout(() => {
+              const input = createGroupInputRef.current;
+              if (input) {
+                input.focus();
+                input.select();
+              }
+            });
+          }
+        }}
+      >
+        <div className="flex items-center gap-2">
+          <Select
+            value={createGroupColor}
+            onChange={setCreateGroupColor}
+            style={{ width: 120 }}
+            options={GROUP_COLOR_OPTIONS.map(c => ({
+              value: c,
+              label: <span className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: (TAB_GROUP_COLORS[c] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }} />
+                {c}
+              </span>,
+            }))}
+          />
+          <Input
+            ref={createGroupInputRef}
+            value={createGroupName}
+            onChange={(e) => setCreateGroupName(e.target.value)}
+            onPressEnter={async () => {
+              const tabIds = Array.from(selectedTabs);
+              const groupId = await chrome.tabs.group({ tabIds, createProperties: { windowId: window.id } });
+              await chrome.tabGroups.update(groupId, { title: createGroupName, color: createGroupColor });
+              setSelectedTabs(new Set());
+              setCreateGroupModalOpen(false);
+            }}
+          />
+        </div>
       </Modal>
     </div>
   );

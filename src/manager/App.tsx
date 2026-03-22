@@ -226,6 +226,10 @@ export default function App() {
   // Global keyboard handler
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip custom keyboard handling when a modal/dialog is open
+      const target = e.target as HTMLElement;
+      if (target.closest('.ant-modal')) return;
+
       const windowCardCount = filteredWindows.length;
       const hasRecentlyClosed = filteredClosedTabs.length > 0;
       const totalCardCount = windowCardCount + (hasRecentlyClosed ? 1 : 0);
