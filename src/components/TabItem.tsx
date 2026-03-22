@@ -121,7 +121,7 @@ export function TabItem({
       onClick={handleClick}
     >
       {tabGroup && (
-        <Tooltip title={`Tab group: ${tabGroup.title}` || 'Unnamed group'} placement="top" mouseEnterDelay={0.3}>
+        <Tooltip title={`Group: ${tabGroup.title}` || 'Unnamed group'} placement="top" mouseEnterDelay={0.3}>
           <span
             className="absolute left-0 top-px bottom-px w-2 cursor-pointer"
             style={{ backgroundColor: (TAB_GROUP_COLORS[tabGroup.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }}
