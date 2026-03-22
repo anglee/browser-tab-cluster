@@ -11,7 +11,7 @@ import {
   SelectOutlined,
   CloseOutlined,
 } from '@ant-design/icons';
-import { TabInfo, WindowInfo } from '../types';
+import { TabInfo, WindowInfo, TabGroupInfo } from '../types';
 import { Submenu, SubmenuItem } from './Submenu';
 import { Tooltip } from './Tooltip';
 
@@ -27,8 +27,22 @@ interface TabItemProps {
   onMoveToWindow: (tabId: number, targetWindowId: number) => void;
   onMoveToNewWindow: (tabId: number) => void;
   onTogglePin: (tabId: number, pinned: boolean) => void;
+  tabGroup?: TabGroupInfo;
+  onToggleGroupSelect?: (groupId: number) => void;
   theme: 'light' | 'dark';
 }
+
+const TAB_GROUP_COLORS: Record<string, { light: string; dark: string }> = {
+  grey:   { light: '#5F6368', dark: '#DADCE0' },
+  blue:   { light: '#1A73E8', dark: '#8AB4F8' },
+  red:    { light: '#D93025', dark: '#F28B82' },
+  yellow: { light: '#F9AB00', dark: '#FDD663' },
+  green:  { light: '#188038', dark: '#81C995' },
+  pink:   { light: '#D01884', dark: '#FF8BCB' },
+  purple: { light: '#A142F4', dark: '#C58AF9' },
+  cyan:   { light: '#007B83', dark: '#78D9EC' },
+  orange: { light: '#FA903E', dark: '#FCAD70' },
+};
 
 export function TabItem({
   tab,
@@ -42,6 +56,8 @@ export function TabItem({
   onMoveToWindow,
   onMoveToNewWindow,
   onTogglePin,
+  tabGroup,
+  onToggleGroupSelect,
   theme
 }: TabItemProps) {
   const [showMenu, setShowMenu] = useState(false);
@@ -135,13 +151,28 @@ export function TabItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-2 px-2 py-1.5 rounded group cursor-pointer relative ${
+      className={`flex items-center gap-2 ${tabGroup ? '-mx-2 px-4 py-1.5' : 'px-2 py-1.5' } rounded group cursor-pointer relative ${
         isDark
           ? `hover:bg-mist-950 ${tab.active ? 'bg-mist-900' : ''}`
           : `hover:bg-mist-50 ${tab.active ? 'bg-mist-100' : ''}`
       } ${hasFocus ? (isDark ? 'border border-dashed border-mist-500' : 'border border-dashed border-mist-950') : ''}`}
       onClick={handleClick}
     >
+      {tabGroup && (
+        <span
+          className="absolute left-0 top-px bottom-px w-2 cursor-pointer group/groupbar"
+          style={{ backgroundColor: (TAB_GROUP_COLORS[tabGroup.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }}
+          onClick={(e) => { e.stopPropagation(); onToggleGroupSelect?.(tabGroup.id); }}
+        >
+          <span className={`absolute left-1/2 -translate-x-1/2 bottom-full mb-0.5 px-2 py-1 text-xs rounded-md shadow-lg z-50
+            opacity-0 group-hover/groupbar:opacity-100 transition-opacity delay-300
+            pointer-events-none whitespace-nowrap
+            ${isDark ? 'bg-mist-800 text-mist-200' : 'bg-mist-950 text-white'}`}>
+            {`Tab group: ${tabGroup.title}` || 'Unnamed group'}
+          </span>
+        </span>
+      )}
+
       {/* Checkbox for multi-select — enlarged click zone for Fitts' law */}
       <div
         className={`cursor-hand -mr-3 flex items-center self-stretch p-2 -m-2 ${isChecked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
@@ -170,7 +201,6 @@ export function TabItem({
           <PushpinFilled className="text-xs text-blue-400 flex-shrink-0" />
         </span>
       )}
-
       <Tooltip text={getDomain()} theme={theme}>
         <img
           src={getFaviconUrl()}

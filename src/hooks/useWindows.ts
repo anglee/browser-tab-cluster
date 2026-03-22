@@ -1,16 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
-import { WindowInfo } from '../types';
-import { getAllWindows, subscribeToChanges } from '../services/chromeApi';
+import { WindowInfo, TabGroupInfo } from '../types';
+import { getAllWindows, getTabGroups, subscribeToChanges } from '../services/chromeApi';
 
 export function useWindows() {
   const [windows, setWindows] = useState<WindowInfo[]>([]);
+  const [tabGroups, setTabGroups] = useState<TabGroupInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     try {
-      const data = await getAllWindows();
-      setWindows(data);
+      const [windowData, groupData] = await Promise.all([getAllWindows(), getTabGroups()]);
+      setWindows(windowData);
+      setTabGroups(groupData);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load windows');
@@ -25,5 +27,5 @@ export function useWindows() {
     return unsubscribe;
   }, [refresh]);
 
-  return { windows, loading, error, refresh };
+  return { windows, tabGroups, loading, error, refresh };
 }

@@ -1,4 +1,4 @@
-import { WindowInfo, ClosedTabInfo } from '../types';
+import { WindowInfo, ClosedTabInfo, TabGroupInfo } from '../types';
 
 export async function getAllWindows(): Promise<WindowInfo[]> {
   const windows = await chrome.windows.getAll({ populate: true });
@@ -15,6 +15,7 @@ export async function getAllWindows(): Promise<WindowInfo[]> {
         favIconUrl: t.favIconUrl,
         active: t.active,
         pinned: t.pinned,
+        groupId: t.groupId ?? -1,
       })),
       focused: w.focused,
       type: w.type!,
@@ -64,6 +65,16 @@ export async function createWindow(tabIds: number[]): Promise<chrome.windows.Win
   return newWindow;
 }
 
+export async function getTabGroups(): Promise<TabGroupInfo[]> {
+  if (!chrome.tabGroups) return [];
+  const groups = await chrome.tabGroups.query({});
+  return groups.map(g => ({
+    id: g.id,
+    title: g.title || '',
+    color: g.color,
+  }));
+}
+
 export function subscribeToChanges(callback: () => void): () => void {
   const listeners = {
     tabCreated: () => callback(),
@@ -85,6 +96,26 @@ export function subscribeToChanges(callback: () => void): () => void {
   chrome.windows.onCreated.addListener(listeners.windowCreated);
   chrome.windows.onRemoved.addListener(listeners.windowRemoved);
 
+  const groupCleanups: (() => void)[] = [];
+  if (chrome.tabGroups) {
+    const groupListeners = {
+      groupCreated: () => callback(),
+      groupUpdated: () => callback(),
+      groupRemoved: () => callback(),
+      groupMoved: () => callback(),
+    };
+    chrome.tabGroups.onCreated.addListener(groupListeners.groupCreated);
+    chrome.tabGroups.onUpdated.addListener(groupListeners.groupUpdated);
+    chrome.tabGroups.onRemoved.addListener(groupListeners.groupRemoved);
+    chrome.tabGroups.onMoved.addListener(groupListeners.groupMoved);
+    groupCleanups.push(() => {
+      chrome.tabGroups.onCreated.removeListener(groupListeners.groupCreated);
+      chrome.tabGroups.onUpdated.removeListener(groupListeners.groupUpdated);
+      chrome.tabGroups.onRemoved.removeListener(groupListeners.groupRemoved);
+      chrome.tabGroups.onMoved.removeListener(groupListeners.groupMoved);
+    });
+  }
+
   return () => {
     chrome.tabs.onCreated.removeListener(listeners.tabCreated);
     chrome.tabs.onRemoved.removeListener(listeners.tabRemoved);
@@ -94,6 +125,7 @@ export function subscribeToChanges(callback: () => void): () => void {
     chrome.tabs.onDetached.removeListener(listeners.tabDetached);
     chrome.windows.onCreated.removeListener(listeners.windowCreated);
     chrome.windows.onRemoved.removeListener(listeners.windowRemoved);
+    groupCleanups.forEach(fn => fn());
   };
 }
 
