@@ -344,6 +344,20 @@ export function WindowCard({
                       })) as MenuProps['items'],
                     });
                   }
+                  // Show "Remove from Group" if all selected tabs belong to some group
+                  const selectedTabsList = Array.from(selectedTabs);
+                  const allTabs = (unfilteredWindow || window).tabs;
+                  const allSelectedInGroup = selectedTabsList.every(id => {
+                    const tab = allTabs.find(t => t.id === id);
+                    return tab && tab.groupId !== -1;
+                  });
+                  if (allSelectedInGroup) {
+                    const distinctGroupCount = new Set(selectedTabsList.map(id => allTabs.find(t => t.id === id)?.groupId)).size;
+                    items.push({
+                      key: 'remove-from-group', icon: <GroupOutlined />, label: distinctGroupCount > 1 ? 'Remove from Groups' : 'Remove from Group',
+                      onClick: ({ domEvent }) => { domEvent.stopPropagation(); chrome.tabs.ungroup(selectedTabsList); setSelectedTabs(new Set()); },
+                    });
+                  }
                   items.push(
                     { type: 'divider' },
                     { key: 'close', icon: <CloseOutlined />, label: `Close All ${selectedTabCount} tabs`, danger: true,
