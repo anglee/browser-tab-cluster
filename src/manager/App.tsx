@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { ConfigProvider, theme as antdTheme } from 'antd';
 import {
   DndContext,
   DragEndEvent,
@@ -928,6 +929,9 @@ export default function App() {
   const recentlyClosedFocusedTabIndex = focus.type === 'recentlyClosedTab' ? focus.tabIndex : -1;
 
   return (
+    <ConfigProvider theme={{
+      algorithm: theme === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+    }}>
     <div className={`flex flex-col h-screen ${theme === 'dark' ? 'bg-mist-950 text-mist-100' : 'bg-mist-100 text-mist-950'}`} data-theme={theme}>
       <Toolbar
         ref={toolbarRef}
@@ -1036,5 +1040,6 @@ export default function App() {
         <DragOverlay activeTab={activeTab} theme={theme} />
       </DndContext>
     </div>
+    </ConfigProvider>
   );
 }

@@ -1,4 +1,3 @@
-import { useState, useRef, useEffect } from 'react';
 import { Checkbox } from './Checkbox';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -12,8 +11,9 @@ import {
   CloseOutlined,
   GroupOutlined,
 } from '@ant-design/icons';
+import { Tooltip as AntTooltip, Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
 import { TabInfo, WindowInfo, TabGroupInfo } from '../types';
-import { Submenu, SubmenuItem } from './Submenu';
 import { Tooltip } from './Tooltip';
 
 interface TabItemProps {
@@ -65,9 +65,6 @@ export function TabItem({
   onMoveToGroup,
   theme
 }: TabItemProps) {
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
   const {
     attributes,
     listeners,
@@ -83,20 +80,6 @@ export function TabItem({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowMenu(false);
-      }
-    };
-
-    if (showMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu]);
-
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
     onClose(tab.id);
@@ -104,34 +87,6 @@ export function TabItem({
 
   const handleClick = () => {
     onActivate(tab.id, tab.windowId);
-  };
-
-  const handleMenuClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowMenu(!showMenu);
-  };
-
-  const handleMoveToNewWindow = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onMoveToNewWindow(tab.id);
-    setShowMenu(false);
-  };
-
-  const handleMoveToWindow = (targetWindowId: number) => {
-    onMoveToWindow(tab.id, targetWindowId);
-    setShowMenu(false);
-  };
-
-  const handleCloseFromMenu = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onClose(tab.id);
-    setShowMenu(false);
-  };
-
-  const handleTogglePin = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onTogglePin(tab.id, !tab.pinned);
-    setShowMenu(false);
   };
 
   const getFaviconUrl = () => {
@@ -164,18 +119,13 @@ export function TabItem({
       onClick={handleClick}
     >
       {tabGroup && (
-        <span
-          className="absolute left-0 top-px bottom-px w-2 cursor-pointer group/groupbar"
-          style={{ backgroundColor: (TAB_GROUP_COLORS[tabGroup.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }}
-          onClick={(e) => { e.stopPropagation(); onToggleGroupSelect?.(tabGroup.id); }}
-        >
-          <span className={`absolute left-1/2 -translate-x-1/2 bottom-full mb-0.5 px-2 py-1 text-xs rounded-md shadow-lg z-50
-            opacity-0 group-hover/groupbar:opacity-100 transition-opacity delay-300
-            pointer-events-none whitespace-nowrap
-            ${isDark ? 'bg-mist-800 text-mist-200' : 'bg-mist-950 text-white'}`}>
-            {`Tab group: ${tabGroup.title}` || 'Unnamed group'}
-          </span>
-        </span>
+        <AntTooltip title={`Tab group: ${tabGroup.title}` || 'Unnamed group'} placement="top" mouseEnterDelay={0.3}>
+          <span
+            className="absolute left-0 top-px bottom-px w-2 cursor-pointer"
+            style={{ backgroundColor: (TAB_GROUP_COLORS[tabGroup.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }}
+            onClick={(e) => { e.stopPropagation(); onToggleGroupSelect?.(tabGroup.id); }}
+          />
+        </AntTooltip>
       )}
 
       {/* Checkbox for multi-select — enlarged click zone for Fitts' law */}
@@ -225,103 +175,58 @@ export function TabItem({
       </Tooltip>
 
       {/* Menu button */}
-      <div className="relative" ref={menuRef}>
-        <Tooltip text="More options" theme={theme} position="bottom-right">
-          <button
-            onClick={handleMenuClick}
-            tabIndex={-1}
-            className={`p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded ${
-              isDark ? 'text-mist-500 hover:text-mist-300 hover:bg-mist-600' : 'text-mist-400 hover:text-mist-600 hover:bg-mist-200'
-            } ${showMenu ? 'opacity-100' : ''}`}
-          >
-            <MoreOutlined className="text-xs" />
-          </button>
-        </Tooltip>
-
-        {/* Dropdown menu */}
-        {showMenu && (
-          <div className={`absolute right-0 top-full mt-1 py-1 w-48 rounded-xl shadow-lg z-20 ring-1 ${
-            isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
-          }`}>
-            <button
-              onClick={handleMoveToNewWindow}
-              tabIndex={-1}
-              className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
-              }`}
-            >
-              <PlusOutlined className="text-base" />
-              Move to New Window
-            </button>
-
-            {/* Move to window submenu */}
-            {otherWindows.length > 0 && (
-              <Submenu
-                label="Move to Window"
-                icon={<SelectOutlined className="text-base" />}
-                theme={theme}
-              >
-                {otherWindows.map(w => (
-                  <SubmenuItem
-                    key={w.id}
-                    onClick={() => handleMoveToWindow(w.id)}
-                    theme={theme}
-                  >
-                    Window {getWindowNumber(w.id)} ({w.tabs.length} tabs)
-                  </SubmenuItem>
-                ))}
-              </Submenu>
-            )}
-
-            {/* Move to group submenu */}
-            {tabGroups.filter(g => g.id !== tab.groupId).length > 0 && (
-              <Submenu
-                label="Move to Group"
-                icon={<GroupOutlined className="text-base" />}
-                theme={theme}
-              >
-                {tabGroups.filter(g => g.id !== tab.groupId).map(g => (
-                  <SubmenuItem
-                    key={g.id}
-                    onClick={() => { onMoveToGroup(tab.id, g.id); setShowMenu(false); }}
-                    theme={theme}
-                  >
-                    <span
-                      className="w-3 h-3 rounded-sm inline-block flex-shrink-0"
-                      style={{ backgroundColor: (TAB_GROUP_COLORS[g.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }}
-                    />
-                    <span className="inline-block ml-2">{g.title || 'Unnamed group'}</span>
-                  </SubmenuItem>
-                ))}
-              </Submenu>
-            )}
-
-            <button
-              onClick={handleTogglePin}
-              tabIndex={-1}
-              className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
-              }`}
-            >
-              <PushpinOutlined className="text-base" />
-              {tab.pinned ? 'Unpin' : 'Pin'}
-            </button>
-
-            <div className={`my-1 border-t ${isDark ? 'border-white/10' : 'border-mist-950/10'}`} />
-
-            <button
-              onClick={handleCloseFromMenu}
-              tabIndex={-1}
-              className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 text-red-500 ${
-                isDark ? 'hover:bg-mist-700' : 'hover:bg-mist-100'
-              }`}
-            >
-              <CloseOutlined className="text-base" />
-              Close Tab
-            </button>
-          </div>
-        )}
-      </div>
+      <Dropdown
+        menu={{ items: (() => {
+          const items: MenuProps['items'] = [
+            { key: 'new-window', icon: <PlusOutlined />, label: 'Move to New Window',
+              onClick: ({ domEvent }) => { domEvent.stopPropagation(); onMoveToNewWindow(tab.id); } },
+          ];
+          if (otherWindows.length > 0) {
+            items.push({
+              key: 'move-to-window', icon: <SelectOutlined />, label: 'Move to Window',
+              children: otherWindows.map(w => ({
+                key: `window-${w.id}`, label: `Window ${getWindowNumber(w.id)} (${w.tabs.length} tabs)`,
+                onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => { domEvent.stopPropagation(); onMoveToWindow(tab.id, w.id); },
+              })) as MenuProps['items'],
+            });
+          }
+          const availableGroups = tabGroups.filter(g => g.id !== tab.groupId);
+          if (availableGroups.length > 0) {
+            items.push({
+              key: 'move-to-group', icon: <GroupOutlined />, label: 'Move to Group',
+              children: availableGroups.map(g => ({
+                key: `group-${g.id}`,
+                label: <span className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-sm inline-block flex-shrink-0"
+                    style={{ backgroundColor: (TAB_GROUP_COLORS[g.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }} />
+                  {g.title || 'Unnamed group'}
+                </span>,
+                onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => { domEvent.stopPropagation(); onMoveToGroup(tab.id, g.id); },
+              })) as MenuProps['items'],
+            });
+          }
+          items.push(
+            { key: 'pin', icon: <PushpinOutlined />, label: tab.pinned ? 'Unpin' : 'Pin',
+              onClick: ({ domEvent }) => { domEvent.stopPropagation(); onTogglePin(tab.id, !tab.pinned); } },
+            { type: 'divider' },
+            { key: 'close', icon: <CloseOutlined />, label: 'Close Tab', danger: true,
+              onClick: ({ domEvent }) => { domEvent.stopPropagation(); onClose(tab.id); } },
+          );
+          return items;
+        })() }}
+        trigger={['click']}
+        placement="bottomRight"
+      >
+        <button
+          onClick={(e) => e.stopPropagation()}
+          tabIndex={-1}
+          className={`p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded ${
+            isDark ? 'text-mist-500 hover:text-mist-300 hover:bg-mist-600' : 'text-mist-400 hover:text-mist-600 hover:bg-mist-200'
+          }`}
+        >
+          <MoreOutlined className="text-xs" />
+        </button>
+      </Dropdown>
 
       <Tooltip text="Close tab" theme={theme} position="bottom-right">
         <button

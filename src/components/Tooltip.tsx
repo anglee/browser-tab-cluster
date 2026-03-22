@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Tooltip as AntTooltip } from 'antd';
 
 interface TooltipProps {
   text: ReactNode;
@@ -9,26 +10,33 @@ interface TooltipProps {
   wrap?: boolean;
 }
 
-export function Tooltip({ text, children, theme, position = 'bottom', flex1 = false, wrap = false }: TooltipProps) {
-  const isDark = theme === 'dark';
+const PLACEMENT_MAP = {
+  'bottom': 'bottom',
+  'bottom-right': 'bottomRight',
+  'top': 'top',
+} as const;
 
-  const positionClasses = position === 'bottom-right'
-    ? 'right-0 top-full mt-1'
-    : position === 'top'
-    ? 'left-1/2 -translate-x-1/2 bottom-full -mb-0.5'
-    : 'left-0 top-full mt-1';
+export function Tooltip({ text, children, position = 'bottom', flex1 = false, wrap = false }: TooltipProps) {
+  const placement = PLACEMENT_MAP[position];
 
-  return (
-    <div className={`relative group/tooltip ${flex1 ? 'flex-1 min-w-0' : ''}`}>
+  const overlayInnerStyle = wrap
+    ? { maxWidth: '20rem', wordBreak: 'break-all' as const, whiteSpace: 'pre-line' as const }
+    : undefined;
+
+  const tooltip = (
+    <AntTooltip
+      title={text}
+      placement={placement}
+      mouseEnterDelay={0.3}
+      overlayInnerStyle={overlayInnerStyle}
+    >
       {children}
-      <div
-        className={`absolute ${positionClasses} px-2 py-1 text-xs rounded-md shadow-lg z-50
-          opacity-0 group-hover/tooltip:opacity-100 transition-opacity delay-300
-          pointer-events-none ${wrap ? 'max-w-xs break-all whitespace-pre-line' : 'whitespace-nowrap'}
-          ${isDark ? 'bg-mist-800 text-mist-200' : 'bg-mist-950 text-white'}`}
-      >
-        {text}
-      </div>
-    </div>
+    </AntTooltip>
   );
+
+  if (flex1) {
+    return <div className="flex-1 min-w-0">{tooltip}</div>;
+  }
+
+  return tooltip;
 }

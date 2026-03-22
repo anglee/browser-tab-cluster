@@ -15,9 +15,10 @@ import {
   RightOutlined,
   GroupOutlined,
 } from '@ant-design/icons';
+import { Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
 import { WindowInfo, SortOption, TabGroupInfo } from '../types';
 import { TabItem, TAB_GROUP_COLORS } from './TabItem';
-import { Submenu, SubmenuItem } from './Submenu';
 import { Tooltip } from './Tooltip';
 
 interface WindowCardProps {
@@ -67,9 +68,7 @@ export function WindowCard({
   tabGroups,
   theme,
 }: WindowCardProps) {
-  const [showSortMenu, setShowSortMenu] = useState(false);
   const [selectedTabs, setSelectedTabs] = useState<Set<number>>(new Set());
-  const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   const { setNodeRef, isOver } = useDroppable({
     id: `window-${window.id}`,
@@ -102,7 +101,6 @@ export function WindowCard({
       });
     }
     setSelectedTabs(new Set());
-    setShowActionsMenu(false);
   };
 
   const handleBulkMoveToWindow = (targetWindowId: number) => {
@@ -111,7 +109,6 @@ export function WindowCard({
       onMoveToWindow(tabId, targetWindowId);
     });
     setSelectedTabs(new Set());
-    setShowActionsMenu(false);
   };
 
   const handleBulkClose = () => {
@@ -120,12 +117,10 @@ export function WindowCard({
       onCloseTab(tabId);
     });
     setSelectedTabs(new Set());
-    setShowActionsMenu(false);
   };
 
   const handleSort = (option: SortOption) => {
     onSort(window.id, option);
-    setShowSortMenu(false);
   };
 
   const isDark = theme === 'dark';
@@ -189,159 +184,95 @@ export function WindowCard({
         <div className="flex items-center gap-1">
           {/* Bulk Actions Button - only visible when 2+ tabs selected */}
           {selectedTabCount >= 2 && (
-            <div className="relative">
-              <Tooltip text={`Actions for ${selectedTabCount} tabs`} theme={theme} position="top">
-                <button
-                  onMouseDown={(e) => { e.stopPropagation(); setShowActionsMenu(!showActionsMenu); }}
-                  tabIndex={-1}
-                  className={`p-1.5 rounded flex items-center gap-1 ${
-                    isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700' : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
-                  }`}
-                >
-                  <FileTextOutlined className="text-base" />
-                  <span className="text-xs font-medium">{selectedTabCount}</span>
-                </button>
-              </Tooltip>
-              {showActionsMenu && (
-                <div
-                  onMouseDown={(e) => e.stopPropagation()}
-                  className={`absolute right-0 top-full mt-1 py-1 w-48 rounded-xl shadow-lg z-20 ring-1 ${
-                  isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
-                }`}>
-                  <button
-                    onClick={handleBulkMoveToNewWindow}
-                    tabIndex={-1}
-                    className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                      isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
-                    }`}
-                  >
-                    <PlusOutlined className="text-base" />
-                    Move to New Window
-                  </button>
-
-                  {otherWindows.length > 0 && (
-                    <Submenu
-                      label="Move to Window"
-                      icon={<SelectOutlined className="text-base" />}
-                      theme={theme}
-                    >
-                      {otherWindows.map(w => (
-                        <SubmenuItem
-                          key={w.id}
-                          onClick={() => handleBulkMoveToWindow(w.id)}
-                          theme={theme}
-                        >
-                          Window {getWindowNumber(w.id)} ({w.tabs.length} tabs)
-                        </SubmenuItem>
-                      ))}
-                    </Submenu>
-                  )}
-
-                  <button
-                    onClick={async () => {
-                      const tabIds = Array.from(selectedTabs);
-                      const existingNames = new Set(tabGroups.map(g => g.title));
-                      let n = 1;
-                      while (existingNames.has(`Tab Group ${n}`)) n++;
-                      const groupId = await chrome.tabs.group({ tabIds, createProperties: { windowId: window.id } });
-                      await chrome.tabGroups.update(groupId, { title: `Tab Group ${n}` });
-                      setSelectedTabs(new Set());
-                      setShowActionsMenu(false);
-                    }}
-                    tabIndex={-1}
-                    className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                      isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
-                    }`}
-                  >
-                    <GroupOutlined className="text-base" />
-                    Create New Group
-                  </button>
-
-                  {tabGroups.length > 0 && (
-                    <Submenu
-                      label="Move to Group"
-                      icon={<GroupOutlined className="text-base" />}
-                      theme={theme}
-                    >
-                      {tabGroups.map(g => (
-                        <SubmenuItem
-                          key={g.id}
-                          onClick={() => {
-                            const tabIds = Array.from(selectedTabs);
-                            chrome.tabs.group({ tabIds, groupId: g.id });
-                            setSelectedTabs(new Set());
-                            setShowActionsMenu(false);
-                          }}
-                          theme={theme}
-                        >
-                          <span
-                            className="w-3 h-3 rounded-sm inline-block flex-shrink-0"
-                            style={{ backgroundColor: (TAB_GROUP_COLORS[g.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }}
-                          />
-                          <span className="inline-block ml-2">{g.title || 'Unnamed group'}</span>
-                        </SubmenuItem>
-                      ))}
-                    </Submenu>
-                  )}
-
-                  <div className={`my-1 border-t ${isDark ? 'border-white/10' : 'border-mist-950/10'}`} />
-
-                  <button
-                    onClick={handleBulkClose}
-                    tabIndex={-1}
-                    className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 text-red-500 ${
-                      isDark ? 'hover:bg-mist-700' : 'hover:bg-mist-100'
-                    }`}
-                  >
-                    <CloseOutlined className="text-base" />
-                    Close All {selectedTabCount} tabs
-                  </button>
-                </div>
-              )}
-            </div>
+            <Dropdown
+              menu={{ items: (() => {
+                const items: MenuProps['items'] = [
+                  { key: 'new-window', icon: <PlusOutlined />, label: 'Move to New Window',
+                    onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleBulkMoveToNewWindow(); } },
+                ];
+                if (otherWindows.length > 0) {
+                  items.push({
+                    key: 'move-to-window', icon: <SelectOutlined />, label: 'Move to Window',
+                    children: otherWindows.map(w => ({
+                      key: `window-${w.id}`, label: `Window ${getWindowNumber(w.id)} (${w.tabs.length} tabs)`,
+                      onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => { domEvent.stopPropagation(); handleBulkMoveToWindow(w.id); },
+                    })) as MenuProps['items'],
+                  });
+                }
+                items.push({
+                  key: 'create-group', icon: <GroupOutlined />, label: 'Create New Group',
+                  onClick: async ({ domEvent }) => {
+                    domEvent.stopPropagation();
+                    const tabIds = Array.from(selectedTabs);
+                    const existingNames = new Set(tabGroups.map(g => g.title));
+                    let n = 1;
+                    while (existingNames.has(`Tab Group ${n}`)) n++;
+                    const groupId = await chrome.tabs.group({ tabIds, createProperties: { windowId: window.id } });
+                    await chrome.tabGroups.update(groupId, { title: `Tab Group ${n}` });
+                    setSelectedTabs(new Set());
+                  },
+                });
+                if (tabGroups.length > 0) {
+                  items.push({
+                    key: 'move-to-group', icon: <GroupOutlined />, label: 'Move to Group',
+                    children: tabGroups.map(g => ({
+                      key: `group-${g.id}`,
+                      label: <span className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-sm inline-block flex-shrink-0"
+                          style={{ backgroundColor: (TAB_GROUP_COLORS[g.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }} />
+                        {g.title || 'Unnamed group'}
+                      </span>,
+                      onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => {
+                        domEvent.stopPropagation();
+                        chrome.tabs.group({ tabIds: Array.from(selectedTabs), groupId: g.id });
+                        setSelectedTabs(new Set());
+                      },
+                    })) as MenuProps['items'],
+                  });
+                }
+                items.push(
+                  { type: 'divider' },
+                  { key: 'close', icon: <CloseOutlined />, label: `Close All ${selectedTabCount} tabs`, danger: true,
+                    onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleBulkClose(); } },
+                );
+                return items;
+              })() }}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <button
+                onMouseDown={(e) => e.stopPropagation()}
+                tabIndex={-1}
+                className={`p-1.5 rounded flex items-center gap-1 ${
+                  isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700' : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
+                }`}
+              >
+                <FileTextOutlined className="text-base" />
+                <span className="text-xs font-medium">{selectedTabCount}</span>
+              </button>
+            </Dropdown>
           )}
 
           {!isSearching && (
             <>
-              <div className="relative">
-                <Tooltip text="Sort tabs" theme={theme} position="top">
-                  <button
-                    onMouseDown={(e) => { e.stopPropagation(); setShowSortMenu(!showSortMenu); }}
-                    tabIndex={-1}
-                    className={`p-1.5 rounded ${
-                      isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
-                    }`}
-                  >
-                    <SortAscendingOutlined className="text-base" />
-                  </button>
-                </Tooltip>
-                {showSortMenu && (
-                  <div
-                    onMouseDown={(e) => e.stopPropagation()}
-                    className={`absolute right-0 top-full mt-1 py-1 w-36 rounded-xl shadow-lg z-10 ring-1 ${
-                    isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
-                  }`}>
-                    <button
-                      onClick={() => handleSort('domain')}
-                      tabIndex={-1}
-                      className={`w-full px-3 py-1.5 text-left text-sm ${
-                        isDark ? 'text-mist-200 hover:bg-mist-600' : 'text-mist-700 hover:bg-mist-100'
-                      }`}
-                    >
-                      By Domain
-                    </button>
-                    <button
-                      onClick={() => handleSort('title')}
-                      tabIndex={-1}
-                      className={`w-full px-3 py-1.5 text-left text-sm ${
-                        isDark ? 'text-mist-200 hover:bg-mist-600' : 'text-mist-700 hover:bg-mist-100'
-                      }`}
-                    >
-                      By Title
-                    </button>
-                  </div>
-                )}
-              </div>
+              <Dropdown
+                menu={{ items: [
+                  { key: 'domain', label: 'By Domain', onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleSort('domain'); } },
+                  { key: 'title', label: 'By Title', onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleSort('title'); } },
+                ] }}
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                <button
+                  onMouseDown={(e) => e.stopPropagation()}
+                  tabIndex={-1}
+                  className={`p-1.5 rounded ${
+                    isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
+                  }`}
+                >
+                  <SortAscendingOutlined className="text-base" />
+                </button>
+              </Dropdown>
 
               <Tooltip text="Remove duplicates" theme={theme} position="top">
                 <button

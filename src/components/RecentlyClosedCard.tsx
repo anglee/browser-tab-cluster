@@ -11,9 +11,10 @@ import {
   SelectOutlined,
   RightOutlined,
 } from '@ant-design/icons';
+import { Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
 import { ClosedTabInfo, WindowInfo } from '../types';
 import { ClosedTabItem } from './ClosedTabItem';
-import { Submenu, SubmenuItem } from './Submenu';
 import { Tooltip } from './Tooltip';
 
 interface RecentlyClosedCardProps {
@@ -66,7 +67,6 @@ export function RecentlyClosedCard({
   theme,
 }: RecentlyClosedCardProps) {
   const [selectedTabs, setSelectedTabs] = useState<Set<string>>(new Set());
-  const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showRestoreAllConfirm, setShowRestoreAllConfirm] = useState(false);
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
@@ -86,28 +86,24 @@ export function RecentlyClosedCard({
     const sessionIds = Array.from(selectedTabs);
     onBulkRestore(sessionIds);
     setSelectedTabs(new Set());
-    setShowActionsMenu(false);
   };
 
   const handleBulkRestoreInNewWindow = () => {
     const sessionIds = Array.from(selectedTabs);
     onBulkRestoreInNewWindow(sessionIds);
     setSelectedTabs(new Set());
-    setShowActionsMenu(false);
   };
 
   const handleBulkRestoreInCurrentWindow = () => {
     const sessionIds = Array.from(selectedTabs);
     onBulkRestoreInCurrentWindow(sessionIds);
     setSelectedTabs(new Set());
-    setShowActionsMenu(false);
   };
 
   const handleBulkRestoreToWindow = (windowId: number) => {
     const sessionIds = Array.from(selectedTabs);
     onBulkRestoreToWindow(sessionIds, windowId);
     setSelectedTabs(new Set());
-    setShowActionsMenu(false);
   };
 
   const handleBulkDelete = () => {
@@ -116,7 +112,6 @@ export function RecentlyClosedCard({
       onDelete(sessionId);
     });
     setSelectedTabs(new Set());
-    setShowActionsMenu(false);
   };
 
   const handleRestoreAllClick = () => {
@@ -195,98 +190,49 @@ export function RecentlyClosedCard({
         <div className="flex items-center gap-1">
           {/* Bulk Actions Button - only visible when 2+ tabs selected */}
           {selectedTabCount >= 2 && (
-            <div className="relative">
-              <Tooltip text={`Actions for ${selectedTabCount} tabs`} theme={theme} position="top">
-                <button
-                  onMouseDown={(e) => { e.stopPropagation(); setShowActionsMenu(!showActionsMenu); }}
-                  tabIndex={-1}
-                  className={`p-1.5 rounded flex items-center gap-1 ${
-                    isDark
-                      ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700'
-                      : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
-                  }`}
-                >
-                  <FileTextOutlined className="text-base" />
-                  <span className="text-xs font-medium">{selectedTabCount}</span>
-                </button>
-              </Tooltip>
-              {showActionsMenu && (
-                <div
-                  onMouseDown={(e) => e.stopPropagation()}
-                  className={`absolute right-0 top-full mt-1 py-1 w-56 rounded-xl shadow-lg z-20 ring-1 ${
-                    isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
-                  }`}
-                >
-                  <button
-                    onClick={handleBulkRestore}
-                    tabIndex={-1}
-                    className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                      isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
-                    }`}
-                  >
-                    <UndoOutlined className="text-base" />
-                    Restore to Original Location
-                  </button>
-
-                  <button
-                    onClick={handleBulkRestoreInNewWindow}
-                    tabIndex={-1}
-                    className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                      isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
-                    }`}
-                  >
-                    <PlusOutlined className="text-base" />
-                    Restore in New Window
-                  </button>
-
-                  <button
-                    onClick={handleBulkRestoreInCurrentWindow}
-                    tabIndex={-1}
-                    className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                      isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
-                    }`}
-                  >
-                    <ImportOutlined className="text-base" />
-                    Restore in Current Window
-                  </button>
-
-                  {/* Restore to Window submenu */}
-                  {windows.length > 0 && (
-                    <Submenu
-                      label="Restore to Window"
-                      icon={<SelectOutlined className="text-base" />}
-                      theme={theme}
-                    >
-                      {windows.map((w) => (
-                        <SubmenuItem
-                          key={w.id}
-                          onClick={() => handleBulkRestoreToWindow(w.id)}
-                          theme={theme}
-                        >
-                          Window {getWindowNumber(w.id)} ({w.tabs.length} tabs)
-                          {w.focused && <span className={`ml-1 ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>}
-                        </SubmenuItem>
-                      ))}
-                    </Submenu>
-                  )}
-
-                  <div
-                    className={`my-1 border-t ${isDark ? 'border-white/10' : 'border-mist-950/10'}`}
-                  />
-
-                  <button
-                    onClick={handleBulkDelete}
-                    tabIndex={-1}
-                    className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 text-red-500 ${
-                      isDark ? 'hover:bg-mist-700' : 'hover:bg-mist-100'
-                    }`}
-                  >
-                    <DeleteOutlined className="text-base" />
-                    Hide {selectedTabCount} Selected
-                  </button>
-                </div>
-              )}
-            </div>
+            <Dropdown
+              menu={{ items: (() => {
+                const items: MenuProps['items'] = [
+                  { key: 'restore', icon: <UndoOutlined />, label: 'Restore to Original Location',
+                    onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleBulkRestore(); } },
+                  { key: 'new-window', icon: <PlusOutlined />, label: 'Restore in New Window',
+                    onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleBulkRestoreInNewWindow(); } },
+                  { key: 'current-window', icon: <ImportOutlined />, label: 'Restore in Current Window',
+                    onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleBulkRestoreInCurrentWindow(); } },
+                ];
+                if (windows.length > 0) {
+                  items.push({
+                    key: 'restore-to-window', icon: <SelectOutlined />, label: 'Restore to Window',
+                    children: windows.map((w) => ({
+                      key: `window-${w.id}`,
+                      label: <>Window {getWindowNumber(w.id)} ({w.tabs.length} tabs){w.focused && <span className={`ml-1 ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>}</>,
+                      onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => { domEvent.stopPropagation(); handleBulkRestoreToWindow(w.id); },
+                    })) as MenuProps['items'],
+                  });
+                }
+                items.push(
+                  { type: 'divider' },
+                  { key: 'hide', icon: <DeleteOutlined />, label: `Hide ${selectedTabCount} Selected`, danger: true,
+                    onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleBulkDelete(); } },
+                );
+                return items;
+              })() }}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <button
+                onMouseDown={(e) => e.stopPropagation()}
+                tabIndex={-1}
+                className={`p-1.5 rounded flex items-center gap-1 ${
+                  isDark
+                    ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700'
+                    : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
+                }`}
+              >
+                <FileTextOutlined className="text-base" />
+                <span className="text-xs font-medium">{selectedTabCount}</span>
+              </button>
+            </Dropdown>
           )}
 
           {!isSearching && (
