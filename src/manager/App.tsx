@@ -142,14 +142,18 @@ export default function App() {
     return sortedWindows
       .map(window => ({
         ...window,
-        tabs: window.tabs.filter(
-          tab =>
-            tab.title.toLowerCase().includes(lowerQuery) ||
-            tab.url.toLowerCase().includes(lowerQuery)
-        ),
+        tabs: window.tabs.filter(tab => {
+          if (tab.title.toLowerCase().includes(lowerQuery) ||
+              tab.url.toLowerCase().includes(lowerQuery)) return true;
+          if (tab.groupId !== -1) {
+            const group = tabGroups.find(g => g.id === tab.groupId);
+            if (group && group.title.toLowerCase().includes(lowerQuery)) return true;
+          }
+          return false;
+        }),
       }))
       .filter(window => window.tabs.length > 0);
-  }, [windows, searchQuery]);
+  }, [windows, tabGroups, searchQuery]);
 
   // Filter closed tabs by search query, then cap display count
   const MAX_RECENTLY_CLOSED_TABS_TO_SHOW = 30;
