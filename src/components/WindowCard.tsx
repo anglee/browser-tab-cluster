@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Checkbox } from './Checkbox';
 import {
   SortableContext,
@@ -14,8 +14,10 @@ import {
   MergeOutlined,
   RightOutlined,
   GroupOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
-import { Button, Dropdown, Tooltip } from 'antd';
+import { Button, Dropdown, Input, Modal, Tooltip } from 'antd';
+import type { InputRef } from 'antd';
 import type { MenuProps } from 'antd';
 import { WindowInfo, SortOption, TabGroupInfo } from '../types';
 import { TabItem, TAB_GROUP_COLORS } from './TabItem';
@@ -71,6 +73,9 @@ export function WindowCard({
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [groupMenuOpen, setGroupMenuOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  const [renameModalOpen, setRenameModalOpen] = useState(false);
+  const [renameValue, setRenameValue] = useState('');
+  const renameInputRef = useRef<InputRef>(null);
 
   const { setNodeRef, isOver } = useDroppable({
     id: `window-${window.id}`,
@@ -255,6 +260,12 @@ export function WindowCard({
                   });
                 }
                 items.push(
+                  { key: 'rename-group', icon: <EditOutlined />, label: 'Rename Group',
+                    onClick: ({ domEvent }) => {
+                      domEvent.stopPropagation();
+                      setRenameValue(selectedGroupMatch.title || '');
+                      setRenameModalOpen(true);
+                    } },
                   { type: 'divider' },
                   { key: 'ungroup', icon: <GroupOutlined />, label: 'Ungroup',
                     onClick: ({ domEvent }) => { domEvent.stopPropagation(); chrome.tabs.ungroup(groupTabIds); setSelectedTabs(new Set()); } },
@@ -423,6 +434,40 @@ export function WindowCard({
         </SortableContext>
         </div>
       )}
+      <Modal
+        title="Rename Group"
+        open={renameModalOpen}
+        onOk={() => {
+          if (selectedGroupMatch) {
+            chrome.tabGroups.update(selectedGroupMatch.id, { title: renameValue });
+          }
+          setRenameModalOpen(false);
+        }}
+        onCancel={() => setRenameModalOpen(false)}
+        afterOpenChange={(open) => {
+          if (open) {
+            setTimeout(() => {
+              const input = renameInputRef.current;
+              if (input) {
+                input.focus();
+                input.select();
+              }
+            });
+          }
+        }}
+      >
+        <Input
+          ref={renameInputRef}
+          value={renameValue}
+          onChange={(e) => setRenameValue(e.target.value)}
+          onPressEnter={() => {
+            if (selectedGroupMatch) {
+              chrome.tabGroups.update(selectedGroupMatch.id, { title: renameValue });
+            }
+            setRenameModalOpen(false);
+          }}
+        />
+      </Modal>
     </div>
   );
 }
