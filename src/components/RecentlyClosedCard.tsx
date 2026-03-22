@@ -11,11 +11,10 @@ import {
   SelectOutlined,
   RightOutlined,
 } from '@ant-design/icons';
-import { Dropdown } from 'antd';
+import { Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { ClosedTabInfo, WindowInfo } from '../types';
 import { ClosedTabItem } from './ClosedTabItem';
-import { Tooltip } from './Tooltip';
 
 interface RecentlyClosedCardProps {
   closedTabs: ClosedTabInfo[];
@@ -67,6 +66,7 @@ export function RecentlyClosedCard({
   theme,
 }: RecentlyClosedCardProps) {
   const [selectedTabs, setSelectedTabs] = useState<Set<string>>(new Set());
+  const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [showRestoreAllConfirm, setShowRestoreAllConfirm] = useState(false);
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
@@ -191,6 +191,7 @@ export function RecentlyClosedCard({
           {/* Bulk Actions Button - only visible when 2+ tabs selected */}
           {selectedTabCount >= 2 && (
             <Dropdown
+              onOpenChange={(open) => setActionsMenuOpen(open)}
               menu={{ items: (() => {
                 const items: MenuProps['items'] = [
                   { key: 'restore', icon: <UndoOutlined />, label: 'Restore to Original Location',
@@ -220,25 +221,27 @@ export function RecentlyClosedCard({
               trigger={['click']}
               placement="bottomRight"
             >
-              <button
-                onMouseDown={(e) => e.stopPropagation()}
-                tabIndex={-1}
-                className={`p-1.5 rounded flex items-center gap-1 ${
-                  isDark
-                    ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700'
-                    : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
-                }`}
-              >
-                <FileTextOutlined className="text-base" />
-                <span className="text-xs font-medium">{selectedTabCount}</span>
-              </button>
+              <Tooltip title={`Actions for ${selectedTabCount} tabs`} placement="top" mouseEnterDelay={0.3} open={actionsMenuOpen ? false : undefined}>
+                <button
+                  onMouseDown={(e) => e.stopPropagation()}
+                  tabIndex={-1}
+                  className={`p-1.5 rounded flex items-center gap-1 ${
+                    isDark
+                      ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700'
+                      : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
+                  }`}
+                >
+                  <FileTextOutlined className="text-base" />
+                  <span className="text-xs font-medium">{selectedTabCount}</span>
+                </button>
+              </Tooltip>
             </Dropdown>
           )}
 
           {!isSearching && (
             <>
               <div className="relative">
-                <Tooltip text="Restore all" theme={theme} position="top">
+                <Tooltip title="Restore all" placement="top" mouseEnterDelay={0.3}>
                   <button
                     onMouseDown={(e) => { e.stopPropagation(); handleRestoreAllClick(); }}
                     tabIndex={-1}
@@ -286,7 +289,7 @@ export function RecentlyClosedCard({
               </div>
 
               <div className="relative">
-                <Tooltip text="Clear all" theme={theme} position="top">
+                <Tooltip title="Clear all" placement="top" mouseEnterDelay={0.3}>
                   <button
                     onMouseDown={(e) => { e.stopPropagation(); handleClearAllClick(); }}
                     tabIndex={-1}
@@ -334,7 +337,7 @@ export function RecentlyClosedCard({
           )}
 
           {/* Collapse Toggle */}
-          <Tooltip text={isCollapsed ? 'Expand' : 'Collapse'} theme={theme} position="top">
+          <Tooltip title={isCollapsed ? 'Expand' : 'Collapse'} placement="top" mouseEnterDelay={0.3}>
             <button
               onMouseDown={(e) => { e.stopPropagation(); onToggleCollapse(); }}
               tabIndex={-1}

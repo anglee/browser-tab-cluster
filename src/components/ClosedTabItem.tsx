@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Checkbox } from './Checkbox';
 import {
   MoreOutlined,
@@ -7,10 +8,9 @@ import {
   SelectOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
-import { Dropdown } from 'antd';
+import { Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { ClosedTabInfo, WindowInfo } from '../types';
-import { Tooltip } from './Tooltip';
 
 interface ClosedTabItemProps {
   tab: ClosedTabInfo;
@@ -57,6 +57,8 @@ export function ClosedTabItem({
   const handleClick = () => {
     onRestore(tab.sessionId);
   };
+
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const getFaviconUrl = () => {
     if (tab.favIconUrl && !tab.favIconUrl.startsWith('chrome://')) {
@@ -114,7 +116,7 @@ export function ClosedTabItem({
         />
       </div>
 
-      <Tooltip text={getDomain()} theme={theme}>
+      <Tooltip title={getDomain()} placement="bottom" mouseEnterDelay={0.3}>
         <img
           src={getFaviconUrl()}
           alt=""
@@ -126,11 +128,13 @@ export function ClosedTabItem({
         />
       </Tooltip>
 
-      <Tooltip text={<>{tab.title || 'Untitled'}<br /><span className="text-mist-400">{tab.url}</span></>} theme={theme} flex1 wrap>
-        <span className={`text-sm truncate block ${isDark ? 'text-mist-400' : 'text-mist-700'}`}>
-          {tab.title || 'Untitled'}
-        </span>
-      </Tooltip>
+      <div className="flex-1 min-w-0">
+        <Tooltip title={<>{tab.title || 'Untitled'}<br /><span className="text-mist-400">{tab.url}</span></>} placement="bottom" mouseEnterDelay={0.3} overlayInnerStyle={{ maxWidth: '20rem', wordBreak: 'break-all', whiteSpace: 'pre-line' }}>
+          <span className={`text-sm truncate block ${isDark ? 'text-mist-400' : 'text-mist-700'}`}>
+            {tab.title || 'Untitled'}
+          </span>
+        </Tooltip>
+      </div>
 
       <span className={`text-xs flex-shrink-0 ${isDark ? 'text-mist-500' : 'text-mist-400'}`}>
         {formatTimeAgo(tab.closedTime)}
@@ -141,18 +145,21 @@ export function ClosedTabItem({
         menu={{ items: menuItems }}
         trigger={['click']}
         placement="bottomRight"
+        onOpenChange={(open) => setMenuOpen(open)}
       >
-        <button
-          onClick={(e) => e.stopPropagation()}
-          tabIndex={-1}
-          className={`p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded ${
-            isDark
-              ? 'text-mist-500 hover:text-mist-300 hover:bg-mist-600'
-              : 'text-mist-400 hover:text-mist-600 hover:bg-mist-200'
-          }`}
-        >
-          <MoreOutlined className="text-xs" />
-        </button>
+        <Tooltip title="More options" placement="bottomRight" mouseEnterDelay={0.3} open={menuOpen ? false : undefined}>
+          <button
+            onClick={(e) => e.stopPropagation()}
+            tabIndex={-1}
+            className={`p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded ${
+              isDark
+                ? 'text-mist-500 hover:text-mist-300 hover:bg-mist-600'
+                : 'text-mist-400 hover:text-mist-600 hover:bg-mist-200'
+            }`}
+          >
+            <MoreOutlined className="text-xs" />
+          </button>
+        </Tooltip>
       </Dropdown>
     </div>
   );

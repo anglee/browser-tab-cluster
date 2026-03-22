@@ -12,7 +12,7 @@ import {
   ArrowsAltOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons';
-import { Tooltip } from './Tooltip';
+import { Tooltip } from 'antd';
 import { WindowInfo } from '../types';
 
 export interface ToolbarHandle {
@@ -217,11 +217,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
       <div className="flex items-center gap-1">
         {/* Merge Windows */}
         <div className="relative" ref={popoverRef}>
-          <Tooltip
-            text="Merge windows"
-            theme={theme}
-            position="bottom-right"
-          >
+          <Tooltip title="Merge windows" placement="bottomRight" mouseEnterDelay={0.3} open={showMergePopover ? false : undefined}>
             <button
               onClick={handleToggleMergePopover}
               tabIndex={-1}
@@ -312,7 +308,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
         <div className={`w-px h-6 mx-1 ${isDark ? 'bg-mist-600' : 'bg-mist-300'}`} />
 
         {/* Dedupe All */}
-        <Tooltip text="Remove all duplicates" theme={theme} position="bottom-right">
+        <Tooltip title="Remove all duplicates" placement="bottomRight" mouseEnterDelay={0.3}>
           <button
             onClick={onDedupeAll}
             tabIndex={-1}
@@ -327,7 +323,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
         </Tooltip>
 
         {/* Sort All */}
-        <Tooltip text="Sort all windows by domain" theme={theme} position="bottom-right">
+        <Tooltip title="Sort all windows by domain" placement="bottomRight" mouseEnterDelay={0.3}>
           <button
             onClick={onSortAll}
             tabIndex={-1}
@@ -342,7 +338,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
         </Tooltip>
 
         {/* Collapse/Expand All */}
-        <Tooltip text={allCollapsed ? 'Expand all cards' : 'Collapse all cards'} theme={theme} position="bottom-right">
+        <Tooltip title={allCollapsed ? 'Expand all cards' : 'Collapse all cards'} placement="bottomRight" mouseEnterDelay={0.3}>
           <button
             onClick={allCollapsed ? onExpandAll : onCollapseAll}
             tabIndex={-1}
@@ -361,7 +357,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
         </Tooltip>
 
         {/* Documentation */}
-        <Tooltip text="Documentation" theme={theme} position="bottom-right">
+        <Tooltip title="Documentation" placement="bottomRight" mouseEnterDelay={0.3}>
           <button
             onClick={() => chrome.tabs.create({ url: 'https://github.com/anglee/browser-tab-cluster/wiki/User-Guide' })}
             tabIndex={-1}
@@ -379,7 +375,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
         <div className={`w-px h-6 mx-1 ${isDark ? 'bg-mist-600' : 'bg-mist-300'}`} />
 
         {/* Theme Toggle */}
-        <Tooltip text="Toggle theme" theme={theme} position="bottom-right">
+        <Tooltip title="Toggle theme" placement="bottomRight" mouseEnterDelay={0.3}>
           <button
             onClick={onToggleTheme}
             tabIndex={-1}

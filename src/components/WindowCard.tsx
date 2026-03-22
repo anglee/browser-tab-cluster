@@ -15,11 +15,10 @@ import {
   RightOutlined,
   GroupOutlined,
 } from '@ant-design/icons';
-import { Dropdown } from 'antd';
+import { Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { WindowInfo, SortOption, TabGroupInfo } from '../types';
 import { TabItem, TAB_GROUP_COLORS } from './TabItem';
-import { Tooltip } from './Tooltip';
 
 interface WindowCardProps {
   window: WindowInfo;
@@ -69,6 +68,8 @@ export function WindowCard({
   theme,
 }: WindowCardProps) {
   const [selectedTabs, setSelectedTabs] = useState<Set<number>>(new Set());
+  const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
 
   const { setNodeRef, isOver } = useDroppable({
     id: `window-${window.id}`,
@@ -185,72 +186,75 @@ export function WindowCard({
           {/* Bulk Actions Button - only visible when 2+ tabs selected */}
           {selectedTabCount >= 2 && (
             <Dropdown
-              menu={{ items: (() => {
-                const items: MenuProps['items'] = [
-                  { key: 'new-window', icon: <PlusOutlined />, label: 'Move to New Window',
-                    onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleBulkMoveToNewWindow(); } },
-                ];
-                if (otherWindows.length > 0) {
+                onOpenChange={(open) => setActionsMenuOpen(open)}
+                menu={{ items: (() => {
+                  const items: MenuProps['items'] = [
+                    { key: 'new-window', icon: <PlusOutlined />, label: 'Move to New Window',
+                      onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleBulkMoveToNewWindow(); } },
+                  ];
+                  if (otherWindows.length > 0) {
+                    items.push({
+                      key: 'move-to-window', icon: <SelectOutlined />, label: 'Move to Window',
+                      children: otherWindows.map(w => ({
+                        key: `window-${w.id}`, label: `Window ${getWindowNumber(w.id)} (${w.tabs.length} tabs)`,
+                        onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => { domEvent.stopPropagation(); handleBulkMoveToWindow(w.id); },
+                      })) as MenuProps['items'],
+                    });
+                  }
                   items.push({
-                    key: 'move-to-window', icon: <SelectOutlined />, label: 'Move to Window',
-                    children: otherWindows.map(w => ({
-                      key: `window-${w.id}`, label: `Window ${getWindowNumber(w.id)} (${w.tabs.length} tabs)`,
-                      onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => { domEvent.stopPropagation(); handleBulkMoveToWindow(w.id); },
-                    })) as MenuProps['items'],
+                    key: 'create-group', icon: <GroupOutlined />, label: 'Create New Group',
+                    onClick: async ({ domEvent }) => {
+                      domEvent.stopPropagation();
+                      const tabIds = Array.from(selectedTabs);
+                      const existingNames = new Set(tabGroups.map(g => g.title));
+                      let n = 1;
+                      while (existingNames.has(`Tab Group ${n}`)) n++;
+                      const groupId = await chrome.tabs.group({ tabIds, createProperties: { windowId: window.id } });
+                      await chrome.tabGroups.update(groupId, { title: `Tab Group ${n}` });
+                      setSelectedTabs(new Set());
+                    },
                   });
-                }
-                items.push({
-                  key: 'create-group', icon: <GroupOutlined />, label: 'Create New Group',
-                  onClick: async ({ domEvent }) => {
-                    domEvent.stopPropagation();
-                    const tabIds = Array.from(selectedTabs);
-                    const existingNames = new Set(tabGroups.map(g => g.title));
-                    let n = 1;
-                    while (existingNames.has(`Tab Group ${n}`)) n++;
-                    const groupId = await chrome.tabs.group({ tabIds, createProperties: { windowId: window.id } });
-                    await chrome.tabGroups.update(groupId, { title: `Tab Group ${n}` });
-                    setSelectedTabs(new Set());
-                  },
-                });
-                if (tabGroups.length > 0) {
-                  items.push({
-                    key: 'move-to-group', icon: <GroupOutlined />, label: 'Move to Group',
-                    children: tabGroups.map(g => ({
-                      key: `group-${g.id}`,
-                      label: <span className="flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-sm inline-block flex-shrink-0"
-                          style={{ backgroundColor: (TAB_GROUP_COLORS[g.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }} />
-                        {g.title || 'Unnamed group'}
-                      </span>,
-                      onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => {
-                        domEvent.stopPropagation();
-                        chrome.tabs.group({ tabIds: Array.from(selectedTabs), groupId: g.id });
-                        setSelectedTabs(new Set());
-                      },
-                    })) as MenuProps['items'],
-                  });
-                }
-                items.push(
-                  { type: 'divider' },
-                  { key: 'close', icon: <CloseOutlined />, label: `Close All ${selectedTabCount} tabs`, danger: true,
-                    onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleBulkClose(); } },
-                );
-                return items;
-              })() }}
-              trigger={['click']}
-              placement="bottomRight"
-            >
-              <button
-                onMouseDown={(e) => e.stopPropagation()}
-                tabIndex={-1}
-                className={`p-1.5 rounded flex items-center gap-1 ${
-                  isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700' : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
-                }`}
+                  if (tabGroups.length > 0) {
+                    items.push({
+                      key: 'move-to-group', icon: <GroupOutlined />, label: 'Move to Group',
+                      children: tabGroups.map(g => ({
+                        key: `group-${g.id}`,
+                        label: <span className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-sm inline-block flex-shrink-0"
+                            style={{ backgroundColor: (TAB_GROUP_COLORS[g.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }} />
+                          {g.title || 'Unnamed group'}
+                        </span>,
+                        onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => {
+                          domEvent.stopPropagation();
+                          chrome.tabs.group({ tabIds: Array.from(selectedTabs), groupId: g.id });
+                          setSelectedTabs(new Set());
+                        },
+                      })) as MenuProps['items'],
+                    });
+                  }
+                  items.push(
+                    { type: 'divider' },
+                    { key: 'close', icon: <CloseOutlined />, label: `Close All ${selectedTabCount} tabs`, danger: true,
+                      onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleBulkClose(); } },
+                  );
+                  return items;
+                })() }}
+                trigger={['click']}
+                placement="bottomRight"
               >
-                <FileTextOutlined className="text-base" />
-                <span className="text-xs font-medium">{selectedTabCount}</span>
-              </button>
-            </Dropdown>
+                <Tooltip title={`Actions for ${selectedTabCount} tabs`} placement="top" mouseEnterDelay={0.3} open={actionsMenuOpen ? false : undefined}>
+                  <button
+                    onMouseDown={(e) => e.stopPropagation()}
+                    tabIndex={-1}
+                    className={`p-1.5 rounded flex items-center gap-1 ${
+                      isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700' : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
+                    }`}
+                  >
+                    <FileTextOutlined className="text-base" />
+                    <span className="text-xs font-medium">{selectedTabCount}</span>
+                  </button>
+                </Tooltip>
+              </Dropdown>
           )}
 
           {!isSearching && (
@@ -262,19 +266,22 @@ export function WindowCard({
                 ] }}
                 trigger={['click']}
                 placement="bottomRight"
+                onOpenChange={(open) => setSortMenuOpen(open)}
               >
-                <button
-                  onMouseDown={(e) => e.stopPropagation()}
-                  tabIndex={-1}
-                  className={`p-1.5 rounded ${
-                    isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
-                  }`}
-                >
-                  <SortAscendingOutlined className="text-base" />
-                </button>
+                <Tooltip title="Sort tabs" placement="top" mouseEnterDelay={0.3} open={sortMenuOpen ? false : undefined}>
+                  <button
+                    onMouseDown={(e) => e.stopPropagation()}
+                    tabIndex={-1}
+                    className={`p-1.5 rounded ${
+                      isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
+                    }`}
+                  >
+                    <SortAscendingOutlined className="text-base" />
+                  </button>
+                </Tooltip>
               </Dropdown>
 
-              <Tooltip text="Remove duplicates" theme={theme} position="top">
+              <Tooltip title="Remove duplicates" placement="top" mouseEnterDelay={0.3}>
                 <button
                   onMouseDown={(e) => { e.stopPropagation(); onDedupe(window.id); }}
                   tabIndex={-1}
@@ -286,7 +293,7 @@ export function WindowCard({
                 </button>
               </Tooltip>
 
-              <Tooltip text="Close window" theme={theme} position="top">
+              <Tooltip title="Close window" placement="top" mouseEnterDelay={0.3}>
                 <button
                   onMouseDown={(e) => { e.stopPropagation(); onCloseWindow(window.id); }}
                   tabIndex={-1}
@@ -301,7 +308,7 @@ export function WindowCard({
           )}
 
           {/* Collapse Toggle */}
-          <Tooltip text={isCollapsed ? 'Expand' : 'Collapse'} theme={theme} position="top">
+          <Tooltip title={isCollapsed ? 'Expand' : 'Collapse'} placement="top" mouseEnterDelay={0.3}>
             <button
               onMouseDown={(e) => { e.stopPropagation(); onToggleCollapse(); }}
               tabIndex={-1}
