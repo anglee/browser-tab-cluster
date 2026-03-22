@@ -132,14 +132,17 @@ export function WindowCard({
   const allSelected = selectedTabCount === window.tabs.length && window.tabs.length > 0;
   const someSelected = selectedTabCount > 0 && !allSelected;
 
-  // Detect if selected tabs exactly match all tabs of a specific group
+  // Detect if selected tabs exactly match all tabs of a specific group.
+  // Use allWindows (unfiltered) to check group membership, so search filtering
+  // doesn't cause a partial selection to incorrectly match a group.
+  const unfilteredWindow = allWindows.find(w => w.id === window.id);
   const selectedGroupMatch = (() => {
-    if (selectedTabCount === 0) return null;
+    if (selectedTabCount === 0 || !unfilteredWindow) return null;
     const selectedIds = Array.from(selectedTabs);
-    const firstTab = window.tabs.find(t => t.id === selectedIds[0]);
+    const firstTab = unfilteredWindow.tabs.find(t => t.id === selectedIds[0]);
     if (!firstTab || firstTab.groupId === -1) return null;
     const groupId = firstTab.groupId;
-    const groupTabIds = window.tabs.filter(t => t.groupId === groupId).map(t => t.id);
+    const groupTabIds = unfilteredWindow.tabs.filter(t => t.groupId === groupId).map(t => t.id);
     if (groupTabIds.length !== selectedTabCount) return null;
     if (!groupTabIds.every(id => selectedTabs.has(id))) return null;
     return tabGroups.find(g => g.id === groupId) || null;
@@ -202,7 +205,7 @@ export function WindowCard({
             <Dropdown
               onOpenChange={(open) => setGroupMenuOpen(open)}
               menu={{ items: (() => {
-                const groupTabIds = window.tabs.filter(t => t.groupId === selectedGroupMatch.id).map(t => t.id);
+                const groupTabIds = (unfilteredWindow || window).tabs.filter(t => t.groupId === selectedGroupMatch.id).map(t => t.id);
                 const otherGroups = tabGroups.filter(g => g.id !== selectedGroupMatch.id);
                 const items: MenuProps['items'] = [
                   { key: 'move-new-window', icon: <PlusOutlined />, label: 'Move to New Window',
@@ -263,8 +266,8 @@ export function WindowCard({
               trigger={['click']}
               placement="bottomRight"
             >
-              <Tooltip title={`Group: ${selectedGroupMatch.title || 'Unnamed group'}`} placement="top" mouseEnterDelay={0.3} open={groupMenuOpen ? false : undefined}>
-                <Button type="text" size="small" icon={<GroupOutlined />} onMouseDown={(e) => e.stopPropagation()}>{selectedGroupMatch.title || 'Unnamed group'}</Button>
+              <Tooltip title={"Actions for group"} placement="top" mouseEnterDelay={0.3} open={groupMenuOpen ? false : undefined}>
+                <Button type="text" size="small" icon={<GroupOutlined />} onMouseDown={(e) => e.stopPropagation()} style={{ color: isDark ? '#60a5fa' : '#2563eb' }}>{selectedGroupMatch.title || 'Unnamed group'}</Button>
               </Tooltip>
             </Dropdown>
           )}
@@ -359,44 +362,23 @@ export function WindowCard({
               </Dropdown>
 
               <Tooltip title="Remove duplicates" placement="top" mouseEnterDelay={0.3}>
-                <button
-                  onMouseDown={(e) => { e.stopPropagation(); onDedupe(window.id); }}
-                  tabIndex={-1}
-                  className={`p-1.5 rounded ${
-                    isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
-                  }`}
-                >
-                  <MergeOutlined className="text-base" rotate={90} />
-                </button>
+                <Button type="text" size="small" icon={<MergeOutlined rotate={90} />} onMouseDown={(e) => { e.stopPropagation(); onDedupe(window.id); }} />
               </Tooltip>
 
               <Tooltip title="Close window" placement="top" mouseEnterDelay={0.3}>
-                <button
-                  onMouseDown={(e) => { e.stopPropagation(); onCloseWindow(window.id); }}
-                  tabIndex={-1}
-                  className={`p-1.5 rounded hover:text-red-400 ${
-                    isDark ? 'text-mist-400 hover:bg-mist-700' : 'text-mist-500 hover:bg-mist-200'
-                  }`}
-                >
-                  <CloseOutlined className="text-base" />
-                </button>
+                <Button type="text" size="small" icon={<CloseOutlined />} onMouseDown={(e) => { e.stopPropagation(); onCloseWindow(window.id); }} className="hover:!text-red-400" />
               </Tooltip>
             </>
           )}
 
           {/* Collapse Toggle */}
           <Tooltip title={isCollapsed ? 'Expand' : 'Collapse'} placement="top" mouseEnterDelay={0.3}>
-            <button
+            <Button
+              type="text"
+              size="small"
+              icon={<span className={`inline-block transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}><RightOutlined /></span>}
               onMouseDown={(e) => { e.stopPropagation(); onToggleCollapse(); }}
-              tabIndex={-1}
-              className={`p-1.5 rounded ${
-                isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
-              }`}
-            >
-              <span className={`inline-block transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}>
-                <RightOutlined className="text-base" />
-              </span>
-            </button>
+            />
           </Tooltip>
         </div>
       </div>
@@ -427,7 +409,7 @@ export function WindowCard({
                 chrome.tabs.group({ tabIds: tabId, groupId });
               }}
               onToggleGroupSelect={(groupId) => {
-                const groupTabIds = window.tabs.filter(t => t.groupId === groupId).map(t => t.id);
+                const groupTabIds = (unfilteredWindow || window).tabs.filter(t => t.groupId === groupId).map(t => t.id);
                 const allGroupSelected = groupTabIds.every(id => selectedTabs.has(id));
                 setSelectedTabs(prev => {
                   const next = new Set(prev);

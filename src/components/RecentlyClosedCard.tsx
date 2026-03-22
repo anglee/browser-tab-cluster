@@ -234,17 +234,7 @@ export function RecentlyClosedCard({
             <>
               <div className="relative">
                 <Tooltip title="Restore all" placement="top" mouseEnterDelay={0.3}>
-                  <button
-                    onMouseDown={(e) => { e.stopPropagation(); handleRestoreAllClick(); }}
-                    tabIndex={-1}
-                    className={`p-1.5 rounded ${
-                      isDark
-                        ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700'
-                        : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
-                    }`}
-                  >
-                    <ReloadOutlined className="text-base" />
-                  </button>
+                  <Button type="text" size="small" icon={<ReloadOutlined />} onMouseDown={(e) => { e.stopPropagation(); handleRestoreAllClick(); }} />
                 </Tooltip>
                 {showRestoreAllConfirm && (
                   <div
@@ -282,15 +272,7 @@ export function RecentlyClosedCard({
 
               <div className="relative">
                 <Tooltip title="Clear all" placement="top" mouseEnterDelay={0.3}>
-                  <button
-                    onMouseDown={(e) => { e.stopPropagation(); handleClearAllClick(); }}
-                    tabIndex={-1}
-                    className={`p-1.5 rounded hover:text-red-400 ${
-                      isDark ? 'text-mist-400 hover:bg-mist-700' : 'text-mist-500 hover:bg-mist-200'
-                    }`}
-                  >
-                    <DeleteOutlined className="text-base" />
-                  </button>
+                  <Button type="text" size="small" icon={<DeleteOutlined />} onMouseDown={(e) => { e.stopPropagation(); handleClearAllClick(); }} className="hover:!text-red-400" />
                 </Tooltip>
                 {showClearAllConfirm && (
                   <div
@@ -330,17 +312,12 @@ export function RecentlyClosedCard({
 
           {/* Collapse Toggle */}
           <Tooltip title={isCollapsed ? 'Expand' : 'Collapse'} placement="top" mouseEnterDelay={0.3}>
-            <button
+            <Button
+              type="text"
+              size="small"
+              icon={<span className={`inline-block transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}><RightOutlined /></span>}
               onMouseDown={(e) => { e.stopPropagation(); onToggleCollapse(); }}
-              tabIndex={-1}
-              className={`p-1.5 rounded ${
-                isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
-              }`}
-            >
-              <span className={`inline-block transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}>
-                <RightOutlined className="text-base" />
-              </span>
-            </button>
+            />
           </Tooltip>
         </div>
       </div>
