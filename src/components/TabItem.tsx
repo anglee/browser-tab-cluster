@@ -31,6 +31,7 @@ interface TabItemProps {
   onMoveToNewWindow: (tabId: number) => void;
   onTogglePin: (tabId: number, pinned: boolean) => void;
   tabGroup?: TabGroupInfo;
+  isGroupFullySelected: boolean;
   tabGroups: TabGroupInfo[];
   onToggleGroupSelect?: (groupId: number) => void;
   onMoveToGroup: (tabId: number, groupId: number) => void;
@@ -64,6 +65,7 @@ export function TabItem({
   onMoveToNewWindow,
   onTogglePin,
   tabGroup,
+  isGroupFullySelected,
   tabGroups,
   onToggleGroupSelect,
   onMoveToGroup,
@@ -125,9 +127,9 @@ export function TabItem({
       onClick={handleClick}
     >
       {tabGroup && (
-        <Tooltip title={`Group: ${tabGroup.title}` || 'Unnamed group'} placement="left" mouseEnterDelay={0.3}>
+        <Tooltip title={<>{`Group: ${tabGroup.title || 'Unnamed group'}`}<br />{isGroupFullySelected ? 'Click to deselect all' : 'Click to select all'}</>} placement="left" mouseEnterDelay={0.3}>
           <span
-            className={`absolute ${isFirstInGroup && isLastInGroup ? 'rounded' : isFirstInGroup ? 'rounded-t' : isLastInGroup ? 'rounded-b' : ''} left-0 top-px bottom-px w-2 cursor-pointer`}
+            className={`absolute ${isFirstInGroup && isLastInGroup ? 'rounded' : isFirstInGroup ? 'rounded-t' : isLastInGroup ? 'rounded-b' : ''} left-0.5 top-px bottom-px w-2 cursor-pointer`}
             style={{ backgroundColor: (TAB_GROUP_COLORS[tabGroup.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }}
             onClick={(e) => { e.stopPropagation(); onToggleGroupSelect?.(tabGroup.id); }}
           />
