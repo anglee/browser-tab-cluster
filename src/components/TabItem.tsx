@@ -35,7 +35,7 @@ interface TabItemProps {
   theme: 'light' | 'dark';
 }
 
-const TAB_GROUP_COLORS: Record<string, { light: string; dark: string }> = {
+export const TAB_GROUP_COLORS: Record<string, { light: string; dark: string }> = {
   grey:   { light: '#5F6368', dark: '#DADCE0' },
   blue:   { light: '#1A73E8', dark: '#8AB4F8' },
   red:    { light: '#D93025', dark: '#F28B82' },
