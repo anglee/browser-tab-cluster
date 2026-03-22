@@ -1,4 +1,3 @@
-import { useState, useRef, useEffect } from 'react';
 import { Checkbox } from './Checkbox';
 import {
   MoreOutlined,
@@ -8,8 +7,9 @@ import {
   SelectOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
+import { Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
 import { ClosedTabInfo, WindowInfo } from '../types';
-import { Submenu, SubmenuItem } from './Submenu';
 import { Tooltip } from './Tooltip';
 
 interface ClosedTabItemProps {
@@ -54,59 +54,8 @@ export function ClosedTabItem({
   onDelete,
   theme,
 }: ClosedTabItemProps) {
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowMenu(false);
-      }
-    };
-
-    if (showMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu]);
-
   const handleClick = () => {
     onRestore(tab.sessionId);
-  };
-
-  const handleMenuClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowMenu(!showMenu);
-  };
-
-  const handleRestore = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onRestore(tab.sessionId);
-    setShowMenu(false);
-  };
-
-  const handleRestoreInNewWindow = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onRestoreInNewWindow(tab.sessionId);
-    setShowMenu(false);
-  };
-
-  const handleRestoreInCurrentWindow = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onRestoreInCurrentWindow(tab.sessionId);
-    setShowMenu(false);
-  };
-
-  const handleRestoreToWindow = (windowId: number) => {
-    onRestoreToWindow(tab.sessionId, windowId);
-    setShowMenu(false);
-  };
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDelete(tab.sessionId);
-    setShowMenu(false);
   };
 
   const getFaviconUrl = () => {
@@ -125,6 +74,26 @@ export function ClosedTabItem({
   };
 
   const isDark = theme === 'dark';
+
+  const menuItems: MenuProps['items'] = [
+    { key: 'restore', icon: <HistoryOutlined />, label: 'Restore to Original Location',
+      onClick: ({ domEvent }) => { domEvent.stopPropagation(); onRestore(tab.sessionId); } },
+    { key: 'new-window', icon: <PlusOutlined />, label: 'Restore in New Window',
+      onClick: ({ domEvent }) => { domEvent.stopPropagation(); onRestoreInNewWindow(tab.sessionId); } },
+    { key: 'current-window', icon: <ImportOutlined />, label: 'Restore in Current Window',
+      onClick: ({ domEvent }) => { domEvent.stopPropagation(); onRestoreInCurrentWindow(tab.sessionId); } },
+    ...(windows.length > 0 ? [{
+      key: 'restore-to-window', icon: <SelectOutlined />, label: 'Restore to Window',
+      children: windows.map((w) => ({
+        key: `window-${w.id}`,
+        label: <>Window {getWindowNumber(w.id)} ({w.tabs.length} tabs){w.focused && <span className={`ml-1 ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>}</>,
+        onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => { domEvent.stopPropagation(); onRestoreToWindow(tab.sessionId, w.id); },
+      })) as MenuProps['items'],
+    }] : []),
+    { type: 'divider' },
+    { key: 'hide', icon: <DeleteOutlined />, label: 'Hide', danger: true,
+      onClick: ({ domEvent }) => { domEvent.stopPropagation(); onDelete(tab.sessionId); } },
+  ];
 
   return (
     <div
@@ -168,96 +137,23 @@ export function ClosedTabItem({
       </span>
 
       {/* Menu button */}
-      <div className="relative" ref={menuRef}>
-        <Tooltip text="More options" theme={theme} position="bottom-right">
-          <button
-            onClick={handleMenuClick}
-            tabIndex={-1}
-            className={`p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded ${
-              isDark
-                ? 'text-mist-500 hover:text-mist-300 hover:bg-mist-600'
-                : 'text-mist-400 hover:text-mist-600 hover:bg-mist-200'
-            } ${showMenu ? 'opacity-100' : ''}`}
-          >
-            <MoreOutlined className="text-xs" />
-          </button>
-        </Tooltip>
-
-        {/* Dropdown menu */}
-        {showMenu && (
-          <div
-            className={`absolute right-0 top-full mt-1 py-1 w-56 rounded-xl shadow-lg z-20 ring-1 ${
-              isDark ? 'bg-mist-900 ring-white/10' : 'bg-mist-50 ring-mist-950/10'
-            }`}
-          >
-            <button
-              onClick={handleRestore}
-              tabIndex={-1}
-              className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
-              }`}
-            >
-              <HistoryOutlined className="text-base" />
-              Restore to Original Location
-            </button>
-
-            <button
-              onClick={handleRestoreInNewWindow}
-              tabIndex={-1}
-              className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
-              }`}
-            >
-              <PlusOutlined className="text-base" />
-              Restore in New Window
-            </button>
-
-            <button
-              onClick={handleRestoreInCurrentWindow}
-              tabIndex={-1}
-              className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
-                isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
-              }`}
-            >
-              <ImportOutlined className="text-base" />
-              Restore in Current Window
-            </button>
-
-            {/* Restore to Window submenu */}
-            {windows.length > 0 && (
-              <Submenu
-                label="Restore to Window"
-                icon={<SelectOutlined className="text-base" />}
-                theme={theme}
-              >
-                {windows.map((w) => (
-                  <SubmenuItem
-                    key={w.id}
-                    onClick={() => handleRestoreToWindow(w.id)}
-                    theme={theme}
-                  >
-                    Window {getWindowNumber(w.id)} ({w.tabs.length} tabs)
-                    {w.focused && <span className={`ml-1 ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>}
-                  </SubmenuItem>
-                ))}
-              </Submenu>
-            )}
-
-            <div className={`my-1 border-t ${isDark ? 'border-white/10' : 'border-mist-950/10'}`} />
-
-            <button
-              onClick={handleDelete}
-              tabIndex={-1}
-              className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 text-red-500 ${
-                isDark ? 'hover:bg-mist-700' : 'hover:bg-mist-100'
-              }`}
-            >
-              <DeleteOutlined className="text-base" />
-              Hide
-            </button>
-          </div>
-        )}
-      </div>
+      <Dropdown
+        menu={{ items: menuItems }}
+        trigger={['click']}
+        placement="bottomRight"
+      >
+        <button
+          onClick={(e) => e.stopPropagation()}
+          tabIndex={-1}
+          className={`p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded ${
+            isDark
+              ? 'text-mist-500 hover:text-mist-300 hover:bg-mist-600'
+              : 'text-mist-400 hover:text-mist-600 hover:bg-mist-200'
+          }`}
+        >
+          <MoreOutlined className="text-xs" />
+        </button>
+      </Dropdown>
     </div>
   );
 }

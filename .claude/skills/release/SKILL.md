@@ -67,4 +67,10 @@ Create a new release for this project.
    ```
    `just push` runs `git push --follow-tags` which pushes both commits and annotated tags.
 
-10. **Report success** with the new version number and zip file name.
+10. **Create GitHub release**:
+   ```
+   gh release create v<version> --title "v<version>" --notes "<changelog entry for this version>"
+   ```
+   Use the changelog entry (without the `## [X.Y.Z] - date` header) as the release notes.
+
+11. **Report success** with the new version number, zip file name, and GitHub release URL.
