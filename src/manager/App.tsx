@@ -150,17 +150,17 @@ export default function App() {
       .filter(window => window.tabs.length > 0);
   }, [windows, searchQuery]);
 
-  // Filter closed tabs by search query (hidden tabs already excluded at API level)
+  // Filter closed tabs by search query, then cap display count
+  const MAX_RECENTLY_CLOSED_TABS_TO_SHOW = 30;
   const filteredClosedTabs = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return closedTabs;
-    }
-    const lowerQuery = searchQuery.toLowerCase();
-    return closedTabs.filter(
-      tab =>
-        tab.title.toLowerCase().includes(lowerQuery) ||
-        tab.url.toLowerCase().includes(lowerQuery)
-    );
+    const filtered = searchQuery.trim()
+      ? closedTabs.filter(tab => {
+          const lowerQuery = searchQuery.toLowerCase();
+          return tab.title.toLowerCase().includes(lowerQuery) ||
+            tab.url.toLowerCase().includes(lowerQuery);
+        })
+      : closedTabs;
+    return filtered.slice(0, MAX_RECENTLY_CLOSED_TABS_TO_SHOW);
   }, [closedTabs, searchQuery]);
 
   // Masonry layout: distribute cards across columns using "shortest column first" algorithm
