@@ -213,6 +213,10 @@ export function TabItem({
                 })) as MenuProps['items'],
               });
             }
+            if (tab.groupId !== -1) {
+              items.push({ key: 'remove-from-group', icon: <GroupOutlined />, label: 'Remove from Group',
+                onClick: ({ domEvent }) => { domEvent.stopPropagation(); chrome.tabs.ungroup(tab.id); } });
+            }
             items.push(
               { key: 'pin', icon: <PushpinOutlined />, label: tab.pinned ? 'Unpin' : 'Pin',
                 onClick: ({ domEvent }) => { domEvent.stopPropagation(); onTogglePin(tab.id, !tab.pinned); } },
