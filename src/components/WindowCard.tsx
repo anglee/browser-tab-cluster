@@ -13,9 +13,10 @@ import {
   SortAscendingOutlined,
   MergeOutlined,
   RightOutlined,
+  GroupOutlined,
 } from '@ant-design/icons';
 import { WindowInfo, SortOption, TabGroupInfo } from '../types';
-import { TabItem } from './TabItem';
+import { TabItem, TAB_GROUP_COLORS } from './TabItem';
 import { Submenu, SubmenuItem } from './Submenu';
 import { Tooltip } from './Tooltip';
 
@@ -236,6 +237,53 @@ export function WindowCard({
                     </Submenu>
                   )}
 
+                  <button
+                    onClick={async () => {
+                      const tabIds = Array.from(selectedTabs);
+                      const existingNames = new Set(tabGroups.map(g => g.title));
+                      let n = 1;
+                      while (existingNames.has(`Tab Group ${n}`)) n++;
+                      const groupId = await chrome.tabs.group({ tabIds, createProperties: { windowId: window.id } });
+                      await chrome.tabGroups.update(groupId, { title: `Tab Group ${n}` });
+                      setSelectedTabs(new Set());
+                      setShowActionsMenu(false);
+                    }}
+                    tabIndex={-1}
+                    className={`w-full px-3 py-1.5 text-left text-sm flex items-center gap-2 ${
+                      isDark ? 'text-mist-200 hover:bg-mist-700' : 'text-mist-700 hover:bg-mist-100'
+                    }`}
+                  >
+                    <GroupOutlined className="text-base" />
+                    Create New Group
+                  </button>
+
+                  {tabGroups.length > 0 && (
+                    <Submenu
+                      label="Move to Group"
+                      icon={<GroupOutlined className="text-base" />}
+                      theme={theme}
+                    >
+                      {tabGroups.map(g => (
+                        <SubmenuItem
+                          key={g.id}
+                          onClick={() => {
+                            const tabIds = Array.from(selectedTabs);
+                            chrome.tabs.group({ tabIds, groupId: g.id });
+                            setSelectedTabs(new Set());
+                            setShowActionsMenu(false);
+                          }}
+                          theme={theme}
+                        >
+                          <span
+                            className="w-3 h-3 rounded-sm inline-block flex-shrink-0"
+                            style={{ backgroundColor: (TAB_GROUP_COLORS[g.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }}
+                          />
+                          <span className="inline-block ml-2">{g.title || 'Unnamed group'}</span>
+                        </SubmenuItem>
+                      ))}
+                    </Submenu>
+                  )}
+
                   <div className={`my-1 border-t ${isDark ? 'border-white/10' : 'border-mist-950/10'}`} />
 
                   <button
@@ -359,6 +407,10 @@ export function WindowCard({
               onMoveToNewWindow={onMoveToNewWindow}
               onTogglePin={onTogglePin}
               tabGroup={tabGroups.find(g => g.id === tab.groupId)}
+              tabGroups={tabGroups}
+              onMoveToGroup={(tabId, groupId) => {
+                chrome.tabs.group({ tabIds: tabId, groupId });
+              }}
               onToggleGroupSelect={(groupId) => {
                 const groupTabIds = window.tabs.filter(t => t.groupId === groupId).map(t => t.id);
                 const allGroupSelected = groupTabIds.every(id => selectedTabs.has(id));
