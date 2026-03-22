@@ -11,9 +11,12 @@ import {
   VerticalAlignMiddleOutlined,
   ArrowsAltOutlined,
   QuestionCircleOutlined,
+  GroupOutlined,
 } from '@ant-design/icons';
-import { Tooltip } from 'antd';
-import { WindowInfo } from '../types';
+import { Button, Dropdown, Tooltip } from 'antd';
+import type { MenuProps } from 'antd';
+import { WindowInfo, TabGroupInfo } from '../types';
+import { TAB_GROUP_COLORS } from './TabItem';
 
 export interface ToolbarHandle {
   focusSearch: () => void;
@@ -29,6 +32,8 @@ interface ToolbarProps {
   windows: WindowInfo[];
   getWindowNumber: (windowId: number) => number;
   onMerge: (windowIds: number[]) => void;
+  tabGroups: TabGroupInfo[];
+  onActivateTab: (tabId: number, windowId: number) => void;
   onDedupeAll: () => void;
   onSortAll: () => void;
   allCollapsed: boolean;
@@ -48,6 +53,8 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
   windows,
   getWindowNumber,
   onMerge,
+  tabGroups,
+  onActivateTab,
   onDedupeAll,
   onSortAll,
   allCollapsed,
@@ -58,6 +65,7 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
 }, ref) {
   const isDark = theme === 'dark';
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [groupsMenuOpen, setGroupsMenuOpen] = useState(false);
   const [showMergePopover, setShowMergePopover] = useState(false);
   const [selectedForMerge, setSelectedForMerge] = useState<Set<number>>(new Set());
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -215,6 +223,33 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
 
       {/* Action buttons */}
       <div className="flex items-center gap-1">
+        {/* Groups */}
+          {tabGroups.length > 0 && (
+            <Dropdown
+              onOpenChange={(open) => setGroupsMenuOpen(open)}
+              menu={{ items: tabGroups.map(g => {
+                const firstTab = windows.flatMap(w => w.tabs).find(t => t.groupId === g.id);
+                return {
+                  key: `group-${g.id}`,
+                  label: <span className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-sm inline-block flex-shrink-0"
+                      style={{ backgroundColor: (TAB_GROUP_COLORS[g.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }} />
+                    {g.title || 'Unnamed group'}
+                  </span>,
+                  onClick: () => {
+                    if (firstTab) onActivateTab(firstTab.id, firstTab.windowId);
+                  },
+                };
+              }) as MenuProps['items'] }}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <Tooltip title="Go to group" placement="bottomRight" mouseEnterDelay={0.3} open={groupsMenuOpen ? false : undefined}>
+                <Button type="text" size="small" icon={<GroupOutlined className="text-lg" />} onMouseDown={(e) => e.stopPropagation()} />
+              </Tooltip>
+            </Dropdown>
+          )}
+
         {/* Merge Windows */}
         <div className="relative" ref={popoverRef}>
           <Tooltip title="Merge windows" placement="bottomRight" mouseEnterDelay={0.3} open={showMergePopover ? false : undefined}>

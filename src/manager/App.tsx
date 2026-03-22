@@ -952,6 +952,8 @@ export default function App() {
         windows={windows}
         getWindowNumber={getWindowNumber}
         onMerge={handleMerge}
+        tabGroups={tabGroups}
+        onActivateTab={handleActivateTab}
         onDedupeAll={handleDedupeAll}
         onSortAll={handleSortAll}
         allCollapsed={allCardsCollapsed}
