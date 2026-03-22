@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-03-22
+
+### Added
+- Tab group indicator: colored bar on left edge of grouped tabs with tooltip showing group name
+- Click group indicator to toggle-select all tabs in that group
+- "Move to Group" submenu in individual tab context menu and bulk actions menu
+- "Create New Group" in bulk actions menu with auto-naming ("Tab Group N")
+- `tabGroups` permission and real-time updates via Chrome tab group events
+
+### Changed
+- Tab group colors use official Chromium palette values with light/dark mode variants
+
 ## [1.3.2] - 2026-03-22
 
 ### Changed
