@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-03-22
+
+### Added
+- Replace custom Tooltip and Menu with Ant Design components (ConfigProvider, Dropdown, Menu)
+- Group actions button in card header when all tabs of a group are selected (Move to New Window, Move to Window, Merge with Group, Rename Group, Ungroup, Close Group)
+- "Rename Group" modal with color picker
+- "Move to New Group" modal with name input and color picker
+- "Remove from Group" in individual tab context menu (when tab is grouped)
+- "Remove from Group(s)" in bulk actions menu (when all selected tabs are grouped)
+- "Go to group" dropdown in toolbar to switch to a group's first tab
+- Search now matches against tab group names
+- Group color bar corners rounded based on group boundaries (first/last in group)
+- Group bar tooltip shows select/deselect hint
+
+### Changed
+- Bulk actions button now appears when 1+ tabs selected (was 2+)
+- Group button replaces bulk actions button when selected tabs exactly match a group
+- Submenu window items show tab count right-aligned, matching merge menu layout
+- Card header buttons use antd Button for visual consistency
+- Tooltip dismissed when dropdown menu opens
+- Singularize "tab" in actions tooltip when count is 1
+- Skip custom keyboard handler when antd modal is open
+
+### Fixed
+- Group match check uses unfiltered window tabs so search doesn't cause false matches
+- Group bar click selects only visible (filtered) tabs during search
+- Dropdown menu clicks no longer toggle card collapse/expand
+
 ## [1.4.0] - 2026-03-22
 
 ### Added
