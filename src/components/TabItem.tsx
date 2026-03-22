@@ -190,7 +190,10 @@ export function TabItem({
               items.push({
                 key: 'move-to-window', icon: <SelectOutlined />, label: 'Move to Window',
                 children: otherWindows.map(w => ({
-                  key: `window-${w.id}`, label: `Window ${getWindowNumber(w.id)} (${w.tabs.length} tabs)`,
+                  key: `window-${w.id}`, label: <span className="flex items-center justify-between gap-4 w-full">
+                    <span>Window {getWindowNumber(w.id)}</span>
+                    <span className="text-xs text-gray-400">{w.tabs.length} tabs</span>
+                  </span>,
                   onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => { domEvent.stopPropagation(); onMoveToWindow(tab.id, w.id); },
                 })) as MenuProps['items'],
               });

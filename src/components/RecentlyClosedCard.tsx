@@ -206,7 +206,10 @@ export function RecentlyClosedCard({
                     key: 'restore-to-window', icon: <SelectOutlined />, label: 'Restore to Window',
                     children: windows.map((w) => ({
                       key: `window-${w.id}`,
-                      label: <>Window {getWindowNumber(w.id)} ({w.tabs.length} tabs){w.focused && <span className={`ml-1 ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>}</>,
+                      label: <span className="flex items-center justify-between gap-4 w-full">
+                          <span>Window {getWindowNumber(w.id)}{w.focused && <span className={`ml-1 ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>}</span>
+                          <span className="text-xs text-gray-400">{w.tabs.length} tabs</span>
+                        </span>,
                       onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => { domEvent.stopPropagation(); handleBulkRestoreToWindow(w.id); },
                     })) as MenuProps['items'],
                   });
