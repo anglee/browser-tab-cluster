@@ -15,7 +15,7 @@ import {
   RightOutlined,
   GroupOutlined,
 } from '@ant-design/icons';
-import { Dropdown, Tooltip } from 'antd';
+import { Button, Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { WindowInfo, SortOption, TabGroupInfo } from '../types';
 import { TabItem, TAB_GROUP_COLORS } from './TabItem';
@@ -69,6 +69,7 @@ export function WindowCard({
 }: WindowCardProps) {
   const [selectedTabs, setSelectedTabs] = useState<Set<number>>(new Set());
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
+  const [groupMenuOpen, setGroupMenuOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
 
   const { setNodeRef, isOver } = useDroppable({
@@ -131,6 +132,19 @@ export function WindowCard({
   const allSelected = selectedTabCount === window.tabs.length && window.tabs.length > 0;
   const someSelected = selectedTabCount > 0 && !allSelected;
 
+  // Detect if selected tabs exactly match all tabs of a specific group
+  const selectedGroupMatch = (() => {
+    if (selectedTabCount === 0) return null;
+    const selectedIds = Array.from(selectedTabs);
+    const firstTab = window.tabs.find(t => t.id === selectedIds[0]);
+    if (!firstTab || firstTab.groupId === -1) return null;
+    const groupId = firstTab.groupId;
+    const groupTabIds = window.tabs.filter(t => t.groupId === groupId).map(t => t.id);
+    if (groupTabIds.length !== selectedTabCount) return null;
+    if (!groupTabIds.every(id => selectedTabs.has(id))) return null;
+    return tabGroups.find(g => g.id === groupId) || null;
+  })();
+
   const handleSelectAll = () => {
     if (allSelected) {
       setSelectedTabs(new Set());
@@ -182,9 +196,81 @@ export function WindowCard({
           </span>
         </div>
 
-        <div className="flex items-center gap-1">
-          {/* Bulk Actions Button - only visible when 2+ tabs selected */}
-          {selectedTabCount >= 1 && (
+        <div className="flex items-center gap-1" onMouseDown={(e) => e.stopPropagation()}>
+          {/* Group Actions Button - visible when selected tabs exactly match a group */}
+          {selectedGroupMatch && (
+            <Dropdown
+              onOpenChange={(open) => setGroupMenuOpen(open)}
+              menu={{ items: (() => {
+                const groupTabIds = window.tabs.filter(t => t.groupId === selectedGroupMatch.id).map(t => t.id);
+                const otherGroups = tabGroups.filter(g => g.id !== selectedGroupMatch.id);
+                const items: MenuProps['items'] = [
+                  { key: 'move-new-window', icon: <PlusOutlined />, label: 'Move to New Window',
+                    onClick: ({ domEvent }) => {
+                      domEvent.stopPropagation();
+                      chrome.windows.create({ tabId: groupTabIds[0] }, (newWindow) => {
+                        if (newWindow && groupTabIds.length > 1) {
+                          chrome.tabs.move(groupTabIds.slice(1), { windowId: newWindow.id!, index: -1 });
+                        }
+                      });
+                      setSelectedTabs(new Set());
+                    } },
+                ];
+                if (otherWindows.length > 0) {
+                  items.push({
+                    key: 'move-to-window', icon: <SelectOutlined />, label: 'Move to Window',
+                    children: otherWindows.map(w => ({
+                      key: `window-${w.id}`,
+                      label: <span className="flex items-center justify-between gap-4 w-full">
+                        <span>Window {getWindowNumber(w.id)}</span>
+                        <span className="text-xs text-gray-400">{w.tabs.length} tabs</span>
+                      </span>,
+                      onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => {
+                        domEvent.stopPropagation();
+                        chrome.tabs.move(groupTabIds, { windowId: w.id, index: -1 });
+                        setSelectedTabs(new Set());
+                      },
+                    })) as MenuProps['items'],
+                  });
+                }
+                if (otherGroups.length > 0) {
+                  items.push({
+                    key: 'merge-with-group', icon: <GroupOutlined />, label: 'Merge with Group',
+                    children: otherGroups.map(g => ({
+                      key: `group-${g.id}`,
+                      label: <span className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-sm inline-block flex-shrink-0"
+                          style={{ backgroundColor: (TAB_GROUP_COLORS[g.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }} />
+                        {g.title || 'Unnamed group'}
+                      </span>,
+                      onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => {
+                        domEvent.stopPropagation();
+                        chrome.tabs.group({ tabIds: groupTabIds, groupId: g.id });
+                        setSelectedTabs(new Set());
+                      },
+                    })) as MenuProps['items'],
+                  });
+                }
+                items.push(
+                  { type: 'divider' },
+                  { key: 'ungroup', icon: <GroupOutlined />, label: 'Ungroup',
+                    onClick: ({ domEvent }) => { domEvent.stopPropagation(); chrome.tabs.ungroup(groupTabIds); setSelectedTabs(new Set()); } },
+                  { key: 'close-group', icon: <CloseOutlined />, label: 'Close Group', danger: true,
+                    onClick: ({ domEvent }) => { domEvent.stopPropagation(); chrome.tabs.remove(groupTabIds); setSelectedTabs(new Set()); } },
+                );
+                return items;
+              })() }}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <Tooltip title={`Group: ${selectedGroupMatch.title || 'Unnamed group'}`} placement="top" mouseEnterDelay={0.3} open={groupMenuOpen ? false : undefined}>
+                <Button type="text" size="small" icon={<GroupOutlined />} onMouseDown={(e) => e.stopPropagation()}>{selectedGroupMatch.title || 'Unnamed group'}</Button>
+              </Tooltip>
+            </Dropdown>
+          )}
+
+          {/* Bulk Actions Button - only visible when 1+ tabs selected and no group match */}
+          {selectedTabCount >= 1 && !selectedGroupMatch && (
             <Dropdown
                 onOpenChange={(open) => setActionsMenuOpen(open)}
                 menu={{ items: (() => {
@@ -246,16 +332,7 @@ export function WindowCard({
                 placement="bottomRight"
               >
                 <Tooltip title={`Actions for ${selectedTabCount} tabs`} placement="top" mouseEnterDelay={0.3} open={actionsMenuOpen ? false : undefined}>
-                  <button
-                    onMouseDown={(e) => e.stopPropagation()}
-                    tabIndex={-1}
-                    className={`p-1.5 rounded flex items-center gap-1 ${
-                      isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700' : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
-                    }`}
-                  >
-                    <FileTextOutlined className="text-base" />
-                    <span className="text-xs font-medium">{selectedTabCount}</span>
-                  </button>
+                  <Button type="text" size="small" icon={<FileTextOutlined />} style={{ color: isDark ? '#60a5fa' : '#2563eb' }} onMouseDown={(e) => e.stopPropagation()}>{selectedTabCount}</Button>
                 </Tooltip>
               </Dropdown>
           )}
@@ -272,15 +349,12 @@ export function WindowCard({
                 onOpenChange={(open) => setSortMenuOpen(open)}
               >
                 <Tooltip title="Sort tabs" placement="top" mouseEnterDelay={0.3} open={sortMenuOpen ? false : undefined}>
-                  <button
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<SortAscendingOutlined />}
                     onMouseDown={(e) => e.stopPropagation()}
-                    tabIndex={-1}
-                    className={`p-1.5 rounded ${
-                      isDark ? 'text-mist-400 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
-                    }`}
-                  >
-                    <SortAscendingOutlined className="text-base" />
-                  </button>
+                  />
                 </Tooltip>
               </Dropdown>
 

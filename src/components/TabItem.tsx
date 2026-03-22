@@ -12,7 +12,7 @@ import {
   CloseOutlined,
   GroupOutlined,
 } from '@ant-design/icons';
-import { Tooltip, Dropdown } from 'antd';
+import { Button, Tooltip, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { TabInfo, WindowInfo, TabGroupInfo } from '../types';
 
@@ -230,15 +230,7 @@ export function TabItem({
           placement="bottomRight"
         >
         <Tooltip title="More options" placement="bottomRight" mouseEnterDelay={0.3} open={menuOpen ? false : undefined}>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            tabIndex={-1}
-            className={`p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded ${
-              isDark ? 'text-mist-500 hover:text-mist-300 hover:bg-mist-600' : 'text-mist-400 hover:text-mist-600 hover:bg-mist-200'
-            }`}
-          >
-            <MoreOutlined className="text-xs" />
-          </button>
+          <Button type="text" size="small" icon={<MoreOutlined />} onClick={(e) => e.stopPropagation()} />
         </Tooltip>
       </Dropdown>
 

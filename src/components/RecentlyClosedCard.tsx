@@ -11,7 +11,7 @@ import {
   SelectOutlined,
   RightOutlined,
 } from '@ant-design/icons';
-import { Dropdown, Tooltip } from 'antd';
+import { Button, Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { ClosedTabInfo, WindowInfo } from '../types';
 import { ClosedTabItem } from './ClosedTabItem';
@@ -187,7 +187,7 @@ export function RecentlyClosedCard({
           </span>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1" onMouseDown={(e) => e.stopPropagation()}>
           {/* Bulk Actions Button - only visible when 2+ tabs selected */}
           {selectedTabCount >= 1 && (
             <Dropdown
@@ -225,18 +225,7 @@ export function RecentlyClosedCard({
               placement="bottomRight"
             >
               <Tooltip title={`Actions for ${selectedTabCount} tabs`} placement="top" mouseEnterDelay={0.3} open={actionsMenuOpen ? false : undefined}>
-                <button
-                  onMouseDown={(e) => e.stopPropagation()}
-                  tabIndex={-1}
-                  className={`p-1.5 rounded flex items-center gap-1 ${
-                    isDark
-                      ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700'
-                      : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
-                  }`}
-                >
-                  <FileTextOutlined className="text-base" />
-                  <span className="text-xs font-medium">{selectedTabCount}</span>
-                </button>
+                <Button type="text" size="small" icon={<FileTextOutlined />} style={{ color: isDark ? '#60a5fa' : '#2563eb' }} onMouseDown={(e) => e.stopPropagation()}>{selectedTabCount}</Button>
               </Tooltip>
             </Dropdown>
           )}
