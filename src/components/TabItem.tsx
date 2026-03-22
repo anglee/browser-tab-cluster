@@ -32,16 +32,16 @@ interface TabItemProps {
   theme: 'light' | 'dark';
 }
 
-const TAB_GROUP_COLORS: Record<string, string> = {
-  grey: '#5f6368',
-  blue: '#1a73e8',
-  red: '#d93025',
-  yellow: '#f9ab00',
-  green: '#188038',
-  pink: '#d01884',
-  purple: '#a142f4',
-  cyan: '#007b83',
-  orange: '#e8710a',
+const TAB_GROUP_COLORS: Record<string, { light: string; dark: string }> = {
+  grey:   { light: '#5F6368', dark: '#DADCE0' },
+  blue:   { light: '#1A73E8', dark: '#8AB4F8' },
+  red:    { light: '#D93025', dark: '#F28B82' },
+  yellow: { light: '#F9AB00', dark: '#FDD663' },
+  green:  { light: '#188038', dark: '#81C995' },
+  pink:   { light: '#D01884', dark: '#FF8BCB' },
+  purple: { light: '#A142F4', dark: '#C58AF9' },
+  cyan:   { light: '#007B83', dark: '#78D9EC' },
+  orange: { light: '#FA903E', dark: '#FCAD70' },
 };
 
 export function TabItem({
@@ -161,7 +161,7 @@ export function TabItem({
       {tabGroup && (
         <span
           className="absolute left-0 top-px bottom-px w-2 cursor-pointer group/groupbar"
-          style={{ backgroundColor: TAB_GROUP_COLORS[tabGroup.color] || TAB_GROUP_COLORS.grey }}
+          style={{ backgroundColor: (TAB_GROUP_COLORS[tabGroup.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }}
           onClick={(e) => { e.stopPropagation(); onToggleGroupSelect?.(tabGroup.id); }}
         >
           <span className={`absolute left-1/2 -translate-x-1/2 bottom-full mb-0.5 px-2 py-1 text-xs rounded-md shadow-lg z-50
