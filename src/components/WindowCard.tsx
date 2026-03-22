@@ -192,7 +192,7 @@ export function WindowCard({
                   onMouseDown={(e) => { e.stopPropagation(); setShowActionsMenu(!showActionsMenu); }}
                   tabIndex={-1}
                   className={`p-1.5 rounded flex items-center gap-1 ${
-                    isDark ? 'text-mist-300 hover:text-mist-200 hover:bg-mist-700' : 'text-mist-500 hover:text-mist-700 hover:bg-mist-200'
+                    isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-mist-700' : 'text-blue-600 hover:text-blue-700 hover:bg-mist-200'
                   }`}
                 >
                   <FileTextOutlined className="text-base" />
