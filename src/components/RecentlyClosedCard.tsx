@@ -224,7 +224,7 @@ export function RecentlyClosedCard({
               trigger={['click']}
               placement="bottomRight"
             >
-              <Tooltip title={`Actions for ${selectedTabCount} tabs`} placement="top" mouseEnterDelay={0.3} open={actionsMenuOpen ? false : undefined}>
+              <Tooltip title={`Actions for ${selectedTabCount} ${selectedTabCount === 1 ? 'tab' : 'tabs'}`} placement="top" mouseEnterDelay={0.3} open={actionsMenuOpen ? false : undefined}>
                 <Button type="text" size="small" icon={<FileTextOutlined />} style={{ color: isDark ? '#60a5fa' : '#2563eb' }} onMouseDown={(e) => e.stopPropagation()}>{selectedTabCount}</Button>
               </Tooltip>
             </Dropdown>
