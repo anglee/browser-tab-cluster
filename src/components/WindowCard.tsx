@@ -359,6 +359,10 @@ export function WindowCard({
               onMoveToNewWindow={onMoveToNewWindow}
               onTogglePin={onTogglePin}
               tabGroup={tabGroups.find(g => g.id === tab.groupId)}
+              tabGroups={tabGroups}
+              onMoveToGroup={(tabId, groupId) => {
+                chrome.tabs.group({ tabIds: tabId, groupId });
+              }}
               onToggleGroupSelect={(groupId) => {
                 const groupTabIds = window.tabs.filter(t => t.groupId === groupId).map(t => t.id);
                 const allGroupSelected = groupTabIds.every(id => selectedTabs.has(id));

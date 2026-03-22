@@ -10,6 +10,7 @@ import {
   PlusOutlined,
   SelectOutlined,
   CloseOutlined,
+  GroupOutlined,
 } from '@ant-design/icons';
 import { TabInfo, WindowInfo, TabGroupInfo } from '../types';
 import { Submenu, SubmenuItem } from './Submenu';
@@ -28,7 +29,9 @@ interface TabItemProps {
   onMoveToNewWindow: (tabId: number) => void;
   onTogglePin: (tabId: number, pinned: boolean) => void;
   tabGroup?: TabGroupInfo;
+  tabGroups: TabGroupInfo[];
   onToggleGroupSelect?: (groupId: number) => void;
+  onMoveToGroup: (tabId: number, groupId: number) => void;
   theme: 'light' | 'dark';
 }
 
@@ -57,7 +60,9 @@ export function TabItem({
   onMoveToNewWindow,
   onTogglePin,
   tabGroup,
+  tabGroups,
   onToggleGroupSelect,
+  onMoveToGroup,
   theme
 }: TabItemProps) {
   const [showMenu, setShowMenu] = useState(false);
@@ -263,6 +268,29 @@ export function TabItem({
                     theme={theme}
                   >
                     Window {getWindowNumber(w.id)} ({w.tabs.length} tabs)
+                  </SubmenuItem>
+                ))}
+              </Submenu>
+            )}
+
+            {/* Move to group submenu */}
+            {tabGroups.filter(g => g.id !== tab.groupId).length > 0 && (
+              <Submenu
+                label="Move to Group"
+                icon={<GroupOutlined className="text-base" />}
+                theme={theme}
+              >
+                {tabGroups.filter(g => g.id !== tab.groupId).map(g => (
+                  <SubmenuItem
+                    key={g.id}
+                    onClick={() => { onMoveToGroup(tab.id, g.id); setShowMenu(false); }}
+                    theme={theme}
+                  >
+                    <span
+                      className="w-3 h-3 rounded-sm inline-block flex-shrink-0"
+                      style={{ backgroundColor: (TAB_GROUP_COLORS[g.color] || TAB_GROUP_COLORS.grey)[isDark ? 'dark' : 'light'] }}
+                    />
+                    <span className="inline-block ml-2">{g.title || 'Unnamed group'}</span>
                   </SubmenuItem>
                 ))}
               </Submenu>
