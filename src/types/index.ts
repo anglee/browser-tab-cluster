@@ -7,6 +7,13 @@ export interface TabInfo {
   favIconUrl?: string;
   active: boolean;
   pinned: boolean;
+  groupId: number;
+}
+
+export interface TabGroupInfo {
+  id: number;
+  title: string;
+  color: chrome.tabGroups.ColorEnum;
 }
 
 export interface WindowInfo {

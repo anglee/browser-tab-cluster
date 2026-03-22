@@ -14,7 +14,7 @@ import {
   MergeOutlined,
   RightOutlined,
 } from '@ant-design/icons';
-import { WindowInfo, SortOption } from '../types';
+import { WindowInfo, SortOption, TabGroupInfo } from '../types';
 import { TabItem } from './TabItem';
 import { Submenu, SubmenuItem } from './Submenu';
 import { Tooltip } from './Tooltip';
@@ -39,6 +39,7 @@ interface WindowCardProps {
   onTogglePin: (tabId: number, pinned: boolean) => void;
   onSort: (windowId: number, option: SortOption) => void;
   onDedupe: (windowId: number) => void;
+  tabGroups: TabGroupInfo[];
   theme: 'light' | 'dark';
 }
 
@@ -62,6 +63,7 @@ export function WindowCard({
   onTogglePin,
   onSort,
   onDedupe,
+  tabGroups,
   theme,
 }: WindowCardProps) {
   const [showSortMenu, setShowSortMenu] = useState(false);
@@ -356,6 +358,16 @@ export function WindowCard({
               onMoveToWindow={onMoveToWindow}
               onMoveToNewWindow={onMoveToNewWindow}
               onTogglePin={onTogglePin}
+              tabGroup={tabGroups.find(g => g.id === tab.groupId)}
+              onToggleGroupSelect={(groupId) => {
+                const groupTabIds = window.tabs.filter(t => t.groupId === groupId).map(t => t.id);
+                const allGroupSelected = groupTabIds.every(id => selectedTabs.has(id));
+                setSelectedTabs(prev => {
+                  const next = new Set(prev);
+                  groupTabIds.forEach(id => allGroupSelected ? next.delete(id) : next.add(id));
+                  return next;
+                });
+              }}
               theme={theme}
             />
           ))}

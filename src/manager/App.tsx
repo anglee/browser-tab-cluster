@@ -92,7 +92,7 @@ function parseShortcutKeys(shortcut: string): string[] {
 }
 
 export default function App() {
-  const { windows, loading, error } = useWindows();
+  const { windows, tabGroups, loading, error } = useWindows();
   const [hiddenClosedTabs, setHiddenClosedTabs] = useState<Set<string>>(getHiddenClosedTabs);
   const { closedTabs, loading: closedLoading } = useRecentlyClosed(hiddenClosedTabs);
   const { theme, toggleTheme } = useTheme();
@@ -988,6 +988,7 @@ export default function App() {
                         onTogglePin={handleTogglePin}
                         onSort={handleSort}
                         onDedupe={handleDedupe}
+                        tabGroups={tabGroups}
                         theme={theme}
                       />
                     );
