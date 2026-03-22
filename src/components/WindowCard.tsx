@@ -187,13 +187,10 @@ export function WindowCard({
         className={`flex items-center justify-between px-3 py-1.5 cursor-pointer border-b rounded-t-xl ${
           isDark ? 'bg-mist-900 border-white/10' : 'bg-mist-200 border-mist-950/10'
         }`}
-        onMouseDown={onToggleCollapse}
+        onMouseDown={() => onFocusWindow(window.id)}
       >
         <div className="flex items-center gap-2">
-          <span
-            className={`text-sm font-medium ${window.focused ? '' : 'cursor-pointer hover:underline'} ${isDark ? 'text-mist-300' : 'text-mist-700'}`}
-            {...(!window.focused && { onMouseDown: (e: React.MouseEvent) => { e.stopPropagation(); onFocusWindow(window.id); } })}
-          >
+          <span className={`text-sm font-medium ${isDark ? 'text-mist-300' : 'text-mist-700'}`}>
             Window {displayNumber}
             {window.focused && (
               <span className={`ml-2 text-xs ${isDark ? 'text-white/60' : 'text-mist-950/60'}`}>(current)</span>
