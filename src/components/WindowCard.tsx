@@ -184,7 +184,7 @@ export function WindowCard({
 
         <div className="flex items-center gap-1">
           {/* Bulk Actions Button - only visible when 2+ tabs selected */}
-          {selectedTabCount >= 2 && (
+          {selectedTabCount >= 1 && (
             <Dropdown
                 onOpenChange={(open) => setActionsMenuOpen(open)}
                 menu={{ items: (() => {
