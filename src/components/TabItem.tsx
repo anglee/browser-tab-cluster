@@ -11,6 +11,7 @@ import {
   SelectOutlined,
   CloseOutlined,
   GroupOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import { Button, Tooltip, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
@@ -224,6 +225,8 @@ export function TabItem({
                 onClick: ({ domEvent }) => { domEvent.stopPropagation(); chrome.tabs.ungroup(tab.id); } });
             }
             items.push(
+              { key: 'reload', icon: <ReloadOutlined />, label: 'Reload',
+                onClick: ({ domEvent }) => { domEvent.stopPropagation(); chrome.tabs.reload(tab.id); } },
               { key: 'pin', icon: <PushpinOutlined />, label: tab.pinned ? 'Unpin' : 'Pin',
                 onClick: ({ domEvent }) => { domEvent.stopPropagation(); onTogglePin(tab.id, !tab.pinned); } },
               { type: 'divider' },
