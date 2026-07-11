@@ -131,20 +131,21 @@ export function subscribeToChanges(callback: () => void): () => void {
 
 // Recently closed tabs API functions
 
-export async function getRecentlyClosed(hiddenIds?: Set<string>): Promise<ClosedTabInfo[]> {
+// Hidden-tab filtering happens in mergeClosedTabs (closedTabLog.ts), which needs the
+// unfiltered session list to dedupe log entries against.
+export async function getRecentlyClosed(): Promise<ClosedTabInfo[]> {
   const sessions = await chrome.sessions.getRecentlyClosed({ maxResults: 25 });
   const closedTabs: ClosedTabInfo[] = [];
 
   const isExtensionUrl = (url: string) => url.startsWith('chrome-extension://');
-  const isHidden = (sessionId: string) => hiddenIds?.has(sessionId) ?? false;
 
   for (const session of sessions) {
     if (session.tab) {
-      // Individual closed tab - skip extension pages and hidden tabs
-      const sessionId = session.tab.sessionId!;
-      if (!isExtensionUrl(session.tab.url || '') && !isHidden(sessionId)) {
+      // Individual closed tab - skip extension pages
+      if (!isExtensionUrl(session.tab.url || '')) {
         closedTabs.push({
-          sessionId,
+          sessionId: session.tab.sessionId!,
+          source: 'session',
           title: session.tab.title || '',
           url: session.tab.url || '',
           favIconUrl: session.tab.favIconUrl,
@@ -152,12 +153,12 @@ export async function getRecentlyClosed(hiddenIds?: Set<string>): Promise<Closed
         });
       }
     } else if (session.window) {
-      // Closed window - flatten all tabs, skip extension pages and hidden tabs
+      // Closed window - flatten all tabs, skip extension pages
       for (const tab of session.window.tabs || []) {
-        const sessionId = tab.sessionId!;
-        if (!isExtensionUrl(tab.url || '') && !isHidden(sessionId)) {
+        if (!isExtensionUrl(tab.url || '')) {
           closedTabs.push({
-            sessionId,
+            sessionId: tab.sessionId!,
+            source: 'session',
             title: tab.title || '',
             url: tab.url || '',
             favIconUrl: tab.favIconUrl,

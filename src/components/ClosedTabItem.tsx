@@ -77,9 +77,15 @@ export function ClosedTabItem({
 
   const isDark = theme === 'dark';
 
+  // Log-backed entries reopen as a fresh tab — their original location is unknown,
+  // and removing them is a real deletion (session entries are only hidden)
+  const isLogEntry = tab.source === 'log';
+
   const menuItems: MenuProps['items'] = [
-    { key: 'restore', icon: <HistoryOutlined />, label: 'Restore to Original Location',
-      onClick: ({ domEvent }) => { domEvent.stopPropagation(); onRestore(tab.sessionId); } },
+    ...(!isLogEntry ? [{
+      key: 'restore', icon: <HistoryOutlined />, label: 'Restore to Original Location',
+      onClick: ({ domEvent }: { domEvent: React.MouseEvent | React.KeyboardEvent }) => { domEvent.stopPropagation(); onRestore(tab.sessionId); },
+    }] : []),
     { key: 'new-window', icon: <PlusOutlined />, label: 'Restore in New Window',
       onClick: ({ domEvent }) => { domEvent.stopPropagation(); onRestoreInNewWindow(tab.sessionId); } },
     { key: 'current-window', icon: <ImportOutlined />, label: 'Restore in Current Window',
@@ -96,7 +102,7 @@ export function ClosedTabItem({
       })) as MenuProps['items'],
     }] : []),
     { type: 'divider' },
-    { key: 'hide', icon: <DeleteOutlined />, label: 'Hide', danger: true,
+    { key: 'hide', icon: <DeleteOutlined />, label: isLogEntry ? 'Delete' : 'Hide', danger: true,
       onClick: ({ domEvent }) => { domEvent.stopPropagation(); onDelete(tab.sessionId); } },
   ];
 

@@ -39,6 +39,8 @@ interface RecentlyClosedCardProps {
   onBulkRestoreToWindow: (sessionIds: string[], windowId: number) => void;
   onRestoreAll: () => void;
   onClearAll: () => void;
+  moreCount: number;
+  onShowMore: () => void;
   theme: 'light' | 'dark';
 }
 
@@ -63,6 +65,8 @@ export function RecentlyClosedCard({
   onBulkRestoreToWindow,
   onRestoreAll,
   onClearAll,
+  moreCount,
+  onShowMore,
   theme,
 }: RecentlyClosedCardProps) {
   const [selectedTabs, setSelectedTabs] = useState<Set<string>>(new Set());
@@ -216,7 +220,7 @@ export function RecentlyClosedCard({
                 }
                 items.push(
                   { type: 'divider' },
-                  { key: 'hide', icon: <DeleteOutlined />, label: `Hide ${selectedTabCount} Selected`, danger: true,
+                  { key: 'hide', icon: <DeleteOutlined />, label: `Remove ${selectedTabCount} Selected`, danger: true,
                     onClick: ({ domEvent }) => { domEvent.stopPropagation(); handleBulkDelete(); } },
                 );
                 return items;
@@ -341,6 +345,18 @@ export function RecentlyClosedCard({
             theme={theme}
           />
           ))}
+          {moreCount > 0 && (
+            <Button
+              type="text"
+              block
+              size="small"
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={onShowMore}
+              className={isDark ? '!text-mist-400' : '!text-mist-500'}
+            >
+              Show {Math.min(30, moreCount)} more ({moreCount} hidden)
+            </Button>
+          )}
         </div>
       )}
     </div>
