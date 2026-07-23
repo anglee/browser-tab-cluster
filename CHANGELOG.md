@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-07-23
+
+### Added
+- Recently Closed history now extends beyond Chrome's ~25-session limit: tab closes
+  are recorded to a local log (up to 1000 entries) and merged with the sessions API.
+  Recent entries keep full-fidelity session restore; older ones reopen by URL
+- "Show more" in the Recently Closed card reveals older entries 30 at a time;
+  search covers the entire merged history
+- Recently closed entries from the log support real deletion, and "Clear All"
+  now actually clears the history
+- "Reload" option in the tab menu
+
+### Changed
+- Added the `storage` permission for the local closed-tab log (all data stays
+  on-device; no user-facing permission warning)
+
 ## [1.5.1] - 2026-03-22
 
 ### Changed
