@@ -49,7 +49,7 @@ A Chrome browser extension for managing tabs and windows, similar to TabCluster.
 │   │   └── DuplicatesModal.tsx
 │   ├── hooks/
 │   │   ├── useWindows.ts  # Chrome windows API wrapper
-│   │   ├── useRecentlyClosed.ts # Chrome sessions API wrapper
+│   │   ├── useRecentlyClosed.ts # Sessions API merged with own closed-tab log
 │   │   ├── useSearch.ts   # Search/filter logic
 │   │   ├── useTheme.ts    # Theme toggle with persistence
 │   │   ├── useMasonry.ts  # Shortest-column-first layout algorithm
@@ -179,3 +179,4 @@ To customize the shortcut:
 The extension requires:
 - `tabs` - Access to tab information (title, URL, favicon)
 - `sessions` - Access to recently closed tabs
+- `storage` - Persist the closed-tab log locally (extends history beyond the sessions API's ~25-session limit)

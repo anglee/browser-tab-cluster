@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ClosedTabInfo } from '../types';
 import { getRecentlyClosed, subscribeToSessionChanges } from '../services/chromeApi';
+import { getClosedTabLog, mergeClosedTabs, subscribeToLogChanges } from '../services/closedTabLog';
 
 export function useRecentlyClosed(hiddenIds: Set<string>) {
   const [closedTabs, setClosedTabs] = useState<ClosedTabInfo[]>([]);
@@ -13,9 +14,12 @@ export function useRecentlyClosed(hiddenIds: Set<string>) {
 
   const refresh = useCallback(async () => {
     try {
+      const [sessionTabs, logEntries] = await Promise.all([
+        getRecentlyClosed(),
+        getClosedTabLog(),
+      ]);
       // Always use the current hiddenIds from the ref
-      const data = await getRecentlyClosed(hiddenIdsRef.current);
-      setClosedTabs(data);
+      setClosedTabs(mergeClosedTabs(sessionTabs, logEntries, hiddenIdsRef.current));
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load recently closed tabs');
@@ -24,11 +28,15 @@ export function useRecentlyClosed(hiddenIds: Set<string>) {
     }
   }, []); // No dependencies - uses ref for latest value
 
-  // Subscribe to session changes once
+  // Subscribe to session and log changes once
   useEffect(() => {
     refresh();
-    const unsubscribe = subscribeToSessionChanges(refresh);
-    return unsubscribe;
+    const unsubscribeSessions = subscribeToSessionChanges(refresh);
+    const unsubscribeLog = subscribeToLogChanges(refresh);
+    return () => {
+      unsubscribeSessions();
+      unsubscribeLog();
+    };
   }, [refresh]);
 
   // Re-fetch when hiddenIds changes

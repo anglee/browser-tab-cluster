@@ -32,9 +32,20 @@ export interface DuplicateGroup {
 }
 
 export interface ClosedTabInfo {
+  // Real Chrome sessionId for 'session' entries, synthetic "log-..." id for 'log' entries
   sessionId: string;
+  source: 'session' | 'log';
   title: string;
   url: string;
+  favIconUrl?: string;
+  closedTime: number;
+}
+
+// Entry in the persistent closed-tab log kept in chrome.storage.local by background.js
+export interface ClosedTabLogEntry {
+  id: string;
+  url: string;
+  title: string;
   favIconUrl?: string;
   closedTime: number;
 }

@@ -34,6 +34,7 @@ import {
   findDuplicates,
   removeDuplicates,
 } from '../services/tabOperations';
+import { isLogId, removeLogEntries, clearClosedTabLog } from '../services/closedTabLog';
 
 type FocusTarget =
   | { type: 'search' }
@@ -45,11 +46,12 @@ type FocusTarget =
 // CardItem for masonry layout - union of window cards and recently closed card
 type CardItem =
   | { type: 'window'; window: WindowInfo; cardIndex: number }
-  | { type: 'recentlyClosed'; closedTabs: ClosedTabInfo[] };
+  | { type: 'recentlyClosed'; closedTabs: ClosedTabInfo[]; moreCount: number };
 
 // Constants for height estimation in masonry layout
 const CARD_HEADER_HEIGHT = 48;
 const TAB_ITEM_HEIGHT = 32;
+const SHOW_MORE_FOOTER_HEIGHT = 36;
 
 // localStorage key for hidden closed tabs
 const HIDDEN_CLOSED_TABS_KEY = 'tabcluster-hidden-closed-tabs';
@@ -155,18 +157,32 @@ export default function App() {
       .filter(window => window.tabs.length > 0);
   }, [windows, tabGroups, searchQuery]);
 
-  // Filter closed tabs by search query, then cap display count
+  // Filter closed tabs by search query (over the full merged list), then cap display count
   const MAX_RECENTLY_CLOSED_TABS_TO_SHOW = 30;
-  const filteredClosedTabs = useMemo(() => {
-    const filtered = searchQuery.trim()
+  const [visibleClosedCount, setVisibleClosedCount] = useState(MAX_RECENTLY_CLOSED_TABS_TO_SHOW);
+  const searchFilteredClosedTabs = useMemo(() => {
+    return searchQuery.trim()
       ? closedTabs.filter(tab => {
           const lowerQuery = searchQuery.toLowerCase();
           return tab.title.toLowerCase().includes(lowerQuery) ||
             tab.url.toLowerCase().includes(lowerQuery);
         })
       : closedTabs;
-    return filtered.slice(0, MAX_RECENTLY_CLOSED_TABS_TO_SHOW);
   }, [closedTabs, searchQuery]);
+  const filteredClosedTabs = useMemo(
+    () => searchFilteredClosedTabs.slice(0, visibleClosedCount),
+    [searchFilteredClosedTabs, visibleClosedCount]
+  );
+  const closedTabsMoreCount = searchFilteredClosedTabs.length - filteredClosedTabs.length;
+
+  // Reset pagination when the search query changes
+  useEffect(() => {
+    setVisibleClosedCount(MAX_RECENTLY_CLOSED_TABS_TO_SHOW);
+  }, [searchQuery]);
+
+  const handleShowMoreClosedTabs = useCallback(() => {
+    setVisibleClosedCount(count => count + MAX_RECENTLY_CLOSED_TABS_TO_SHOW);
+  }, []);
 
   // Masonry layout: distribute cards across columns using "shortest column first" algorithm
   const columnCount = useColumnCount();
@@ -185,6 +201,7 @@ export default function App() {
     const recentlyClosedCard: CardItem = {
       type: 'recentlyClosed' as const,
       closedTabs: filteredClosedTabs,
+      moreCount: closedTabsMoreCount,
     };
 
     // Position Recently Closed card:
@@ -198,13 +215,14 @@ export default function App() {
     const items = [...windowCards];
     items.splice(insertIndex, 0, recentlyClosedCard);
     return items;
-  }, [filteredWindows, filteredClosedTabs, columnCount]);
+  }, [filteredWindows, filteredClosedTabs, closedTabsMoreCount, columnCount]);
 
   const getCardHeight = useCallback((item: CardItem): number => {
     if (item.type === 'window') {
       return CARD_HEADER_HEIGHT + item.window.tabs.length * TAB_ITEM_HEIGHT;
     } else {
-      return CARD_HEADER_HEIGHT + item.closedTabs.length * TAB_ITEM_HEIGHT;
+      return CARD_HEADER_HEIGHT + item.closedTabs.length * TAB_ITEM_HEIGHT +
+        (item.moreCount > 0 ? SHOW_MORE_FOOTER_HEIGHT : 0);
     }
   }, []);
 
@@ -704,11 +722,25 @@ export default function App() {
   // Single Item Handlers - Always switch to the restored tab
   // ---------------------------------------------------------------------------
 
+  // Unified restore for both entry types. Session entries restore via the sessions API
+  // (with full back/forward history); log entries can only reopen as a fresh tab, and
+  // are removed from the log once the tab is successfully created.
+  const restoreEntry = async (id: string): Promise<{ tabId?: number; windowId?: number }> => {
+    const entry = closedTabs.find(tab => tab.sessionId === id);
+    if (entry?.source === 'log') {
+      const tab = await chrome.tabs.create({ url: entry.url, active: false });
+      await removeLogEntries([id]);
+      return { tabId: tab.id, windowId: tab.windowId };
+    }
+    const session = await restoreClosedTab(id);
+    return { tabId: session.tab?.id, windowId: session.tab?.windowId };
+  };
+
   const handleRestoreClosedTab = async (sessionId: string) => {
     try {
-      const session = await restoreClosedTab(sessionId);
-      if (session.tab?.id && session.tab?.windowId) {
-        await switchToTab(session.tab.id, session.tab.windowId);
+      const { tabId, windowId } = await restoreEntry(sessionId);
+      if (tabId && windowId) {
+        await switchToTab(tabId, windowId);
       }
     } catch (err) {
       console.error('Failed to restore closed tab:', err);
@@ -717,9 +749,9 @@ export default function App() {
 
   const handleRestoreClosedTabInNewWindow = async (sessionId: string) => {
     try {
-      const session = await restoreClosedTab(sessionId);
-      if (session.tab?.id) {
-        const newWindow = await chrome.windows.create({ tabId: session.tab.id });
+      const { tabId } = await restoreEntry(sessionId);
+      if (tabId) {
+        const newWindow = await chrome.windows.create({ tabId });
         if (newWindow.id) {
           await chrome.windows.update(newWindow.id, { focused: true });
         }
@@ -732,10 +764,10 @@ export default function App() {
   const handleRestoreClosedTabInCurrentWindow = async (sessionId: string) => {
     try {
       const currentWindow = await chrome.windows.getCurrent();
-      const session = await restoreClosedTab(sessionId);
-      if (session.tab?.id && currentWindow.id) {
-        await chrome.tabs.move(session.tab.id, { windowId: currentWindow.id, index: -1 });
-        await switchToTab(session.tab.id, currentWindow.id);
+      const { tabId } = await restoreEntry(sessionId);
+      if (tabId && currentWindow.id) {
+        await chrome.tabs.move(tabId, { windowId: currentWindow.id, index: -1 });
+        await switchToTab(tabId, currentWindow.id);
       }
     } catch (err) {
       console.error('Failed to restore closed tab:', err);
@@ -744,10 +776,10 @@ export default function App() {
 
   const handleRestoreClosedTabToWindow = async (sessionId: string, windowId: number) => {
     try {
-      const session = await restoreClosedTab(sessionId);
-      if (session.tab?.id) {
-        await chrome.tabs.move(session.tab.id, { windowId, index: -1 });
-        await switchToTab(session.tab.id, windowId);
+      const { tabId } = await restoreEntry(sessionId);
+      if (tabId) {
+        await chrome.tabs.move(tabId, { windowId, index: -1 });
+        await switchToTab(tabId, windowId);
       }
     } catch (err) {
       console.error('Failed to restore closed tab to window:', err);
@@ -755,6 +787,11 @@ export default function App() {
   };
 
   const handleDeleteClosedTab = (sessionId: string) => {
+    if (isLogId(sessionId)) {
+      // Log entries support real deletion; storage.onChanged triggers the refresh
+      removeLogEntries([sessionId]);
+      return;
+    }
     // Chrome's sessions API doesn't support deleting individual items,
     // so we hide them locally by storing in localStorage
     setHiddenClosedTabs(prev => {
@@ -774,7 +811,7 @@ export default function App() {
 
     for (const sessionId of sessionIds) {
       try {
-        await restoreClosedTab(sessionId);
+        await restoreEntry(sessionId);
       } catch (err) {
         console.error('Failed to restore closed tab:', err);
       }
@@ -788,9 +825,9 @@ export default function App() {
 
     for (const sessionId of sessionIds) {
       try {
-        const session = await restoreClosedTab(sessionId);
-        if (session.tab?.id) {
-          restoredTabIds.push(session.tab.id);
+        const { tabId } = await restoreEntry(sessionId);
+        if (tabId) {
+          restoredTabIds.push(tabId);
         }
       } catch (err) {
         console.error('Failed to restore closed tab:', err);
@@ -821,9 +858,9 @@ export default function App() {
 
     for (const sessionId of sessionIds) {
       try {
-        const session = await restoreClosedTab(sessionId);
-        if (session.tab?.id) {
-          await chrome.tabs.move(session.tab.id, { windowId: currentWindow.id, index: -1 });
+        const { tabId } = await restoreEntry(sessionId);
+        if (tabId) {
+          await chrome.tabs.move(tabId, { windowId: currentWindow.id, index: -1 });
         }
       } catch (err) {
         console.error('Failed to restore closed tab:', err);
@@ -838,9 +875,9 @@ export default function App() {
 
     for (const sessionId of sessionIds) {
       try {
-        const session = await restoreClosedTab(sessionId);
-        if (session.tab?.id) {
-          await chrome.tabs.move(session.tab.id, { windowId, index: -1 });
+        const { tabId } = await restoreEntry(sessionId);
+        if (tabId) {
+          await chrome.tabs.move(tabId, { windowId, index: -1 });
         }
       } catch (err) {
         console.error('Failed to restore closed tab to window:', err);
@@ -860,8 +897,16 @@ export default function App() {
   };
 
   const handleClearAllClosedTabs = async () => {
-    // Chrome's sessions API doesn't support clearing history directly.
-    console.warn('Clear history is not directly supported by Chrome sessions API');
+    await clearClosedTabLog();
+    // Chrome's sessions API doesn't support clearing, so hide the session-backed entries
+    setHiddenClosedTabs(prev => {
+      const next = new Set(prev);
+      closedTabs
+        .filter(tab => tab.source === 'session')
+        .forEach(tab => next.add(tab.sessionId));
+      saveHiddenClosedTabs(next);
+      return next;
+    });
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -1031,6 +1076,8 @@ export default function App() {
                         onBulkRestoreToWindow={handleBulkRestoreClosedTabsToWindow}
                         onRestoreAll={handleRestoreAllClosedTabs}
                         onClearAll={handleClearAllClosedTabs}
+                        moreCount={closedTabsMoreCount}
+                        onShowMore={handleShowMoreClosedTabs}
                         theme={theme}
                       />
                     );

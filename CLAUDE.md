@@ -112,11 +112,15 @@ Key design decisions and their motivations:
 - Rationale: Consistent icon style, easier to maintain and swap icons
 
 ### Recently Closed Tabs
-- Limited to 30 tabs maximum (Chrome sessions API returns up to 25 sessions, but closed windows can contain many tabs)
-- Chrome sessions API doesn't support deletion, so "Hide" stores session IDs in localStorage
-- Hidden IDs are capped at 1000 entries to prevent unbounded growth
-- Auto-cleanup removes stale IDs when sessions expire or are restored
-- Rationale: Provides expected "delete" UX despite API limitation
+- Hybrid data source: Chrome sessions API (up to 25 sessions) merged with an own closed-tab log
+- The background service worker records every tab close to `chrome.storage.local` (cap 1000, FIFO); a tabId→metadata cache in `chrome.storage.session` provides url/title at close time (tabs.onRemoved doesn't include them)
+- Merge dedupes log entries against session entries (same URL, closed within 5s); session entries win because `chrome.sessions.restore()` recovers full back/forward history, while log entries reopen via `chrome.tabs.create({url})`
+- Sessions API is kept because it covers browser-quit/crash closes, which tabs.onRemoved misses
+- 30 tabs shown by default; "Show more" reveals +30 at a time; search filters the full merged list before the display cap
+- Log entries support real deletion; for session entries the sessions API doesn't support deletion, so "Hide" stores session IDs in localStorage (capped at 1000)
+- Noise is never logged: chrome://, chrome-extension://, about:*, incognito tabs
+- Merge/dedupe logic is pure functions in `src/services/closedTabLog.ts` (unit-tested); constants are duplicated in `public/background.js` because it ships un-bundled
+- Rationale: Extends history beyond the ~25-session API limit while keeping full-fidelity restore where available
 
 ### Card Ordering
 - Current (focused) window is always sorted first, appearing at top of first column
