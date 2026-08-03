@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2026-08-03
+
+### Added
+- Toolbar toggle (history icon) to show/hide the Recently Closed card;
+  preference is remembered. While hidden, closed tabs are excluded from
+  search results and keyboard navigation, but close-tracking continues
+  so the history is intact when re-enabled
+
 ## [1.6.0] - 2026-07-23
 
 ### Added
