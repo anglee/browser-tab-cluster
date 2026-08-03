@@ -12,6 +12,7 @@ import {
   ArrowsAltOutlined,
   QuestionCircleOutlined,
   GroupOutlined,
+  HistoryOutlined,
 } from '@ant-design/icons';
 import { Button, Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
@@ -39,6 +40,8 @@ interface ToolbarProps {
   allCollapsed: boolean;
   onCollapseAll: () => void;
   onExpandAll: () => void;
+  showRecentlyClosed: boolean;
+  onToggleRecentlyClosed: () => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
 }
@@ -60,6 +63,8 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
   allCollapsed,
   onCollapseAll,
   onExpandAll,
+  showRecentlyClosed,
+  onToggleRecentlyClosed,
   theme,
   onToggleTheme,
 }, ref) {
@@ -388,6 +393,25 @@ export const Toolbar = forwardRef<ToolbarHandle, ToolbarProps>(function Toolbar(
             ) : (
               <VerticalAlignMiddleOutlined className="text-lg" />
             )}
+          </button>
+        </Tooltip>
+
+        {/* Show/Hide Recently Closed */}
+        <Tooltip title={showRecentlyClosed ? 'Hide Recently Closed' : 'Show Recently Closed'} placement="bottomRight" mouseEnterDelay={0.3}>
+          <button
+            onClick={onToggleRecentlyClosed}
+            tabIndex={-1}
+            className={`p-2 rounded transition-colors ${
+              showRecentlyClosed
+                ? isDark
+                  ? 'text-mist-300 hover:bg-mist-700 hover:text-white'
+                  : 'text-mist-600 hover:bg-mist-100 hover:text-mist-950'
+                : isDark
+                  ? 'text-mist-600 hover:bg-mist-700 hover:text-mist-400'
+                  : 'text-mist-300 hover:bg-mist-100 hover:text-mist-500'
+            }`}
+          >
+            <HistoryOutlined className="text-lg" />
           </button>
         </Tooltip>
 

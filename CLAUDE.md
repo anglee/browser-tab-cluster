@@ -119,6 +119,7 @@ Key design decisions and their motivations:
 - 30 tabs shown by default; "Show more" reveals +30 at a time; search filters the full merged list before the display cap
 - Log entries support real deletion; for session entries the sessions API doesn't support deletion, so "Hide" stores session IDs in localStorage (capped at 1000)
 - Noise is never logged: chrome://, chrome-extension://, about:*, incognito tabs
+- The card can be hidden via a toolbar toggle (History icon), persisted to localStorage; hiding empties the closed-tabs list upstream so the card, masonry, search results, and keyboard navigation all skip it — but background logging continues (hiding is a display preference, not a privacy setting)
 - Merge/dedupe logic is pure functions in `src/services/closedTabLog.ts` (unit-tested); constants are duplicated in `public/background.js` because it ships un-bundled
 - Rationale: Extends history beyond the ~25-session API limit while keeping full-fidelity restore where available
 
