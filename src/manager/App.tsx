@@ -53,6 +53,13 @@ const CARD_HEADER_HEIGHT = 48;
 const TAB_ITEM_HEIGHT = 32;
 const SHOW_MORE_FOOTER_HEIGHT = 36;
 
+// localStorage key for the Recently Closed card visibility preference
+const SHOW_RECENTLY_CLOSED_KEY = 'tabcluster-show-recently-closed';
+
+function getShowRecentlyClosed(): boolean {
+  return localStorage.getItem(SHOW_RECENTLY_CLOSED_KEY) !== 'false';
+}
+
 // localStorage key for hidden closed tabs
 const HIDDEN_CLOSED_TABS_KEY = 'tabcluster-hidden-closed-tabs';
 // Cap to prevent unbounded growth
@@ -98,6 +105,14 @@ export default function App() {
   const { windows, tabGroups, loading, error } = useWindows();
   const [hiddenClosedTabs, setHiddenClosedTabs] = useState<Set<string>>(getHiddenClosedTabs);
   const { closedTabs, loading: closedLoading } = useRecentlyClosed(hiddenClosedTabs);
+  const [showRecentlyClosed, setShowRecentlyClosed] = useState<boolean>(getShowRecentlyClosed);
+
+  const handleToggleRecentlyClosed = useCallback(() => {
+    setShowRecentlyClosed(prev => {
+      localStorage.setItem(SHOW_RECENTLY_CLOSED_KEY, String(!prev));
+      return !prev;
+    });
+  }, []);
   const { theme, toggleTheme } = useTheme();
   const getWindowNumber = useWindowNumbers(windows);
   const [activeTab, setActiveTab] = useState<TabInfo | null>(null);
@@ -161,6 +176,9 @@ export default function App() {
   const MAX_RECENTLY_CLOSED_TABS_TO_SHOW = 30;
   const [visibleClosedCount, setVisibleClosedCount] = useState(MAX_RECENTLY_CLOSED_TABS_TO_SHOW);
   const searchFilteredClosedTabs = useMemo(() => {
+    // Hiding the card removes closed tabs everywhere downstream: the card itself,
+    // masonry, search results, and keyboard navigation (all key off this list)
+    if (!showRecentlyClosed) return [];
     return searchQuery.trim()
       ? closedTabs.filter(tab => {
           const lowerQuery = searchQuery.toLowerCase();
@@ -168,7 +186,7 @@ export default function App() {
             tab.url.toLowerCase().includes(lowerQuery);
         })
       : closedTabs;
-  }, [closedTabs, searchQuery]);
+  }, [closedTabs, searchQuery, showRecentlyClosed]);
   const filteredClosedTabs = useMemo(
     () => searchFilteredClosedTabs.slice(0, visibleClosedCount),
     [searchFilteredClosedTabs, visibleClosedCount]
@@ -1004,6 +1022,8 @@ export default function App() {
         allCollapsed={allCardsCollapsed}
         onCollapseAll={handleCollapseAll}
         onExpandAll={handleExpandAll}
+        showRecentlyClosed={showRecentlyClosed}
+        onToggleRecentlyClosed={handleToggleRecentlyClosed}
         theme={theme}
         onToggleTheme={toggleTheme}
       />
