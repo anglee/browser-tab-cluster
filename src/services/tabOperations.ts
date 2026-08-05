@@ -1,5 +1,5 @@
 import { TabInfo, WindowInfo, SortOption, DuplicateGroup } from '../types';
-import { moveTabs, closeTabs } from './chromeApi';
+import { moveTabs, closeTabs, moveGroupToWindow } from './chromeApi';
 
 export async function mergeWindows(
   sourceWindowIds: number[],
@@ -7,10 +7,19 @@ export async function mergeWindows(
   windows: WindowInfo[]
 ): Promise<void> {
   const sourceWindows = windows.filter(w => sourceWindowIds.includes(w.id));
-  const tabIds = sourceWindows.flatMap(w => w.tabs.map(t => t.id));
 
-  if (tabIds.length > 0) {
-    await moveTabs(tabIds, targetWindowId, -1);
+  for (const window of sourceWindows) {
+    // Cross-window tabs.move strips group membership, so groups must travel
+    // via moveGroupToWindow (tabGroups.move keeps membership/title/color)
+    const ungroupedTabIds = window.tabs.filter(t => t.groupId === -1).map(t => t.id);
+    const groupIds = [...new Set(window.tabs.map(t => t.groupId).filter(id => id !== -1))];
+
+    if (ungroupedTabIds.length > 0) {
+      await moveTabs(ungroupedTabIds, targetWindowId, -1);
+    }
+    for (const groupId of groupIds) {
+      await moveGroupToWindow(groupId, targetWindowId);
+    }
   }
 }
 

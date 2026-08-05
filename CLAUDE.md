@@ -90,6 +90,7 @@ Key design decisions and their motivations:
 - Select 2+ windows via checkboxes, then click "Merge Selected"
 - If current window (containing Tab Cluster) is selected, it becomes the target
 - After merge, Tab Cluster stays focused (doesn't switch to merged window)
+- Tab groups survive merging: ungrouped tabs move via tabs.move, groups via moveGroupToWindow (cross-window tabs.move would strip membership)
 - Rationale: Keeps Tab Cluster visible and accessible during workflow
 
 ### Masonry Layout
