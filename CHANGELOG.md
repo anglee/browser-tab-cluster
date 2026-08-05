@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.2] - 2026-08-05
+
+### Fixed
+- Sorting no longer breaks tab groups: each group keeps its position and
+  sorts within itself; ungrouped tabs sort among themselves around the
+  groups; pinned tabs stay in place
+- Dedupe no longer removes tabs across group boundaries: duplicates are
+  only matched within the same group or among ungrouped tabs
+- Moving a tab group to another window (or a new window) now keeps the
+  group intact, including its name and color
+
 ## [1.6.1] - 2026-08-03
 
 ### Added
