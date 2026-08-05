@@ -129,6 +129,49 @@ export function subscribeToChanges(callback: () => void): () => void {
   };
 }
 
+// Tab group API functions
+
+/**
+ * Move an entire tab group to another window, keeping the group intact.
+ * Prefers chrome.tabGroups.move (preserves the group and its identity); falls
+ * back to move-then-regroup (restoring title/color under a new group id) on
+ * Chrome versions that reject cross-window group moves.
+ */
+export async function moveGroupToWindow(groupId: number, targetWindowId: number): Promise<void> {
+  try {
+    await chrome.tabGroups.move(groupId, { windowId: targetWindowId, index: -1 });
+  } catch {
+    const group = await chrome.tabGroups.get(groupId);
+    const tabs = await chrome.tabs.query({ groupId });
+    const tabIds = tabs
+      .sort((a, b) => a.index - b.index)
+      .map(t => t.id)
+      .filter((id): id is number => id !== undefined);
+    if (tabIds.length === 0) return;
+    await chrome.tabs.move(tabIds, { windowId: targetWindowId, index: -1 });
+    const newGroupId = await chrome.tabs.group({
+      tabIds,
+      createProperties: { windowId: targetWindowId },
+    });
+    await chrome.tabGroups.update(newGroupId, { title: group.title, color: group.color });
+  }
+}
+
+/**
+ * Move an entire tab group into a brand-new window, keeping the group intact.
+ * The window is created empty (creating it around a group tab would eject that
+ * tab from the group); its placeholder new-tab is closed after the move.
+ */
+export async function moveGroupToNewWindow(groupId: number): Promise<void> {
+  const newWindow = await chrome.windows.create({});
+  if (!newWindow.id) return;
+  const placeholderTabId = newWindow.tabs?.[0]?.id;
+  await moveGroupToWindow(groupId, newWindow.id);
+  if (placeholderTabId !== undefined) {
+    await chrome.tabs.remove(placeholderTabId);
+  }
+}
+
 // Recently closed tabs API functions
 
 // Hidden-tab filtering happens in mergeClosedTabs (closedTabLog.ts), which needs the
