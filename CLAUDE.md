@@ -75,6 +75,12 @@ Key design decisions and their motivations:
 - Focus returns to search input when window gains focus or shortcut is pressed
 - Existing search text is auto-selected so user can type to replace it
 
+### Group-Aware Sort & Dedupe
+- Tab groups are sealed containers: sort keeps each group block in place and sorts tabs within it; ungrouped tabs sort among themselves in the remaining slots; pinned tabs stay put
+- Dedupe only matches duplicates within the same group or among ungrouped tabs (across windows); a URL both inside and outside a group is never deduped
+- Sort executes in two phases: within-group moves first (source and target always inside the block), then ungrouped tabs via extract-then-place — park at window end, then insert into final slots ascending. Chrome ADOPTS a tab moved strictly inside a group's range, and interleaved index moves can transiently shift a block onto an ungrouped slot, so naive slot-by-slot moves corrupt groups. Pure ordering logic is `computeSortedOrder` in `src/services/tabOperations.ts` (unit-tested)
+- Rationale: sorting/deduping must never dismantle the user's tab groups
+
 ### No Confirmation Dialogs
 - Dedupe action executes immediately without confirmation modal
 - Rationale: Faster workflow; user can undo by reopening tabs if needed
