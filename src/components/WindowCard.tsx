@@ -21,6 +21,7 @@ import type { InputRef } from 'antd';
 import type { MenuProps } from 'antd';
 import { WindowInfo, SortOption, TabGroupInfo } from '../types';
 import { TabItem, TAB_GROUP_COLORS } from './TabItem';
+import { moveGroupToWindow, moveGroupToNewWindow } from '../services/chromeApi';
 
 const GROUP_COLOR_OPTIONS: chrome.tabGroups.ColorEnum[] = [
   'grey', 'blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange',
@@ -222,11 +223,7 @@ export function WindowCard({
                   { key: 'move-new-window', icon: <PlusOutlined />, label: 'Move to New Window',
                     onClick: ({ domEvent }) => {
                       domEvent.stopPropagation();
-                      chrome.windows.create({ tabId: groupTabIds[0] }, (newWindow) => {
-                        if (newWindow && groupTabIds.length > 1) {
-                          chrome.tabs.move(groupTabIds.slice(1), { windowId: newWindow.id!, index: -1 });
-                        }
-                      });
+                      moveGroupToNewWindow(selectedGroupMatch.id);
                       setSelectedTabs(new Set());
                     } },
                 ];
@@ -241,7 +238,7 @@ export function WindowCard({
                       </span>,
                       onClick: ({ domEvent }: { domEvent: React.MouseEvent }) => {
                         domEvent.stopPropagation();
-                        chrome.tabs.move(groupTabIds, { windowId: w.id, index: -1 });
+                        moveGroupToWindow(selectedGroupMatch.id, w.id);
                         setSelectedTabs(new Set());
                       },
                     })) as MenuProps['items'],
